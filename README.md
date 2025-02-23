@@ -2,7 +2,7 @@
 
 ##### 技术栈：
 
-![Static Badge](https://img.shields.io/badge/NextJS-blue?style=social&logo=nextdotjs&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/FastAPI-blue?style=social&logo=fastapi&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/TypeScript-blue?style=social&logo=typescript&logoColor=%233178C6)  ![Static Badge](https://img.shields.io/badge/SQLite-blue?style=social&logo=sqlite&logoColor=%23003B57)  ![Static Badge](https://img.shields.io/badge/Steam-blue?style=social&logo=steam&logoColor=%23000000)
+![Static Badge](https://img.shields.io/badge/NextJS-blue?style=social&logo=nextdotjs&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/FastAPI-blue?style=social&logo=fastapi&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/TypeScript-blue?style=social&logo=typescript&logoColor=%233178C6)  ![Static Badge](https://img.shields.io/badge/SQLite-blue?style=social&logo=sqlite&logoColor=%23003B57)  ![Static Badge](https://img.shields.io/badge/Steam-blue?style=social&logo=steam&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/TailwindCSS-blue?style=social&logo=tailwindcss&logoColor=%2306B6D4)
 
 ## 1. 克隆项目到本地
 
@@ -96,3 +96,5 @@ cd SZU-Competition-Forum
 确保前后端的接口能够正确连接。如果你在前端做了某些请求到后端，确保后端服务已经启动并且接口正确无误。
 
 ---
+
+
