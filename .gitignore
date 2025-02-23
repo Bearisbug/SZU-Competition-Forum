@@ -1,0 +1,76 @@
+# ---- macOS 系统文件 ----
+.DS_Store
+.AppleDouble
+.LSOverride
+**/.git
+
+# ---- 编辑器和 IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+.next/
+# ---- Node.js (前端) ----
+node_modules/
+npm-debug.log*
+yarn-error.log
+yarn-debug.log
+pnpm-debug.log
+dist/
+build/
+
+# ---- React / Vue ----
+*.env.local
+*.env.development.local
+*.env.production.local
+*.env.test.local
+coverage/
+*.log
+*.cache
+*.next
+.next/
+
+# ---- Python (后端) ----
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+env/
+.venv/
+.env
+*.db
+instance/
+migrations/
+
+# ---- Django ----
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+*.log
+local_settings.py
+
+# ---- Logs ----
+*.log
+logs/
+*.out
+*.err
+
+# ---- 测试 ----
+.tox/
+.nox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+*.pycoverage
+*.pytest_cache
+htmlcov/
+
+# ---- Docker ----
+Dockerfile
+docker-compose.yml
+*.dockerignore
+.dockerignore
