@@ -1,0 +1,6 @@
+fastapi==0.115.8
+pydantic==2.10.6
+PyJWT==2.10.1
+SQLAlchemy==2.0.34
+starlette==0.46.0
+uvicorn==0.34.0
