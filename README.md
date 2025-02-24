@@ -67,6 +67,8 @@ cd SZU-Competition-Forum
    这将自动从 `requirements.txt` 文件中读取依赖并安装相应的包。
 3. **配置 FastAPI 启动脚本**：
    
+   `在配置 FastAPI 启动脚本之前，请单独运行 app.db.models 文件，他将会生成一份 .db 文件，次文件即为 SQLite 数据库，将这份文件放在启动与你的启动脚本同级的目录下面。并确保在启动之前，你已经安装了 Redis 数据库。`
+
    FastAPI 应用通常会有一个启动脚本（比如 `main.py`），你需要确保在本地运行时能够启动 FastAPI。
    
    - 确保安装了 `uvicorn`，这是用于启动 FastAPI 应用的 ASGI 服务器：
