@@ -2,7 +2,7 @@
 
 ##### 技术栈：
 
-![Static Badge](https://img.shields.io/badge/NextJS-blue?style=social&logo=nextdotjs&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/FastAPI-blue?style=social&logo=fastapi&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/TypeScript-blue?style=social&logo=typescript&logoColor=%233178C6)  ![Static Badge](https://img.shields.io/badge/SQLite-blue?style=social&logo=sqlite&logoColor=%23003B57)  ![Static Badge](https://img.shields.io/badge/Steam-blue?style=social&logo=steam&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/TailwindCSS-blue?style=social&logo=tailwindcss&logoColor=%2306B6D4)
+![Static Badge](https://img.shields.io/badge/NextJS-blue?style=social&logo=nextdotjs&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/FastAPI-blue?style=social&logo=fastapi&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/TypeScript-blue?style=social&logo=typescript&logoColor=%233178C6)  ![Static Badge](https://img.shields.io/badge/SQLite-blue?style=social&logo=sqlite&logoColor=%23003B57)  ![Static Badge](https://img.shields.io/badge/Steam-blue?style=social&logo=steam&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/TailwindCSS-blue?style=social&logo=tailwindcss&logoColor=%2306B6D4)  ![Static Badge](https://img.shields.io/badge/Redis-blue?style=social&logo=redis&logoColor=%23FF4438)
 
 ## 1. 克隆项目到本地
 
@@ -67,8 +67,8 @@ cd SZU-Competition-Forum
    这将自动从 `requirements.txt` 文件中读取依赖并安装相应的包。
 3. **配置 FastAPI 启动脚本**：
    
-   `在配置 FastAPI 启动脚本之前，请单独运行 app.db.models 文件，他将会生成一份 .db 文件，次文件即为 SQLite 数据库，将这份文件放在启动与你的启动脚本同级的目录下面。并确保在启动之前，你已经安装了 Redis 数据库。`
-
+   `在配置 FastAPI 启动脚本之前，请单独运行 app.db.models 文件，他将会生成一份 .db 文件，此文件即为 SQLite 数据库，将这份文件放在启动与你的启动脚本同级的目录下面，并确保在启动之前，你已经安装了 Redis 数据库。`
+   
    FastAPI 应用通常会有一个启动脚本（比如 `main.py`），你需要确保在本地运行时能够启动 FastAPI。
    
    - 确保安装了 `uvicorn`，这是用于启动 FastAPI 应用的 ASGI 服务器：
@@ -98,5 +98,3 @@ cd SZU-Competition-Forum
 确保前后端的接口能够正确连接。如果你在前端做了某些请求到后端，确保后端服务已经启动并且接口正确无误。
 
 ---
-
-
