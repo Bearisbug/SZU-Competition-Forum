@@ -1,4 +1,4 @@
-# 项目说明
+# <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Shenzhen_University_Logo.svg" width=20> 项目说明
 
 ##### 技术栈：
 
