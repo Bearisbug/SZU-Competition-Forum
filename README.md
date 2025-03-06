@@ -9,7 +9,7 @@
 首先，克隆整个项目到本地：
 
 ```bash
-git clone https://github.com/lIIIIlIIIIl/SZU-Competition-Forum.git
+git clone https://github.com/Bearisbug/SZU-Competition-Forum.git
 cd SZU-Competition-Forum
 ```
 
