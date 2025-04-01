@@ -10,7 +10,7 @@ import {
   Select,
   SelectItem,
   Button,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 type CreateTeamModalProps = {
   isOpen: boolean;

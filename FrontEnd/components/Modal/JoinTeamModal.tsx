@@ -9,7 +9,7 @@ import {
   ModalFooter,
   Button,
   Textarea,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 interface JoinTeamModalProps {
   isOpen: boolean;

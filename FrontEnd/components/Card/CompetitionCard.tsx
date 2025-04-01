@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardBody, CardFooter, Button, Chip, Avatar, Link, Image } from "@nextui-org/react"
+import { Card, CardBody, CardFooter, Button, Chip, Avatar, Link, Image } from "@heroui/react"
 import { motion } from 'framer-motion';
 
 export type Competition = {

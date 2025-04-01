@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Link, Spinner } from "@nextui-org/react";
+import { Link, Spinner } from "@heroui/react";
 import toast from "react-hot-toast";
 import { Calendar, Eye, GraduationCap, Briefcase, User, CircleUserRound } from 'lucide-react';
 

@@ -11,7 +11,7 @@ import {
   Tab,
   Tabs,
   Spinner,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {
   Edit3,
   Check,

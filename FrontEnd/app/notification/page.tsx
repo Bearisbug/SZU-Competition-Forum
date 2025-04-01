@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import SystemInfoDisplay from "@/components/SystemInfoDisplay";
 import toast from "react-hot-toast";
-import { Spinner } from "@nextui-org/react";
+import { Spinner } from "@heroui/react";
 type SystemInfo = {
     id: string;
     title: string;

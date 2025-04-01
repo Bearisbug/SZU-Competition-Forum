@@ -10,7 +10,7 @@ import {
   Avatar,
   Tooltip,
   Link,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { Text, User, Users, Target, FileText, MoreVertical, CircleX, UserRoundPlus, DoorOpen, SquarePen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { JoinTeamModal } from "../Modal/JoinTeamModal";

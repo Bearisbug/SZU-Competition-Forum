@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Card, CardBody, Chip, Link, Image, Button } from "@nextui-org/react";
+import { Card, CardBody, Chip, Link, Image, Button } from "@heroui/react";
 import { Eye, Trash2, Edit } from 'lucide-react';
 import toast from "react-hot-toast";
 

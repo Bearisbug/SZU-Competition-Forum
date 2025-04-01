@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardHeader, CardBody, Accordion, AccordionItem, Button, Tooltip } from "@nextui-org/react";
+import { Card, CardHeader, CardBody, Accordion, AccordionItem, Button, Tooltip } from "@heroui/react";
 import toast from "react-hot-toast";
 import { Check, X, Trash, Trash2 } from 'lucide-react';
 

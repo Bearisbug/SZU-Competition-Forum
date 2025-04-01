@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input, Button, Textarea, Select, SelectItem } from "@nextui-org/react";
+import { Input, Button, Textarea, Select, SelectItem } from "@heroui/react";
 import MyEditor from "@/components/IOEditor";
 import toast from "react-hot-toast";
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { TeamCard } from "@/components/Card/TeamCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
-import { Pagination, Spinner, Button } from "@nextui-org/react";
+import { Pagination, Spinner, Button } from "@heroui/react";
 import { CreateTeamModal } from "@/components/Modal/CreateTeamModal";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";

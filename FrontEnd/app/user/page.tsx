@@ -10,7 +10,7 @@ import {
   Card,
   CardBody,
   Spinner,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";

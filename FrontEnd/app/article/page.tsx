@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ArticleCard } from "@/components/Card/ArticleCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
-import { Pagination, Spinner, Button } from "@nextui-org/react";
+import { Pagination, Spinner, Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { X } from 'lucide-react';

@@ -1,8 +1,8 @@
 'use client'
 
 import { ReactNode, useState } from 'react'
-import { Button, Input, Checkbox, Chip } from "@nextui-org/react"
-import { Accordion, AccordionItem } from "@nextui-org/react"
+import { Button, Input, Checkbox, Chip } from "@heroui/react"
+import { Accordion, AccordionItem } from "@heroui/react"
 
 type FilterCategory = 'goals' | 'requirements' | 'roles'
 export type FilterOption = { category: FilterCategory; label: string; value: string }

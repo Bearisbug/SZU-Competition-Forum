@@ -20,7 +20,7 @@ import {
   CardBody,
   Spinner,
   Tooltip,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import toast from "react-hot-toast";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";

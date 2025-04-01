@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Pagination, Button, Link } from "@nextui-org/react"
+import { Pagination, Button, Link } from "@heroui/react"
 import toast from "react-hot-toast"
 import { FilterSidebar, FilterOption } from "@/components/FilterSidebar"
 import CompetitionCard, { Competition } from "@/components/Card/CompetitionCard"

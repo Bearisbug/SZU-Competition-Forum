@@ -12,7 +12,7 @@ import {
   Textarea,
   Avatar,
   Tooltip,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import toast from "react-hot-toast";
 import { Team, TeamMember } from "../Card/TeamCard";
 import { TrashIcon } from "lucide-react";

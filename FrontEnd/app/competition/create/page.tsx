@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Input, Button, Select, SelectItem } from "@nextui-org/react"
+import { Input, Button, Select, SelectItem } from "@heroui/react"
 import MyEditor from "@/components/IOEditor"  // 你自行实现的富文本编辑组件
 import toast from "react-hot-toast"
 
