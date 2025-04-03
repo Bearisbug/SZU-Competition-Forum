@@ -92,29 +92,60 @@ export default function ScrollableNavbar() {
         </svg>
         <p className="font-bold text-inherit ml-4 ">竞赛论坛</p>
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+      <NavbarContent className="hidden sm:flex gap-10" justify="center">
         <NavbarItem>
-          <Link color="foreground" href="/">
+          <Link 
+            color="foreground" href="/"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-0.5 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
             <Home className="w-6 h-6" />
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="/competition">
+          <Link color="foreground" href="/competition"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-0.5 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
             <Search className="w-6 h-6" />
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="/article">
+          <Link color="foreground" href="/article"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-0.5 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
             <Newspaper className="w-6 h-6" />
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="/notification">
+          <Link color="foreground" href="/notification"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-0.5 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
             <Bell className="w-6 h-6" />
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="/teams">
+          <Link color="foreground" href="/teams"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-0.5 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
             <UsersRound className="w-6 h-6" />
           </Link>
         </NavbarItem>
