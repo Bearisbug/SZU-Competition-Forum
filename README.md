@@ -49,7 +49,7 @@ cd SZU-Competition-Forum
 
 ## 3. 启动后端项目
 
-后端使用 **FastAPI** 和 **Python**，在运行之前，请确保你已经安装了 [Python](https://www.python.org/)（推荐使用虚拟环境）。
+后端使用 **FastAPI** ，在运行之前，请确保你已经安装了 [Python](https://www.python.org/)（推荐使用虚拟环境）。
 
 1. **进入后端项目目录**：
    
