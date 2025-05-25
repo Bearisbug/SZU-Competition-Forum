@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input, Button, Textarea, Select, SelectItem } from "@heroui/react";
 import MyEditor from "@/components/IOEditor";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/CONFIG";
 
 export default function CreateArticlePage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function CreateArticlePage() {
     formData.append("image", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/upload_image", {
+      const response = await fetch(`${API_BASE_URL}/upload_image`, {
         method: "POST",
         body: formData,
       });
@@ -59,7 +60,7 @@ export default function CreateArticlePage() {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/articles/create", {
+      const response = await fetch(`${API_BASE_URL}/api/articles/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

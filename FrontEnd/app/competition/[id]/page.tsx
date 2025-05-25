@@ -26,6 +26,7 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { TeamSelectionModal } from "@/components/Modal/TeamSelectionModal";
 import { Trash2, Plus, ArrowLeft, Trophy, Calendar, Users, Info, Megaphone, PlusCircle } from 'lucide-react';
+import { API_BASE_URL } from "@/CONFIG";
 
 export type Competition = {
   id: number;
@@ -67,7 +68,7 @@ export default function CompetitionDetailPage() {
     const fetchCompetition = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/competitions/detail/${id}`,
+          `${API_BASE_URL}/api/competitions/detail/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -98,7 +99,7 @@ export default function CompetitionDetailPage() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/competitions/detail/${id}/announcements`,
+        `${API_BASE_URL}/api/competitions/detail/${id}/announcements`,
         {
           method: "POST",
           headers: {
@@ -132,7 +133,7 @@ export default function CompetitionDetailPage() {
     setShowTeamModal(false);
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/competitions/${id}/register/${teamId}`,
+        `${API_BASE_URL}/api/competitions/${id}/register/${teamId}`,
         {
           method: "POST",
           headers: {
@@ -153,7 +154,7 @@ export default function CompetitionDetailPage() {
   const handleDeleteAnnouncement = async (announcementId: number) => {
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/competitions/detail/${id}/announcements/${announcementId}`,
+        `${API_BASE_URL}/api/competitions/detail/${id}/announcements/${announcementId}`,
         {
           method: "DELETE",
           headers: {

@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/components/AuthStore";
+import { API_BASE_URL } from "@/CONFIG";
 
 interface User {
   id: number;
@@ -23,7 +24,7 @@ interface User {
 }
 
 const createUser = async (userId: string, password: string): Promise<User> => {
-    const response = await fetch("http://127.0.0.1:8000/api/user/create", {
+    const response = await fetch(`${API_BASE_URL}/api/user/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +41,7 @@ const createUser = async (userId: string, password: string): Promise<User> => {
   };
 
   const loginUser = async (userId: string, password: string): Promise<{ access_token: string }> => {
-    const response = await fetch("http://127.0.0.1:8000/api/user/login", {
+    const response = await fetch(`${API_BASE_URL}/api/user/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

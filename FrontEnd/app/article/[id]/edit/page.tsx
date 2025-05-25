@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Input, Button, Textarea, Select, SelectItem } from "@heroui/react";
 import MyEditor from "@/components/IOEditor";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/CONFIG";
 
 export default function EditArticlePage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function EditArticlePage() {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/articles/detail/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/articles/detail/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
@@ -60,7 +61,7 @@ export default function EditArticlePage() {
     formData.append("image", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/upload_image", {
+      const response = await fetch(`${API_BASE_URL}/upload_image`, {
         method: "POST",
         body: formData,
       });
@@ -91,7 +92,7 @@ export default function EditArticlePage() {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/articles/update/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/articles/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

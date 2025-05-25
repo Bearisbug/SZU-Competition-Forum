@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Card, CardBody, Chip, Link, Image, Button } from "@heroui/react";
 import { Eye, Trash2, Edit } from 'lucide-react';
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/CONFIG";
 
 interface ArticleCardProps {
   id: number;
@@ -26,7 +27,7 @@ export function ArticleCard({
 }: ArticleCardProps) {
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/articles/delete/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/articles/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,

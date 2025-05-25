@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Link, Spinner } from "@heroui/react";
 import toast from "react-hot-toast";
 import { Calendar, Eye, GraduationCap, Briefcase, User, CircleUserRound } from 'lucide-react';
+import { API_BASE_URL } from "@/CONFIG";
 
 type Author = {
   id: number;
@@ -36,7 +37,7 @@ export default function ArticleDetailPage() {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/articles/detail/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/articles/detail/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },

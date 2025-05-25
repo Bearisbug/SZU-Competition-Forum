@@ -4,6 +4,7 @@ import "@wangeditor/editor/dist/css/style.css";
 import dynamic from "next/dynamic";
 import React, { useState, useEffect, useRef } from "react";
 import { IDomEditor, IEditorConfig, IToolbarConfig } from "@wangeditor/editor";
+import { API_BASE_URL } from "@/CONFIG";
 
 const Editor = dynamic(
   () => import("@wangeditor/editor-for-react").then(mod => mod.Editor),
@@ -29,11 +30,11 @@ function MyEditor({ initialValue, onChange }: IOEditorProps) {
     placeholder: '请输入内容...',
     MENU_CONF: {
       uploadImage: {
-        server: 'http://127.0.0.1:8000/upload_image',
+        server: '${API_BASE_URL}/upload_image',
         fieldName: 'image',
       },
       uploadVideo: {
-        server: 'http://localhost:8000/upload_video',
+        server: '${API_BASE_URL}/upload_video',
         fieldName: 'video',
       },
     },

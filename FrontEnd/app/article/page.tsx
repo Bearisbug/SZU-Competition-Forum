@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { X } from 'lucide-react';
 import { motion } from "framer-motion";
+import { API_BASE_URL } from '@/CONFIG';
 
 type Article = {
   id: number;
@@ -69,7 +70,7 @@ export default function ArticleListPage() {
   const fetchArticles = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/articles/all", {
+      const response = await fetch(`${API_BASE_URL}/api/articles/all`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`, 
         },
