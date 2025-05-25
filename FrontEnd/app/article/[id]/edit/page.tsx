@@ -23,7 +23,7 @@ export default function EditArticlePage() {
       try {
         const response = await fetch(`http://127.0.0.1:8000/api/articles/detail/${id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`, 
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         });
 
@@ -141,9 +141,9 @@ export default function EditArticlePage() {
           onChange={(e) => setCategory(e.target.value)}
           required
         >
-          <SelectItem value="technology" key={"1"}>科技</SelectItem>
-          <SelectItem value="science" key={"2"}>科学</SelectItem>
-          <SelectItem value="lifestyle" key={"3"}>生活方式</SelectItem>
+          <SelectItem key="technology">科技</SelectItem>
+          <SelectItem key="science">科学</SelectItem>
+          <SelectItem key="lifestyle">生活方式</SelectItem>
         </Select>
         <div>
           <label className="block mb-2">封面图片</label>

@@ -184,10 +184,10 @@ function EditCompetitionPage() {
           onChange={(e) => setCompetitionType(e.target.value)}
           required
         >
-          <SelectItem value="hackathon" key={"hackathon"}>黑客马拉松</SelectItem>
-          <SelectItem value="datascience" key={"datascience"}>数据科学</SelectItem>
-          <SelectItem value="ai" key={"ai"}>人工智能</SelectItem>
-          <SelectItem value="programming" key={"programming"}>编程竞赛</SelectItem>
+          <SelectItem key="hackathon">黑客马拉松</SelectItem>
+          <SelectItem key="datascience">数据科学</SelectItem>
+          <SelectItem key="ai">人工智能</SelectItem>
+          <SelectItem key="programming">编程竞赛</SelectItem>
         </Select>
 
         <Input

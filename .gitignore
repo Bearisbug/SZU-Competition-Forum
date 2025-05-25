@@ -70,7 +70,5 @@ coverage.xml
 htmlcov/
 
 # ---- Docker ----
-Dockerfile
-docker-compose.yml
 *.dockerignore
 .dockerignore
