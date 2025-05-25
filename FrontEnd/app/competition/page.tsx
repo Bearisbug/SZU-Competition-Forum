@@ -7,6 +7,7 @@ import { FilterSidebar, FilterOption } from "@/components/FilterSidebar"
 import CompetitionCard, { Competition } from "@/components/Card/CompetitionCard"
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
+import { API_BASE_URL } from "@/CONFIG";
 
 type FilterCategory = "competition_type" | "organizer"
 
@@ -42,7 +43,7 @@ export default function CompetitionListPage() {
   useEffect(() => {
     const fetchCompetitions = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/competitions", {
+        const res = await fetch(`${API_BASE_URL}/api/competitions`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,

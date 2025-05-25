@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { Input, Button, Select, SelectItem } from "@heroui/react"
 import MyEditor from "@/components/IOEditor"
 import toast from "react-hot-toast"
+import { API_BASE_URL } from "@/CONFIG";
 
 export type Competition = {
   id: number
@@ -40,7 +41,7 @@ function EditCompetitionPage() {
   useEffect(() => {
     const fetchCompetition = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/competitions/detail/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/competitions/detail/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
@@ -85,7 +86,7 @@ function EditCompetitionPage() {
     formData.append("image", file)
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/upload_image", {
+      const response = await fetch(`${API_BASE_URL}/upload_image`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -128,7 +129,7 @@ function EditCompetitionPage() {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/competitions/update/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/competitions/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -184,10 +185,10 @@ function EditCompetitionPage() {
           onChange={(e) => setCompetitionType(e.target.value)}
           required
         >
-          <SelectItem value="hackathon" key={"hackathon"}>黑客马拉松</SelectItem>
-          <SelectItem value="datascience" key={"datascience"}>数据科学</SelectItem>
-          <SelectItem value="ai" key={"ai"}>人工智能</SelectItem>
-          <SelectItem value="programming" key={"programming"}>编程竞赛</SelectItem>
+          <SelectItem key="hackathon">黑客马拉松</SelectItem>
+          <SelectItem key="datascience">数据科学</SelectItem>
+          <SelectItem key="ai">人工智能</SelectItem>
+          <SelectItem key="programming">编程竞赛</SelectItem>
         </Select>
 
         <Input

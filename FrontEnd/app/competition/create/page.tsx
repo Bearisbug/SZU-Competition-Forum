@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Input, Button, Select, SelectItem } from "@heroui/react"
 import MyEditor from "@/components/IOEditor"  // 你自行实现的富文本编辑组件
 import toast from "react-hot-toast"
+import { API_BASE_URL } from "@/CONFIG";
 
 /**
  * 比赛的数据结构，跟后端对应
@@ -49,7 +50,7 @@ function CreateCompetitionPage() {
     formData.append("image", file)
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/upload_image", {
+      const response = await fetch(`${API_BASE_URL}/upload_image`, {
         method: "POST",
         headers: {
           // 如果上传也需要鉴权，请在这里添加
@@ -108,7 +109,7 @@ function CreateCompetitionPage() {
         cover_image: coverImage,
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/competitions/create", {
+      const response = await fetch(`${API_BASE_URL}/api/competitions/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -154,10 +155,10 @@ function CreateCompetitionPage() {
           onChange={(e) => setCompetitionType(e.target.value)}
           required
         >
-          <SelectItem value="hackathon" key={"hackathon"}>黑客马拉松</SelectItem>
-          <SelectItem value="datascience" key={"datascience"}>数据科学</SelectItem>
-          <SelectItem value="ai" key={"ai"}>人工智能</SelectItem>
-          <SelectItem value="programming" key={"programming"}>编程竞赛</SelectItem>
+          <SelectItem key="hackathon">黑客马拉松</SelectItem>
+          <SelectItem key="datascience">数据科学</SelectItem>
+          <SelectItem key="ai" >人工智能</SelectItem>
+          <SelectItem key="programming">编程竞赛</SelectItem>
         </Select>
 
         <Input

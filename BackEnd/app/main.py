@@ -23,7 +23,9 @@ app = FastAPI()
 
 # 配置 CORS
 origins = [
-    "http://localhost:3000",  # 根据实际情况配置
+    "172.31.69.242:8000",  # 开发服务器
+    "http://172.31.69.242",       # Nginx (80端口)
+    "http://localhost",  
 ]
 
 app.add_middleware(

@@ -2,7 +2,27 @@
 
 ##### 技术栈：
 
-![Static Badge](https://img.shields.io/badge/NextJS-blue?style=social&logo=nextdotjs&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/FastAPI-blue?style=social&logo=fastapi&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/TypeScript-blue?style=social&logo=typescript&logoColor=%233178C6)  ![Static Badge](https://img.shields.io/badge/SQLite-blue?style=social&logo=sqlite&logoColor=%23003B57)  ![Static Badge](https://img.shields.io/badge/Steam-blue?style=social&logo=steam&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/TailwindCSS-blue?style=social&logo=tailwindcss&logoColor=%2306B6D4)  ![Static Badge](https://img.shields.io/badge/Redis-blue?style=social&logo=redis&logoColor=%23FF4438)
+![Static Badge](https://img.shields.io/badge/NextJS-blue?style=social&logo=nextdotjs&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/FastAPI-blue?style=social&logo=fastapi&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/TypeScript-blue?style=social&logo=typescript&logoColor=%233178C6)  ![Static Badge](https://img.shields.io/badge/SQLite-blue?style=social&logo=sqlite&logoColor=%23003B57)  ![Static Badge](https://img.shields.io/badge/Steam-blue?style=social&logo=steam&logoColor=%23000000)  ![Static Badge](https://img.shields.io/badge/TailwindCSS-blue?style=social&logo=tailwindcss&logoColor=%2306B6D4)  ![Static Badge](https://img.shields.io/badge/Redis-blue?style=social&logo=redis&logoColor=%23FF4438)  ![Static Badge](https://img.shields.io/badge/Nginx-blue?style=social&logo=nginx&logoColor=%23009688)  ![Static Badge](https://img.shields.io/badge/Docker-blue?style=social&logo=docker&logoColor=%23009688) 
+
+# 自动构建流水线（适用Ubuntu）
+
+克隆本项目并运行deploy-init.sh。
+
+**注意：建议使用虚拟环境，该脚本会自动安装docker及其相关组件，虚拟环境需设置桥接网络模式**
+
+```bash
+git clone https://github.com/Bearisbug/SZU-Competition-Forum.git
+cd SZU-Competition-Forum
+sh ./Deploy/deploy-init.sh
+```
+
+执行完成后，docker将自动打包镜像并启动，可以在`./Deploy/build`找到打包完毕的前后端镜像。访问下方地址即可进入网站。目前仅使用HTTP访问，若需配置HTTPS+SSL证书，可以访问Let's Encrypt官网获取免费证书。
+
+   ```text
+   http://localhost/
+   ```
+
+# 手动构建
 
 ## 1. 克隆项目到本地
 

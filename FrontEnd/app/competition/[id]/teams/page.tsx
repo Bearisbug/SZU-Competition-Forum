@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react";
 import { Button } from "@heroui/react";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/CONFIG";
 
 interface MemberInfo {
   name: string;
@@ -32,7 +33,7 @@ export default function TeamsInfoPage() {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/competitions/${competitionId}/registrations/teams-info`,
+          `${API_BASE_URL}/api/competitions/${competitionId}/registrations/teams-info`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
 import { Team, TeamMember, TeamCard } from '../Card/TeamCard';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from "@/CONFIG";
 
 interface TeamSelectionModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ export function TeamSelectionModal({ isOpen, onClose, onSelectTeam }: TeamSelect
 
   const fetchTeams = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/teams/my-captain-teams', {
+      const response = await fetch('${API_BASE_URL}/api/teams/my-captain-teams', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         },
