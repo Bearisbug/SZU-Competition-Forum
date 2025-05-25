@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: deploy-frontend
+    container_name: szu-forum-frontend
+    expose:
+      - "3000"  # 仅在内部网络暴露
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+
+  nginx:
+    image: nginx:stable
+    container_name: szu-forum-nginx
+    ports:
+      - "80:80"  # 对外暴露80端口
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - frontend
+      - backend
+
+  backend:
+    image: deploy-backend
+    container_name: szu-forum-backend
+    ports:
+      - "8000:8000"
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  redis:
+    image: redis:alpine
+    container_name: szu-forum-redis
+    expose:
+      - "6379"  # 仅在内部网络暴露
+    volumes:
+      - redis-data:/data
+    restart: always
+    networks:
+      - app-network
+    command: ["redis-server", "--appendonly", "yes"]
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
