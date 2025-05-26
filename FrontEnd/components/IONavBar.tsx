@@ -71,10 +71,10 @@ export default function ScrollableNavbar() {
 
   return (
     <Navbar
-      className={`fixed top-0 left-0 right-0 transition-transform duration-300 ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 left-0 right-0 transition-transform duration-300`}
       height="54px"
+      maxWidth="full"
+      isBlurred={false}
     >
       <NavbarBrand>
         <svg
@@ -90,67 +90,89 @@ export default function ScrollableNavbar() {
             height="36"
           />
         </svg>
-        <p className="font-bold text-inherit ml-4 ">竞赛论坛</p>
+        <p className="font-bold text-inherit ml-4">竞赛论坛</p>
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex gap-10" justify="center">
-        <NavbarItem>
+      <NavbarContent className="flex-grow gap-0 justify-evenly" justify="center">
+        <NavbarItem className="flex-1 text-center">
           <Link 
-            color="foreground" href="/"
-            className="relative pb-1 after:content-[''] 
-            after:absolute after:bottom-8 after:left-1/2 
+            color="foreground" 
+            href="/"
+            className="relative pb-1 w-full block after:content-[''] 
+            after:absolute after:bottom-0 after:left-1/2 
             after:w-0 after:h-1 after:bg-red-800 
             after:transition-all after:duration-300 
             hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
           >
-            <p className="text-inherit ml-0 ">主页</p>
+            首页
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/competition"
-            className="relative pb-1 after:content-[''] 
-            after:absolute after:bottom-8 after:left-1/2 
+        <NavbarItem className="flex-1 text-center">
+          <Link 
+            color="foreground" 
+            href="/communication"
+            className="relative pb-1 w-full block after:content-[''] 
+            after:absolute after:bottom-0 after:left-1/2 
             after:w-0 after:h-1 after:bg-red-800 
             after:transition-all after:duration-300 
             hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
           >
-            <p className="text-inherit ml-0 ">比赛</p>
+            互动交流
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/article"
-            className="relative pb-1 after:content-[''] 
-            after:absolute after:bottom-8 after:left-1/2 
+        <NavbarItem className="flex-1 text-center">
+          <Link 
+            color="foreground" 
+            href="/competition"
+            className="relative pb-1 w-full block after:content-[''] 
+            after:absolute after:bottom-0 after:left-1/2 
             after:w-0 after:h-1 after:bg-red-800 
             after:transition-all after:duration-300 
             hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
           >
-            <p className="text-inherit ml-0 ">文章</p>
+            竞赛信息
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/notification"
-            className="relative pb-1 after:content-[''] 
-            after:absolute after:bottom-8 after:left-1/2 
+        <NavbarItem className="flex-1 text-center">
+          <Link 
+            color="foreground" 
+            href="/article"
+            className="relative pb-1 w-full block after:content-[''] 
+            after:absolute after:bottom-0 after:left-1/2 
             after:w-0 after:h-1 after:bg-red-800 
             after:transition-all after:duration-300 
             hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
           >
-            <p className="text-inherit ml-0 ">信息</p>
+            文章
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="/teams"
-            className="relative pb-1 after:content-[''] 
-            after:absolute after:bottom-8 after:left-1/2 
+        <NavbarItem className="flex-1 text-center">
+          <Link 
+            color="foreground" 
+            href="/notification"
+            className="relative pb-1 w-full block after:content-[''] 
+            after:absolute after:bottom-0 after:left-1/2 
             after:w-0 after:h-1 after:bg-red-800 
             after:transition-all after:duration-300 
             hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
           >
-            <p className="text-inherit ml-0 ">队伍</p>
+            信息
+          </Link>
+        </NavbarItem>
+        <NavbarItem className="flex-1 text-center">
+          <Link 
+            color="foreground" 
+            href="/teams"
+            className="relative pb-1 w-full block after:content-[''] 
+            after:absolute after:bottom-0 after:left-1/2 
+            after:w-0 after:h-1 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
+            队伍
           </Link>
         </NavbarItem>
       </NavbarContent>
-      <NavbarContent justify="end">
+      <NavbarContent className="flex-grow-0 min-w-[120px]" justify="end">
         <NavbarItem>
           {isClient &&
             (isLoggedIn ? (

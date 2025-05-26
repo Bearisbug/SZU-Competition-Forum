@@ -1,147 +1,123 @@
-"use client"
+import React from 'react';
 
-import React, { useState, useEffect } from "react"
-import { Pagination, Button, Link } from "@heroui/react"
-import toast from "react-hot-toast"
-import { FilterSidebar, FilterOption } from "@/components/FilterSidebar"
-import CompetitionCard, { Competition } from "@/components/Card/CompetitionCard"
-import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
-
-type FilterCategory = "competition_type" | "organizer"
-
-const filterCategories = [
-  {
-    title: "比赛类型",
-    category: "competition_type" as FilterCategory,
-    options: [
-      { label: "黑客松", value: "Hackathon" },
-      { label: "编程挑战", value: "Coding Challenge" },
-      { label: "设计竞赛", value: "Design Competition" },
-      { label: "数据科学", value: "Data Science" },
-    ],
-  },
-  {
-    title: "主办方",
-    category: "organizer" as FilterCategory,
-    options: [
-      { label: "科技公司", value: "Tech Corp" },
-      { label: "创新公司", value: "Innovation Inc" },
-      { label: "编程大师", value: "Code Masters" },
-      { label: "设计中心", value: "Design Hub" },
-    ],
-  },
-]
-
-export default function CompetitionListPage() {
-  const [competitions, setCompetitions] = useState<Competition[]>([])
-  const [filteredCompetitions, setFilteredCompetitions] = useState<Competition[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const competitionsPerPage = 6
-
-  useEffect(() => {
-    const fetchCompetitions = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/api/competitions", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        })
-        if (!res.ok) {
-          throw new Error("获取比赛列表失败")
-        }
-        const data: Competition[] = await res.json()
-        setCompetitions(data)
-        setFilteredCompetitions(data)
-      } catch (error) {
-        console.error(error)
-        toast.error("无法加载比赛列表")
-      }
-    }
-
-    fetchCompetitions()
-  }, [])
-
-  const handleFilterChange = (filters: FilterOption[]) => {
-    const newFilteredCompetitions = competitions.filter((competition) =>
-      filters.every(
-        (filter) =>
-          competition[filter.category as keyof Competition] === filter.value
-      )
-    )
-    setFilteredCompetitions(newFilteredCompetitions)
-    setCurrentPage(1)
-  }
-
-  const indexOfLastCompetition = currentPage * competitionsPerPage
-  const indexOfFirstCompetition = indexOfLastCompetition - competitionsPerPage
-  const currentCompetitions = filteredCompetitions.slice(
-    indexOfFirstCompetition,
-    indexOfLastCompetition
-  )
-
+export default function HomePage() {
   return (
-    <div className="container mx-auto p-4 flex">
-      <FilterSidebar
-        onFilterChange={handleFilterChange}
-        //@ts-ignore
-        filterCategories={filterCategories}
-      />
-
-      <div className="flex-1 ml-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">比赛列表</h1>
-          <Link href="/competition/create">
-          <Button color="primary">创建比赛</Button>
-          </Link>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <header className="relative min-h-[900px] w-full">
+        {/* 背景图层 */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+          style={{ backgroundImage: "url('/images/c.jpg')" }}
+        >
+          {/* 半透明遮罩 */}
+          <div className="absolute inset-0 bg-white/50 "></div>
         </div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+          style={{ backgroundImage: "url('/images/c.jpg')" }}
+        >
+          {/* 半透明遮罩 */}
+          <div className="absolute inset-0 bg-white/50 "></div>
+        </div>
+        <div className="text-center mb-12">
+          <div className="absolute inset-20 ">
+            <div className="text-center">
+              <h1 className="text-5xl font-bold text-blue-900 mb-0">
+                竞赛信息
+              </h1>
+              <h2 className="text-3xl font-bold text-blue-900 mb-20">
+                ———————
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* 左侧分类导航 - 修改后的版本 */}
+        <div className="absolute top-20 left-0 p-4 bg-blue-900 text-white rounded-lg z-30 w-1/6 min-h-screen">
+          {/* I 类 */}
+          <div className="mb-6">
+            <h3 className="text-xl font-bold mb-3 border-b-4 border-white/50 pb-2">I 类</h3>
+            <ul className="divide-y divide-white/20">
+              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
+                中国“互联网+”大学生创新创业大赛全国总决赛
+              </li>
+              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
+                “挑战杯”全国大学生课外学术科技作品竞赛
+              </li>
+              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
+                “挑战杯”中国大学生创业计划竞赛
+              </li>
+            </ul>
+          </div>
+
+          {/* II 类 */}
+          <div className="mb-6">
+            <h3 className="text-xl font-bold mb-3 border-b-4 border-white/50 pb-2">II 类</h3>
+            <ul className="divide-y divide-white/20">
+              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
+                (A) 类
+              </li>
+              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
+                (B) 类
+              </li>
+              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
+                (C) 类
+              </li>
+            </ul>
+          </div>
+
+          {/* 分隔线 */}
+          <hr className="border-t border-white/20 my-4" />
+
+          {/* III 类 */}
+          <div>
+            <h3 className="text-xl font-bold mb-3 border-b-4 border-white/50 pb-2">III 类</h3>
+            {/* 可以在这里添加III类内容 */}
+          </div>
+        </div>
+
         
-        {filteredCompetitions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64">
-            <X className="w-16 h-16 text-gray-400 mb-4" />
-            <p className="text-center text-gray-500">没有符合条件的比赛，请尝试调整筛选条件或创建新的比赛。</p>
+        <div className="absolute top-[200px] right-0 w-3/4 h-full z-10">
+          <div className="flex flex-col gap-2 mt-8 w-full md:w-3/4">
+            <div className="bg-white p-4 rounded shadow">
+              <img src="/images/a.jpg" alt="Florence Hills Competition" className="w-full h-48 object-cover" />
+              <h4 className="text-lg font-bold mt-2">Florence Hills Competition</h4>
+              <p className="text-gray-600">Prize 25,000 €</p>
+            </div>
+            <div className="bg-white p-4 rounded shadow">
+              <img src="/images/b.jpg" alt="Mujassam Watan Urban Sculpture Challenge" className="w-full h-48 object-cover" />
+              <h4 className="text-lg font-bold mt-2">Mujassam Watan Urban Sculpture Challenge</h4>
+              <p className="text-gray-600">Prize 50,000 €</p>
+            </div>
+            <div className="bg-white p-4 rounded shadow">
+              <img src="/images/c.jpg" alt="Florence Hills Competition" className="w-full h-48 object-cover" />
+              <h4 className="text-lg font-bold mt-2">Florence Hills Competition</h4>
+              <p className="text-gray-600">Prize 25,000 €</p>
+            </div>
+            <div className="bg-white p-4 rounded shadow">
+              <img src="/images/d.jpg" alt="Mujassam Watan Urban Sculpture Challenge" className="w-full h-48 object-cover" />
+              <h4 className="text-lg font-bold mt-2">Mujassam Watan Urban Sculpture Challenge</h4>
+              <p className="text-gray-600">Prize 50,000 €</p>
+            </div>
           </div>
-        ) : (
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.1
-                }
-              }
-            }}
-          >
-            {currentCompetitions.map((competition) => (
-              <motion.div
-                key={competition.id}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 }
-                }}
-              >
-                <CompetitionCard competition={competition} />
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-
-        {filteredCompetitions.length > competitionsPerPage && (
-          <div className="mt-6 flex justify-center">
-            <Pagination
-              total={Math.ceil(filteredCompetitions.length / competitionsPerPage)}
-              page={currentPage}
-              onChange={setCurrentPage}
-            />
+        </div>
+      </header>
+      
+      <div className="max-w-10xl mx-auto">
+        {/* Section 2 */}
+        
+        <section 
+            className="bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[700px] w-full" 
+            style={{backgroundImage: "url('/images/c.jpg')"}}>
+          <div className="container mx-auto px-6 py-20 z-10">
+            <div className="absolute inset-0 bg-white/50 "></div>
           </div>
-        )}
+          
+        </section>
+        
+        <hr className="border-gray-200" />
       </div>
+      
     </div>
-  )
+  );
 }
-
