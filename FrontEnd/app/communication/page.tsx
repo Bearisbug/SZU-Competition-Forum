@@ -1,6 +1,17 @@
+'use client'
+
 import React from 'react';
+import { useRouter } from 'next/navigation';
+
+
 
 export default function HomePage() {
+  const router = useRouter();
+
+  const handlePostClick = (postId: string) => {
+    router.push(`/communication/${postId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       {/* 标题卡片（带背景图） */}
@@ -8,7 +19,7 @@ export default function HomePage() {
         {/* 背景图层 */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ backgroundImage: "url('/images/c.jpg')" }}
+          style={{ backgroundImage: "url('/images/e.png')" }}
         >
           {/* 半透明遮罩 */}
           <div className="absolute inset-0 bg-white/50 "></div>
@@ -27,7 +38,7 @@ export default function HomePage() {
               <div className="grid md:grid-cols-4 gap-2 text-center max-w-10xl">
                 <h3 className="font-medium text-blue-800 text-2xl">技术讨论</h3>
                 <h4 className="font-medium text-blue-800 text-2xl">竞赛经验分享</h4>
-                <h5 className="font-medium text-blue-800 text-2xl">组件团队</h5>
+                <h5 className="font-medium text-blue-800 text-2xl">组建团队</h5>
                 <h6 className="font-medium text-blue-800 text-2xl">学习心得</h6>
               </div>
             </div>
@@ -50,7 +61,12 @@ export default function HomePage() {
               ——————
             </h2>
             <div className="grid md:grid-cols-3 gap-2 text-center max-w-10xl">
-              <div className="p-6 bg-white min-h-[400px] flex flex-col">
+              {[1, 2, 3].map((postId) => (
+              <div
+                key={postId}
+                onClick={() => handlePostClick(postId.toString())}
+                className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+              >
                 <div className="h-48 mb-4 overflow-hidden">
                   <img 
                     src="/images/c.jpg" 
@@ -58,33 +74,10 @@ export default function HomePage() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="font-medium text-gray-800">知识传承</h3>
-                <p className="text-sm text-gray-600 mt-2">通过"师带徒"形式，实现知识和经验的传承，提升团队整体竞争力。</p>
+                <h3 className="font-medium text-gray-800">帖子标题</h3>
+                <p className="text-sm text-gray-600 mt-2">帖子内容</p>
               </div>
-              
-              <div className="p-6 bg-white min-h-[400px] flex flex-col">
-                <div className="h-48 mb-4 overflow-hidden">
-                  <img 
-                    src="/images/a.jpg" 
-                    alt="团队协作" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="font-medium text-gray-800">团队协作</h3>
-                <p className="text-sm text-gray-600 mt-2">增强团队协作能力，培养高效沟通和协作精神。</p>
-              </div>
-              
-              <div className="p-6 bg-white min-h-[400px] flex flex-col">
-                <div className="h-48 mb-4 overflow-hidden">
-                  <img 
-                    src="/images/b.jpg" 
-                    alt="竞赛实践" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="font-medium text-gray-800">竞赛实践</h3>
-                <p className="text-sm text-gray-600 mt-2">提供丰富的竞赛实践机会，提升实际操作能力。</p>
-              </div>
+              ))}
             </div>
           </div>
           

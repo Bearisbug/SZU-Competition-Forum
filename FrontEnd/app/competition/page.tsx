@@ -1,20 +1,48 @@
+'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation'; // 修改为新的导航方式
 
 export default function HomePage() {
+  const router = useRouter();
+
+  // 左侧导航点击处理
+  const handleNavigation = (type: string, id: string) => {
+    // 根据分类跳转不同页面
+    switch(type) {
+      case 'I类':
+        router.push(`/competition/${id}`);
+        break;
+      case 'II类':
+        router.push(`/competition/${id}`);
+        break;
+      case 'III类':
+        router.push(`/competition/${id}`);
+        break;
+      default:
+        router.push('/');
+    }
+  };
+  // 竞赛数据配置
+  const competitions = {
+    I类: [
+      { id: '1', name: '中国“互联网+”大学生创新创业大赛全国总决赛' },
+      { id: '2', name: '“挑战杯”全国大学生课外学术科技作品竞赛' },
+      { id: '3', name: '“挑战杯”中国大学生创业计划竞赛' }
+    ],
+    II类: [
+      { id: 'A', name: '(A) 类' },
+      { id: 'B', name: '(B) 类' },
+      { id: 'C', name: '(C) 类' }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <header className="relative min-h-[900px] w-full">
         {/* 背景图层 */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ backgroundImage: "url('/images/c.jpg')" }}
-        >
-          {/* 半透明遮罩 */}
-          <div className="absolute inset-0 bg-white/50 "></div>
-        </div>
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ backgroundImage: "url('/images/c.jpg')" }}
+          style={{ backgroundImage: "url('/images/e.png')" }}
         >
           {/* 半透明遮罩 */}
           <div className="absolute inset-0 bg-white/50 "></div>
@@ -38,15 +66,15 @@ export default function HomePage() {
           <div className="mb-6">
             <h3 className="text-xl font-bold mb-3 border-b-4 border-white/50 pb-2">I 类</h3>
             <ul className="divide-y divide-white/20">
-              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
-                中国“互联网+”大学生创新创业大赛全国总决赛
-              </li>
-              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
-                “挑战杯”全国大学生课外学术科技作品竞赛
-              </li>
-              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
-                “挑战杯”中国大学生创业计划竞赛
-              </li>
+              {competitions.I类.map((item) => (
+                <li 
+                  key={item.id}
+                  onClick={() => handleNavigation('I类', item.id)}
+                  className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer"
+                >
+                  {item.name}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -54,15 +82,15 @@ export default function HomePage() {
           <div className="mb-6">
             <h3 className="text-xl font-bold mb-3 border-b-4 border-white/50 pb-2">II 类</h3>
             <ul className="divide-y divide-white/20">
-              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
-                (A) 类
-              </li>
-              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
-                (B) 类
-              </li>
-              <li className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer">
-                (C) 类
-              </li>
+              {competitions.II类.map((item) => (
+                <li
+                  key={item.id}
+                  onClick={() => handleNavigation('II类', item.id)}
+                  className="group py-3 px-3 hover:bg-pink-900 rounded-md transition-all duration-200 cursor-pointer"
+                >
+                  {item.name}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -108,7 +136,7 @@ export default function HomePage() {
         
         <section 
             className="bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[700px] w-full" 
-            style={{backgroundImage: "url('/images/c.jpg')"}}>
+            style={{backgroundImage: "url('/images/e.png')"}}>
           <div className="container mx-auto px-6 py-20 z-10">
             <div className="absolute inset-0 bg-white/50 "></div>
           </div>

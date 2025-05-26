@@ -9,7 +9,7 @@ export default function HomePage() {
         {/* 背景图层 */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ backgroundImage: "url('/images/a.jpg')" }}
+          style={{ backgroundImage: "url('/images/f.png')" }}
         >
           {/* 半透明遮罩 */}
           <div className="absolute inset-0 bg-black/10 "></div>
@@ -57,7 +57,7 @@ export default function HomePage() {
         <hr className="border-gray-200" />
 
         {/* Section 2 */}
-        <section className="bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[700px] w-full" style={{backgroundImage: "url('/images/d.jpg')"}}>
+        <section className="bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[700px] w-full" style={{backgroundImage: "url('/images/g.png')"}}>
             <div className="container mx-auto px-6 py-20 z-10">
             <h2 className="text-3xl font-semibold text-white mb-6 text-center">
               在这里有你所需要的一切
