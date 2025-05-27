@@ -2,28 +2,30 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-
-
+import Image from 'next/image';
 
 export default function HomePage() {
   const router = useRouter();
 
   const handlePostClick = (postId: string) => {
-    router.push(`/communication/${postId}`);
+  router.push(`/communication/${postId}`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      {/* 标题卡片（带背景图） */}
-      <header className="text-center relative overflow-hidden min-h-[700px] w-full">
-        {/* 背景图层 */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ backgroundImage: "url('/images/e.png')" }}
-        >
-          {/* 半透明遮罩 */}
-          <div className="absolute inset-0 bg-white/50 "></div>
-        </div>
+  <div className="min-h-screen bg-gray-50 p-8">
+  {/* 标题卡片（带背景图） */}
+  <header className="text-center relative overflow-hidden min-h-[700px] w-full">
+    <div className="absolute inset-0 z-0">
+      <Image
+        src="/images/e.png"
+        alt="背景图"
+        fill
+        className="object-cover object-center"
+        priority
+        quality={75}
+      />
+      <div className="absolute inset-0 bg-white/50"></div>
+    </div>
 
         {/* 标题半透明卡片*/}
         <div className="text-center mb-12">
