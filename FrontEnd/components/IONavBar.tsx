@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Navbar,
+  NavbarBrand,
   NavbarContent,
   NavbarItem,
   Link,
@@ -12,20 +13,30 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/react";
-import { User } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import {
+  Home,
+  Search,
+  Bell,
+  User,
+  UserRound,
+  UsersRound,
+  Newspaper,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "./AuthStore";
 
 export default function ScrollableNavbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isClient, setIsClient] = useState(false);
+  const isLoggedIn = useAuthStore(
+    (state: { isLoggedIn: any }) => state.isLoggedIn
+  );
+  const setIsLoggedIn = useAuthStore(
+    (state: { setIsLoggedIn: any }) => state.setIsLoggedIn
+  );
 
-  const pathname = usePathname();
   const router = useRouter();
-
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const setIsLoggedIn = useAuthStore((state) => state.setIsLoggedIn);
 
   useEffect(() => {
     setIsClient(true);
@@ -58,109 +69,127 @@ export default function ScrollableNavbar() {
     }
   }, [lastScrollY]);
 
-  const isActive = (path: string) => pathname === path;
-
-  const NavLink = ({ href, label }: { href: string; label: string }) => (
-    <NavbarItem
-      className={`rounded-md ${isActive(href) ? "bg-[#940040]" : ""}`}
-      style={{ height: "54px" }}
-    >
-      <Link
-        href={href}
-        className={`relative flex items-center h-full px-4 font-bold text-white after:content-[''] 
-          after:absolute after:bottom-0 after:left-0 
-          after:w-0 after:h-1 after:bg-white 
-          after:transition-all after:duration-300 
-          hover:after:w-full hover:after:left-0`}
-      >
-        {label}
-      </Link>
-    </NavbarItem>
-  );
-
   return (
-    <>
-      {/* 顶部白底图标栏 */}
-      <div
-        style={{ backgroundColor: "#fff", height: 60 }}
-        className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-start gap-14 px-6 shadow-md"
-      >
-        
-          <div className="flex items-center gap-2">
-          <img src="/SZU-logo.png" alt="深圳大学" className="h-10 w-12 cursor-pointer" />
-          <img src="/szu.png" alt="深圳大学" className="h-10 w-30 cursor-pointer" />
-        </div>
-          <img src="/logo_red.png" alt="计软学院" className="h-10 w-30 cursor-pointer" />
-          <div className="flex items-center gap-2">
-          <img src="/huozhong.png" alt="火种图标" className="h-10 w-10 cursor-pointer" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-gray-800">火种云平台</span>
-          </div>
-        </div>
-            <div className="ml-auto">
-        {isClient &&
-          (isLoggedIn ? (
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly variant="light" aria-label="User profile">
-                  <User className="w-6 h-6 text-gray-800" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="User actions">
-                <DropdownItem
-                  key="profile"
-                  onPress={() => router.push(`/user/${localStorage.getItem("id")}`)}
-                >
-                  <span className="font-bold">个人主页</span>
-                </DropdownItem>
-                <DropdownItem
-                  key="logout"
-                  color="danger"
-                  onPress={() => {
-                    localStorage.removeItem("access_token");
-                    localStorage.removeItem("id");
-                    setIsLoggedIn(false);
-                    window.location.reload();
-                  }}
-                >
-                  <span className="font-bold">登出</span>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          ) : (
-            <Button
-              onPress={() => router.push("/user")}
-              variant="light"
-              className="font-bold text-gray-800"
-            >
-              登录
-            </Button>
-          ))}
-      </div>
-      </div>
-
-      {/* 蓝色主导航栏*/}
-      <Navbar
-        className={`fixed top-[60px] left-0 right-0 transition-transform duration-300 z-50 
-          text-white shadow-md ${
-            isVisible ? "translate-y-0" : "-translate-y-full"
-          }`}
-        height="54px"
-        style={{ backgroundColor: "#024d8f" }}
-      >
-        <NavbarContent className="hidden sm:flex gap-10" justify="center">
-          <NavLink href="/" label="首页" />
-          <NavLink href="/interact" label="互动交流" />
-          <NavLink href="/CompetitionMessage" label="竞赛信息" />
-          <NavLink href="/training" label="在线培训" />
-          <NavLink href="/resource" label="资源共享" />
-          <NavLink href="/display" label="成果展示" />
-          <NavLink href="/competition" label="比赛" />
-          <NavLink href="/article" label="文章" />
-          <NavLink href="/notification" label="信息" />
-          <NavLink href="/teams" label="队伍" />
-        </NavbarContent>
-      </Navbar>
-    </>
+    <Navbar
+      className={`fixed top-0 left-0 right-0 transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+      height="54px"
+    >
+      <NavbarBrand>
+        <svg
+          width="100"
+          height="54"
+          viewBox="0 0 36 36"
+          xmlns="http://www.w3.org/2000/svg"
+          className="bg-[#881940]"
+        >
+          <image
+            href="https://www1.szu.edu.cn/images/szu.png"
+            width="36"
+            height="36"
+          />
+        </svg>
+        <p className="font-bold text-inherit ml-4 ">竞赛论坛</p>
+      </NavbarBrand>
+      <NavbarContent className="hidden sm:flex gap-10" justify="center">
+        <NavbarItem>
+          <Link 
+            color="foreground" href="/"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-1 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
+            <p className="text-inherit ml-0 ">主页</p>
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/competition"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-1 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
+            <p className="text-inherit ml-0 ">比赛</p>
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/article"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-1 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
+            <p className="text-inherit ml-0 ">文章</p>
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/notification"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-1 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
+            <p className="text-inherit ml-0 ">信息</p>
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/teams"
+            className="relative pb-1 after:content-[''] 
+            after:absolute after:bottom-8 after:left-1/2 
+            after:w-0 after:h-1 after:bg-red-800 
+            after:transition-all after:duration-300 
+            hover:after:w-full hover:after:left-0 hover:after:translate-x-0"
+          >
+            <p className="text-inherit ml-0 ">队伍</p>
+          </Link>
+        </NavbarItem>
+      </NavbarContent>
+      <NavbarContent justify="end">
+        <NavbarItem>
+          {isClient &&
+            (isLoggedIn ? (
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly variant="light" aria-label="User profile">
+                    <User className="w-6 h-6" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="User actions">
+                  <DropdownItem
+                    key="profile"
+                    onPress={() =>
+                      router.push(`/user/${localStorage.getItem("id")}`)
+                    }
+                  >
+                    个人主页
+                  </DropdownItem>
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    onPress={() => {
+                      localStorage.removeItem("access_token");
+                      localStorage.removeItem("id");
+                      setIsLoggedIn(false);
+                      window.location.reload();
+                    }}
+                  >
+                    登出
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            ) : (
+              <Button onPress={() => router.push("/user")} variant="light">
+                登录
+              </Button>
+            ))}
+        </NavbarItem>
+      </NavbarContent>
+    </Navbar>
   );
 }
