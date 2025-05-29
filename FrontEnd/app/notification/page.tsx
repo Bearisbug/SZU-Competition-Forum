@@ -130,7 +130,7 @@ const SystemInfoPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto p-8 mt-16">
       <SystemInfoDisplay
         infoList={systemInfo}
         onApprove={handleApprove}

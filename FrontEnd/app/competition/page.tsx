@@ -108,20 +108,20 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
-      {/* 背景图层 */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 opacity-20 h-[1500px]"
-        style={{ backgroundImage: "url('/images/e.png')" }}
-      ></div>
-      
-      {/* 顶部标题 */}
-      <div className="text-center mb-16 relative z-10">
-        <h1 className="text-5xl font-bold text-blue-900 mb-3">
-          竞赛信息
-        </h1>
-        <div className="flex justify-center">
-          <div className="w-48 h-1.5 bg-blue-900"></div>
+
+    <div className="container mx-auto p-4 flex mt-16">
+      <FilterSidebar
+        onFilterChange={handleFilterChange}
+        //@ts-ignore
+        filterCategories={filterCategories}
+      />
+
+      <div className="flex-1 ml-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">比赛列表</h1>
+          <Link href="/competition/create">
+          <Button color="primary">创建比赛</Button>
+          </Link>
         </div>
       </div>
 

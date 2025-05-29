@@ -18,6 +18,7 @@ export default function EditArticlePage() {
   const [category, setCategory] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [coverPreview, setCoverPreview] = useState("");
+  const [postType, setPostType] = useState("");
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -39,6 +40,7 @@ export default function EditArticlePage() {
         setCategory(article.category);
         setCoverImage(article.cover_image);
         setCoverPreview(article.cover_image);
+        setPostType(article.post_type)
 
         toast.success("文章加载成功！");
       } catch (error) {
@@ -104,6 +106,7 @@ export default function EditArticlePage() {
           content,
           category,
           cover_image: coverImage,
+          post_type: postType,
         }),
       });
 
@@ -146,6 +149,15 @@ export default function EditArticlePage() {
           <SelectItem key="science">科学</SelectItem>
           <SelectItem key="lifestyle">生活方式</SelectItem>
         </Select>
+                <Select  
+            label="帖子类型"  
+            value={postType}  
+            onChange={(e) => setPostType(e.target.value)}  
+            required  
+          >  
+            <SelectItem key="share">分享帖</SelectItem>  
+            <SelectItem key="discussion">交流帖</SelectItem>  
+          </Select>
         <div>
           <label className="block mb-2">封面图片</label>
           {coverPreview && (

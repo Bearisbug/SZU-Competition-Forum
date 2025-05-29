@@ -26,6 +26,7 @@ type Article = {
   view_count: number;
   created_at: string;
   author: Author;
+  post_type: string;
 };
 
 export default function ArticleDetailPage() {

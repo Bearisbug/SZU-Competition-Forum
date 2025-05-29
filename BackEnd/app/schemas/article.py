@@ -9,6 +9,7 @@ class ArticleBase(BaseModel):
     content: str
     cover_image: str
     category: str
+    post_type: str
 
 class ArticleCreate(ArticleBase):
     """
@@ -25,6 +26,7 @@ class ArticleUpdate(BaseModel):
     content: Optional[str] = None
     cover_image: Optional[str] = None
     category: Optional[str] = None
+    post_type: Optional[str] = None
 
 class AuthorResponse(BaseModel):
     id: int
@@ -42,5 +44,6 @@ class ArticleResponse(BaseModel):
     cover_image: Optional[str]
     category: Optional[str]
     view_count: int
+    post_type: str
     created_at: datetime
     author: AuthorResponse
