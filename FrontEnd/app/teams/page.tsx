@@ -7,6 +7,7 @@ import { Pagination, Spinner, Button } from "@heroui/react";
 import { CreateTeamModal } from "@/components/Modal/CreateTeamModal";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
+import { API_BASE_URL } from "@/CONFIG";
 
 type Team = {
   id: number;
@@ -79,7 +80,7 @@ export default function TeamCardPreview() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/teams/all/details", {
+      const response = await fetch(`${API_BASE_URL}/api/teams/all/details`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
@@ -159,7 +160,7 @@ export default function TeamCardPreview() {
         ...teamData,
         requirements: teamData.requirements.join("\n"),
       };
-      const response = await fetch("http://127.0.0.1:8000/api/teams", {
+      const response = await fetch(`${API_BASE_URL}/api/teams`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -189,7 +190,7 @@ export default function TeamCardPreview() {
 
   const handleJoinTeam = async (teamId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/teams/${teamId}/apply`, {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}/apply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -209,7 +210,7 @@ export default function TeamCardPreview() {
 
   const handleLeaveTeam = async (teamId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/teams/${teamId}/leave`, {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}/leave`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -242,7 +243,7 @@ export default function TeamCardPreview() {
           ? data.requirements.join(",")
           : undefined,
       };
-      const res = await fetch(`http://127.0.0.1:8000/api/teams/${teamId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -265,7 +266,7 @@ export default function TeamCardPreview() {
   // 解散队伍
   const handleDisbandTeam = async (teamId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/teams/${teamId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -286,7 +287,7 @@ export default function TeamCardPreview() {
   const handleRemoveMember = async (teamId:number,memberId: number) => {
     try {
       const payload = { remove_member_id: memberId };
-      const res = await fetch(`http://127.0.0.1:8000/api/teams/${teamId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

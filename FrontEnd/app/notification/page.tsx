@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import SystemInfoDisplay from "@/components/SystemInfoDisplay";
 import toast from "react-hot-toast";
 import { Spinner } from "@heroui/react";
+import { API_BASE_URL } from "@/CONFIG";
+
 type SystemInfo = {
     id: string;
     title: string;
@@ -15,7 +17,7 @@ const SystemInfoPage = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/notifications", {
+      const response = await fetch(`${API_BASE_URL}/api/notifications`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
@@ -38,7 +40,7 @@ const SystemInfoPage = () => {
 
   const handleApprove = async (teamId: number, userId: number) => {
     const response = await fetch(
-      `http://127.0.0.1:8000/teams/${teamId}/approve/${userId}`,
+      `${API_BASE_URL}/teams/${teamId}/approve/${userId}`,
       {
         method: "POST",
         headers: {
@@ -55,7 +57,7 @@ const SystemInfoPage = () => {
 
   const handleReject = async (teamId: number, userId: number) => {
     const response = await fetch(
-      `http://127.0.0.1:8000/teams/${teamId}/reject/${userId}`,
+      `${API_BASE_URL}/teams/${teamId}/reject/${userId}`,
       {
         method: "POST",
         headers: {
@@ -73,7 +75,7 @@ const SystemInfoPage = () => {
   const handleDeleteNotification = async (notificationId: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/notifications/${notificationId}`,
+        `${API_BASE_URL}/api/notifications/${notificationId}`,
         {
           method: "DELETE",
           headers: {
@@ -95,7 +97,7 @@ const SystemInfoPage = () => {
   const handleClearAllNotifications = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/notifications/clear/all`,
+        `${API_BASE_URL}/api/notifications/clear/all`,
         {
           method: "DELETE",
           headers: {

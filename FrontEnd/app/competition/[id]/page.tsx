@@ -2,7 +2,32 @@
 
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Tabs,
+  Tab,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Input,
+  Textarea,
+  Accordion,
+  AccordionItem,
+  Card,
+  CardHeader,
+  CardBody,
+  Spinner,
+  Tooltip,
+} from "@heroui/react";
+import toast from "react-hot-toast";
+import Image from "next/image";
+import { TeamSelectionModal } from "@/components/Modal/TeamSelectionModal";
+import { Trash2, Plus, ArrowLeft, Trophy, Calendar, Users, Info, Megaphone, PlusCircle } from 'lucide-react';
+import { API_BASE_URL } from "@/CONFIG";
 
 // 竞赛数据类型定义
 interface CompetitionDetail {

@@ -23,6 +23,10 @@ export default function HomePage() {
     router.push('/communication/team');
   };
 
+  const handleArticleClick = () => {
+    router.push('/article');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       {/* 标题卡片（带背景图） */}
@@ -51,7 +55,10 @@ export default function HomePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {/* 技术讨论 */}
-                <div className="p-8">
+                <div 
+                  className="p-8 cursor-pointer rounded-lg transition-colors duration-300"
+                  onClick={handleArticleClick}
+                >
                   <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -61,7 +68,10 @@ export default function HomePage() {
                 </div>
                 
                 {/* 竞赛经验分享 */}
-                <div className="p-8">
+                <div 
+                  className="p-8 cursor-pointer rounded-lg transition-colors duration-300"
+                  onClick={handleArticleClick}
+                >
                   <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -84,7 +94,10 @@ export default function HomePage() {
                 </div>
                 
                 {/* 学习心得 */}
-                <div className="p-8">
+                <div 
+                  className="p-8 cursor-pointer rounded-lg transition-colors duration-300"
+                  onClick={handleArticleClick}
+                >
                   <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />

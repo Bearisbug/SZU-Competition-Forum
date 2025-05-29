@@ -26,6 +26,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { TeamCard, Team, TeamMember } from "@/components/Card/TeamCard";
 import { ArticleCard } from "@/components/Card/ArticleCard";
+import { API_BASE_URL } from "@/CONFIG";
 
 interface User {
   id: number;
@@ -73,7 +74,7 @@ const UserProfileSidebar: React.FC<{
       formData.append("image", file);
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/upload_image", {
+        const response = await fetch(`${API_BASE_URL}/upload_image`, {
           method: "POST",
           body: formData,
         });
@@ -242,7 +243,7 @@ export default function ProfilePage() {
   const handleSave = async (updatedUser: User) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/user/info/${userId}/update`,
+        `${API_BASE_URL}/api/user/info/${userId}/update`,
         {
           method: "PUT",
           headers: {
@@ -270,12 +271,12 @@ export default function ProfilePage() {
     setIsLoadingTeamsArticles(true);
     try {
       const [teamsResponse, articlesResponse] = await Promise.all([
-        fetch(`http://127.0.0.1:8000/api/user/teams/${userId}`, {
+        fetch(`${API_BASE_URL}/api/user/teams/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         }),
-        fetch(`http://127.0.0.1:8000/api/user/articles/${userId}`, {
+        fetch(`${API_BASE_URL}/api/user/articles/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
@@ -310,7 +311,7 @@ export default function ProfilePage() {
   const fetchUser = useCallback(async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/user/info/${userId}`
+        `${API_BASE_URL}/api/user/info/${userId}`
       );
       if (!response.ok) {
         throw new Error("User not found");
