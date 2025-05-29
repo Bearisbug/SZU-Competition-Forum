@@ -16,7 +16,8 @@ def create_article(db: Session, article_data: ArticleCreate, author_id: int) -> 
         summary=article_data.summary,
         content=article_data.content,
         cover_image=article_data.cover_image,
-        category=article_data.category
+        category=article_data.category,
+        post_type=article_data.post_type
     )
     db.add(db_article)
     db.commit()
@@ -44,6 +45,8 @@ def update_article(db: Session, article: Article, update_data: ArticleUpdate) ->
         article.cover_image = update_data.cover_image
     if update_data.category is not None:
         article.category = update_data.category
+    if update_data.post_type is not None:
+        article.post_type = update_data.post_type
 
     db.commit()
     db.refresh(article)

@@ -319,7 +319,7 @@ export default function TeamCardPreview() {
 
   if (filteredTeams.length === 0) {
     return (
-      <div className="container mx-auto p-4 flex">
+      <div className="container mx-auto p-4 flex mt-16">
         <FilterSidebar
           onFilterChange={handleFilterChange}
           filterCategories={filterCategories}
@@ -346,7 +346,7 @@ export default function TeamCardPreview() {
   }
 
   return (
-    <div className="container mx-auto p-4 flex">
+    <div className="container mx-auto p-4 flex mt-16">
       <FilterSidebar
         onFilterChange={handleFilterChange}
         filterCategories={filterCategories}

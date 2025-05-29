@@ -21,6 +21,7 @@ type Article = {
   created_at: string;
   author_name: string;
   author_id: string;
+  post_type:string;
 };
 
 type FilterCategory = "category" | "date" | "author";
@@ -144,7 +145,7 @@ export default function ArticleListPage() {
 
   if (filteredArticles.length === 0) {
     return (
-      <div className="container mx-auto p-4 flex">
+      <div className="container mx-auto p-4 flex mt-16">
         <FilterSidebar
           //@ts-ignore
           onFilterChange={handleFilterChange}
@@ -173,7 +174,7 @@ export default function ArticleListPage() {
   }
 
   return (
-    <div className="container mx-auto p-4 flex">
+    <div className="container mx-auto p-4 flex mt-16">
       <FilterSidebar
         //@ts-ignore
         onFilterChange={handleFilterChange}

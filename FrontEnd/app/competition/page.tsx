@@ -83,7 +83,7 @@ export default function CompetitionListPage() {
   )
 
   return (
-    <div className="container mx-auto p-4 flex">
+    <div className="container mx-auto p-4 flex mt-16">
       <FilterSidebar
         onFilterChange={handleFilterChange}
         //@ts-ignore

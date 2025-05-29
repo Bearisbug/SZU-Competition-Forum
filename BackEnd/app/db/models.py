@@ -99,6 +99,7 @@ class Article(Base):
     category = Column(String, index=True)
     view_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
+    post_type = Column(String, default="share", index=True)
 
     author = relationship("User", backref="articles")
 
