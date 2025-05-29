@@ -76,11 +76,14 @@ def get_article_detail_info(db: Session, article_id: int, current_user_id: int) 
         # 也要更新缓存中的 view_count
         cached_data = json.loads(cached)
         cached_data["view_count"] = db_article.view_count
+        if "post_type" not in cached_data:
+            cached_data["post_type"] = db_article.post_type
         redis_client.set(redis_key, json.dumps(cached_data))
         return cached_data
 
     # 如果缓存没有，则从数据库取
     db_article = get_article_by_id(db, article_id)
+
     if not db_article:
         raise HTTPException(status_code=404, detail="文章不存在")
 
@@ -97,6 +100,7 @@ def get_article_detail_info(db: Session, article_id: int, current_user_id: int) 
         "content": db_article.content,
         "cover_image": db_article.cover_image,
         "category": db_article.category,
+        "post_type":db_article.post_type,
         "view_count": db_article.view_count,
         "created_at": db_article.created_at.isoformat() if db_article.created_at else None,
         "author": {

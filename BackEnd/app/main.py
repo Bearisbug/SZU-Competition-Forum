@@ -25,12 +25,13 @@ app = FastAPI()
 origins = [
     "172.31.69.242:8000",  # 开发服务器
     "http://172.31.69.242",       # Nginx (80端口)
-    "http://localhost",  
+    "http://localhost",
+    "http://localhost:8000"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
