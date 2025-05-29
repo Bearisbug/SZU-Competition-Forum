@@ -211,8 +211,21 @@ export default function ArticleListPage() {
                 visible: { opacity: 1, y: 0 },
               }}
               transition={{ duration: 0.5 }}
+              onClick={() => {
+                if (article.post_type === 'share') {
+                  router.push(`/article/share/${article.id}`);
+                } else if (article.post_type === 'discussion') {
+                  router.push(`/article/discussion/${article.id}`);
+                } else {
+                  toast.error("未知的文章类型！");
+                }
+              }}
+              className="cursor-pointer"
             >
-              <ArticleCard {...article} isAuthor={localStorage.getItem("id") == article.author_id} />
+              <ArticleCard
+                {...article}
+                isAuthor={localStorage.getItem("id") == article.author_id}
+              />
             </motion.div>
           ))}
         </motion.div>
