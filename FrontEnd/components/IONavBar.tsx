@@ -42,7 +42,6 @@ export default function IONavBar() {
     window.addEventListener("scroll", controlNavbar);
     return () => window.removeEventListener("scroll", controlNavbar);
   }, [lastScrollY]);
-
   useEffect(() => setIsClient(true), []);
   useEffect(() => {
     if (isClient) {
