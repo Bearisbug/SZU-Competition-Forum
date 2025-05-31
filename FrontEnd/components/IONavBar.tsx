@@ -132,8 +132,8 @@ export default function IONavBar() {
       >
         <NavbarContent className="hidden sm:flex gap-10" justify="center">
           <NavLink href="/" label="首页" />
-          <NavLink href="/interact" label="互动交流" />
-          <NavLink href="/CompetitionMessage" label="竞赛信息" />
+          <NavLink href="/communication" label="互动交流" />
+          <NavLink href="/competition" label="竞赛信息" />
           <NavLink href="/training" label="在线培训" />
           <NavLink href="/resource" label="资源共享" />
           <NavLink href="/display" label="成果展示" />
