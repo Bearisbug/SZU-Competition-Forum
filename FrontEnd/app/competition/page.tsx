@@ -1,11 +1,46 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, Link } from "@heroui/react"
+
+import { FilterSidebar, FilterOption} from "@/components/FilterSidebar"
+import { API_BASE_URL } from "@/CONFIG";
+import CompetitionCard, { Competition } from "@/components/Card/CompetitionCard"
+
+
+type FilterCategory = "competition_type" | "organizer"
 
 export default function HomePage() {
   const router = useRouter();
+  const [competitions, setCompetitions] = useState<Competition[]>([])
+  const [filteredCompetitions, setFilteredCompetitions] = useState<Competition[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const competitionsPerPage = 6
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+
+  const filterCategories = [
+  {
+    title: "比赛类型",
+    category: "competition_type" as FilterCategory,
+    options: [
+      { label: "黑客松", value: "Hackathon" },
+      { label: "编程挑战", value: "Coding Challenge" },
+      { label: "设计竞赛", value: "Design Competition" },
+      { label: "数据科学", value: "Data Science" },
+    ],
+  },
+  {
+    title: "主办方",
+    category: "organizer" as FilterCategory,
+    options: [
+      { label: "科技公司", value: "Tech Corp" },
+      { label: "创新公司", value: "Innovation Inc" },
+      { label: "编程大师", value: "Code Masters" },
+      { label: "设计中心", value: "Design Hub" },
+    ],
+  },
+]
 
   // 帖子点击处理函数
   const handlePostClick = (id: string, type?: string) => {
@@ -106,6 +141,17 @@ export default function HomePage() {
     setSelectedCategory(null);
     setSelectedSubCategory(null);
   };
+
+  const handleFilterChange = (filters: FilterOption[]) => {
+    const newFilteredCompetitions = competitions.filter((competition) =>
+      filters.every(
+        (filter) =>
+          competition[filter.category as keyof Competition] === filter.value
+      )
+    )
+    setFilteredCompetitions(newFilteredCompetitions)
+    setCurrentPage(1)
+  }
 
   return (
 
