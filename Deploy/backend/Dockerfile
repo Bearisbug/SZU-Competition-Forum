@@ -16,4 +16,4 @@ RUN python -m app.db.models
 EXPOSE 8000
 
 # 设置启动命令
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--reload"]
