@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { TeamCard } from "@/components/Card/TeamCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { Pagination, Spinner, Button } from "@heroui/react";
@@ -16,6 +16,7 @@ type Team = {
   goals: string;
   requirements: string[];
   max_members: number;
+  competition_id:number;
 };
 
 type TeamMember = {
@@ -28,6 +29,11 @@ type TeamMember = {
   major: string;
   avatarUrl: string | null;
   status: number;
+};
+
+type Competition = {
+  id: number;
+  name: string;
 };
 
 type FilterCategory = "goals" | "requirements" | "roles";
@@ -74,6 +80,7 @@ export default function TeamCardPreview() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [competitions, setCompetitions] = useState<Competition[]>([]);
 
   const teamsPerPage = 4;
 
@@ -116,6 +123,37 @@ export default function TeamCardPreview() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+  async function fetchCompetitions() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/competitions`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCompetitions(data);
+      } else {
+        console.error("获取比赛列表失败");
+      }
+    } catch (error) {
+      console.error("获取比赛列表错误:", error);
+    }
+  }
+
+  fetchCompetitions();
+}, []);
+
+const competitionMap = useMemo(() => {
+  const map: { [id: number]: string } = {};
+  competitions.forEach((c) => {
+    map[c.id] = c.name;
+  });
+  return map;
+}, [competitions]);
+
 
   const handleFilterChange = useCallback(
     (newFilters: FilterOption[]) => {
@@ -340,6 +378,7 @@ export default function TeamCardPreview() {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreateTeam={handleCreateTeam}
+          competitions={competitions}
         />
       </div>
     );
@@ -365,6 +404,7 @@ export default function TeamCardPreview() {
               //@ts-ignore
               team={team}
               members={teamMembers[team.id] || []} // 仅传递对应队伍的成员
+              competitionName={competitionMap[team.competition_id] || "未知比赛"}
               onJoinTeam={handleJoinTeam}
               onLeaveTeam={handleLeaveTeam}
             onUpdateTeam={handleUpdateTeam}
@@ -388,6 +428,7 @@ export default function TeamCardPreview() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreateTeam={handleCreateTeam}
+        competitions={competitions}
       />
     </div>
   );
