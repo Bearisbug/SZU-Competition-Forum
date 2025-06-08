@@ -42,6 +42,8 @@ class Team(Base):
     goals = Column(String, index=True)
     requirements = Column(String, index=True)
     max_members = Column(Integer, index=True)
+    competition_id = Column(Integer, ForeignKey("competitions.id"), nullable=True, index=True)
+    competition = relationship("Competition", backref="teams")
 
 
 class TeamMember(Base):
@@ -87,6 +89,7 @@ class Article(Base):
     - category: 文章分类
     - view_count: 浏览量
     - created_at: 创建时间
+    - post_type: 帖子类型
     """
     __tablename__ = "articles"
 

@@ -16,6 +16,7 @@ def create_team(db: Session, team_data: TeamCreate) -> Team:
         goals=team_data.goals,
         requirements=team_data.requirements,
         max_members=team_data.max_members,
+        competition_id=team_data.competition_id,
     )
     db.add(team)
     db.commit()
@@ -52,6 +53,8 @@ def update_team(db: Session, team: Team, team_data: TeamUpdate) -> Team:
         team.goals = team_data.goals
     if team_data.requirements is not None:
         team.requirements = team_data.requirements
+    if hasattr(team_data, "competition_id") and team_data.competition_id is not None:
+        team.competition_id = team_data.competition_id
 
     db.add(team)
     db.commit()

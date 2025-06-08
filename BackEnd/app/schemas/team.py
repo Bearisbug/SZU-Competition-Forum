@@ -11,6 +11,7 @@ class TeamCreate(BaseModel):
     goals: Optional[str] = None
     requirements: Optional[str] = None
     max_members: Optional[int] = 5
+    competition_id: Optional[int] = None
 
 
 class TeamUpdate(BaseModel):
@@ -21,7 +22,9 @@ class TeamUpdate(BaseModel):
     description: Optional[str] = None
     goals: Optional[str] = None
     requirements: Optional[str] = None
+    max_members: Optional[int] = None
     remove_member_id: Optional[int] = None
+    competition_id: Optional[int] = None
 
 class TeamMemberBase(BaseModel):
     """
@@ -41,6 +44,7 @@ class TeamResponse(BaseModel):
     goals: Optional[str]
     requirements: Optional[str]
     max_members: Optional[int]
+    competition_id: Optional[int]
 
     class Config:
         orm_mode = True
