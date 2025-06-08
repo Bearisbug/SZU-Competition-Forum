@@ -1,11 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Link } from "@heroui/react"
+import { Button, Card, Link } from "@heroui/react"
 
 import { FilterSidebar, FilterOption} from "@/components/FilterSidebar"
 import { API_BASE_URL } from "@/CONFIG";
 import CompetitionCard, { Competition } from "@/components/Card/CompetitionCard"
+import toast from 'react-hot-toast';
 
 type FilterCategory = "competition_type" | "organizer"
 
@@ -17,6 +18,7 @@ export default function HomePage() {
   const competitionsPerPage = 6
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const filterCategories = [
     {
@@ -42,7 +44,7 @@ export default function HomePage() {
   ]
 
   // 帖子点击处理函数
-  const handlePostClick = (id: string, type?: string) => {
+  const handlePostClick = (id: number, type?: string) => {
     router.push(`/competition/${id}`);
     console.log(`点击了帖子: ${id}`, type ? `类型: ${type}` : '');
   };
@@ -59,78 +61,45 @@ export default function HomePage() {
   };
 
   // 卡片数据
-  const cardData = [
-    {
-      id: '1',
-      type: 'I类-"互联网+"',
-      title: '中国"互联网+"大学生创新创业大赛全国总决赛',
-      description: '全国最具影响力的创新创业赛事，激发大学生创新潜能',
-      image: '/images/a.jpg',
-      date: '2024-09-15',
-      reads: '2.4k',
-      category: 'I类-"互联网+"'
-    },
-    {
-      id: '2',
-      type: 'I类-"挑战杯"课外学术科技作品竞赛',
-      title: '"挑战杯"全国大学生课外学术科技作品竞赛',
-      description: '展示大学生科技创新成果的重要平台',
-      image: '/images/tzbkw.png',
-      date: '2025-3-27',
-      reads: '1.8k',
-      category: 'I类-"挑战杯"课外学术科技作品竞赛'
-    },
-    {
-      id: '3',
-      type: 'I类-"挑战杯"大学生创业计划竞赛',
-      title: '"挑战杯"中国大学生创业计划竞赛',
-      description: '培养大学生创业意识和创业能力的重要赛事',
-      image: '/images/tzbcy.png',
-      date: '2024-11-05',
-      reads: '1.6k',
-      category: 'I类-"挑战杯"大学生创业计划竞赛'
-    },
-    {
-      id: '4',
-      type: 'III类',
-      title: '蓝桥杯全国软件和信息技术专业人才大赛',
-      description: '全国性IT类学科竞赛，培养专业人才的重要平台',
-      image: '/images/lqb.png',
-      date: '2024-12-10',
-      reads: '3.1k',
-      category: 'III类',
-    },
-    {
-      id: '5',
-      type: 'II类',
-      title: '全国大学生数学建模竞赛',
-      description: '培养创新意识和团队精神的重要科技竞赛',
-      image: '/images/sj.png',
-      date: '2024-08-20',
-      reads: '2.1k',
-      category: 'II类',
-      subCategory: 'A类'
-    },
-    {
-      id: '6',
-      type: 'II类',
-      title: '全国大学生电子设计竞赛',
-      description: '电子信息技术领域的重要学科竞赛',
-      image: '/images/dzsj.png',
-      date: '2024-07-15',
-      reads: '1.9k',
-      category: 'II类',
-      subCategory: 'B类'
+
+
+const fetchCompetitions = useCallback(async () => {
+  setIsLoading(true);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/competitions/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("无法加载竞赛信息！");
     }
-  ];
+
+    const data = await response.json();
+    setCompetitions(data);
+    setFilteredCompetitions(data);
+  } catch (error) {
+    console.error("获取竞赛信息错误:", error);
+    toast.error("加载竞赛信息失败，请稍后重试！");
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
+
+useEffect(() => {
+  fetchCompetitions();
+}, [fetchCompetitions]);
+
 
   // 筛选卡片
-  const filteredCards = cardData.filter(card => {
+  const filteredCards = competitions.filter(card => {
     if (selectedSubCategory) {
-      return card.subCategory === selectedSubCategory;
+      //这里的筛选逻辑需要修改！！！！！！！（后端没有符合条件的属性，先全部为competition_type）
+      return card.competition_type === selectedSubCategory;
     }
     if (selectedCategory) {
-      return card.category === selectedCategory;
+      return card.competition_type === selectedCategory;
     }
     return true;
   });
@@ -311,39 +280,39 @@ export default function HomePage() {
                 <div 
                   key={card.id}
                   className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group"
-                  onClick={() => handlePostClick(card.id, card.type)}
+                  onClick={() => handlePostClick(card.id, card.competition_type)}
                 >
                   <div className="relative h-48 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
                     <div 
                       className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                      style={{ backgroundImage: `url('${card.image}')` }}
+                      style={{ backgroundImage: `url('${card.cover_image}')` }}
                     ></div>
                     <div className="absolute bottom-4 left-4 z-20">
                       <span className={`text-white text-xs px-3 py-1 rounded-full font-medium ${
-                        card.type.includes('I类') ? 'bg-blue-600' : 
-                        card.type.includes('II类') ? 'bg-green-600' : 
+                        card.competition_type.includes('I类') ? 'bg-blue-600' : 
+                        card.competition_type.includes('II类') ? 'bg-green-600' : 
                         'bg-purple-600'
                       }`}>
-                        {card.type}
-                        {card.subCategory && ` - ${card.subCategory}`}
+                        {card.competition_type}
+                        {card.competition_type && ` - ${card.competition_type}`}
                       </span>
                     </div>
                   </div>
                   <div className="p-5">
                     <h4 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                      {card.title}
+                      {card.name}
                     </h4>
-                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">
-                      {card.description}
-                    </p>
+                    <div
+                      className="text-sm text-gray-600 mb-3 line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: card.details }}
+                    ></div>
                     <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span>{card.date}</span>
-                      <span>阅读 {card.reads}</span>
+                      <span>{new Date(card.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
-              ))}
+                ))}
             </div>
             
             {/* 无匹配结果的提示 */}
