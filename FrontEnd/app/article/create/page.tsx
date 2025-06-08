@@ -91,7 +91,7 @@ export default function CreateArticlePage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mt-16 w-3/5">
       <h1 className="text-2xl font-bold mb-4">创建新文章</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input

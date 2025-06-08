@@ -94,15 +94,18 @@ useEffect(() => {
 
   // 筛选卡片
   const filteredCards = competitions.filter(card => {
-    if (selectedSubCategory) {
-      //这里的筛选逻辑需要修改！！！！！！！（后端没有符合条件的属性，先全部为competition_type）
-      return card.competition_type === selectedSubCategory;
-    }
-    if (selectedCategory) {
-      return card.competition_type === selectedCategory;
-    }
-    return true;
-  });
+  if (selectedCategory && selectedSubCategory) {
+    return card.competition_level === selectedCategory && card.competition_subtype === selectedSubCategory;
+  }
+  if (selectedCategory) {
+    return card.competition_level === selectedCategory;
+  }
+  if (selectedSubCategory) {
+    return card.competition_subtype === selectedSubCategory;
+  }
+  return true;
+});
+
 
   // 重置筛选
   const resetFilters = () => {
@@ -149,108 +152,134 @@ useEffect(() => {
                 )}
               </div>
               
-              {/* I类竞赛 */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-3 flex items-center text-blue-200">
-                  <div className="w-3 h-3 rounded-full bg-blue-300 mr-2"></div>
-                  I 类竞赛
-                </h3>
-                <ul className="space-y-2 ml-5">
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedCategory === 'I类-"互联网+"'
-                          ? 'bg-pink-600 text-white shadow-md' 
-                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
-                      }`}
-                      onClick={() => handleCategoryClick('I类-"互联网+"')}
-                    >
-                      中国"互联网+"大学生创新创业大赛
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedCategory === 'I类-"挑战杯"课外学术科技作品竞赛'
-                          ? 'bg-pink-600 text-white shadow-md' 
-                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
-                      }`}
-                      onClick={() => handleCategoryClick('I类-"挑战杯"课外学术科技作品竞赛')}
-                    >
-                      "挑战杯"课外学术科技作品竞赛
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedCategory === 'I类-"挑战杯"大学生创业计划竞赛'
-                          ? 'bg-pink-600 text-white shadow-md' 
-                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
-                      }`}
-                      onClick={() => handleCategoryClick('I类-"挑战杯"大学生创业计划竞赛')}
-                    >
-                      "挑战杯"大学生创业计划竞赛
-                    </button>
-                  </li>
-                </ul>
-              </div>
+{/* I类竞赛 */}
+<div className="mb-6">
+  <h3
+    className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
+      selectedCategory === 'Ⅰ类' ? 'text-pink-600' : 'text-blue-200'
+    }`}
+    onClick={() => handleCategoryClick('Ⅰ类')}
+  >
+    <div className="w-3 h-3 rounded-full bg-blue-300 mr-2"></div>
+    I 类竞赛
+  </h3>
+  
+  {/* 只有选中时才显示子分类 */}
+  {selectedCategory === 'Ⅰ类' && (
+    <ul className="space-y-2 ml-5">
+      <li>
+        <button
+          className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+            selectedSubCategory === '中国互联网+大学生创新创业大赛'
+              ? 'bg-pink-600 text-white shadow-md' 
+              : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+          }`}
+          onClick={() => handleSubCategoryClick('中国互联网+大学生创新创业大赛')}
+        >
+          中国"互联网+"大学生创新创业大赛
+        </button>
+      </li>
+      <li>
+        <button
+          className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+            selectedSubCategory === '挑战杯课外学术科技作品竞赛'
+              ? 'bg-pink-600 text-white shadow-md' 
+              : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+          }`}
+          onClick={() => handleSubCategoryClick('挑战杯课外学术科技作品竞赛')}
+        >
+          "挑战杯"课外学术科技作品竞赛
+        </button>
+      </li>
+      <li>
+        <button
+          className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+            selectedSubCategory === '挑战杯大学生创业计划竞赛'
+              ? 'bg-pink-600 text-white shadow-md' 
+              : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+          }`}
+          onClick={() => handleSubCategoryClick('挑战杯大学生创业计划竞赛')}
+        >
+          "挑战杯"大学生创业计划竞赛
+        </button>
+      </li>
+    </ul>
+  )}
+</div>
 
-              {/* II类竞赛 */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-3 flex items-center text-blue-200">
-                  <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
-                  II 类竞赛
-                </h3>
-                <ul className="space-y-2 ml-5">
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedSubCategory === 'A类'
-                          ? 'bg-pink-600 text-white shadow-md' 
-                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
-                      }`}
-                      onClick={() => handleSubCategoryClick('A类')}
-                    >
-                      (A) 类
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedSubCategory === 'B类'
-                          ? 'bg-pink-600 text-white shadow-md' 
-                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
-                      }`}
-                      onClick={() => handleSubCategoryClick('B类')}
-                    >
-                      (B) 类
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedSubCategory === 'C类'
-                          ? 'bg-pink-600 text-white shadow-md' 
-                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
-                      }`}
-                      onClick={() => handleSubCategoryClick('C类')}
-                    >
-                      (C) 类
-                    </button>
-                  </li>
-                </ul>
-              </div>
+{/* II类竞赛 */}
+<div className="mb-6">
+  <h3
+    className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
+      selectedCategory === 'Ⅱ类' ? 'text-pink-600' : 'text-blue-200'
+    }`}
+    onClick={() => handleCategoryClick('Ⅱ类')}
+  >
+    <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
+    II 类竞赛
+  </h3>
+  
+  {selectedCategory === 'Ⅱ类' && (
+    <ul className="space-y-2 ml-5">
+      <li>
+        <button
+          className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+            selectedSubCategory === 'A类'
+              ? 'bg-pink-600 text-white shadow-md' 
+              : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+          }`}
+          onClick={() => handleSubCategoryClick('A类')}
+        >
+          (A) 类
+        </button>
+      </li>
+      <li>
+        <button
+          className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+            selectedSubCategory === 'B类'
+              ? 'bg-pink-600 text-white shadow-md' 
+              : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+          }`}
+          onClick={() => handleSubCategoryClick('B类')}
+        >
+          (B) 类
+        </button>
+      </li>
+      <li>
+        <button
+          className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+            selectedSubCategory === 'C类'
+              ? 'bg-pink-600 text-white shadow-md' 
+              : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+          }`}
+          onClick={() => handleSubCategoryClick('C类')}
+        >
+          (C) 类
+        </button>
+      </li>
+    </ul>
+  )}
+</div>
 
-              {/* III类竞赛 */}
-              <div className="mb-4">
-                <h3 className="text-lg font-bold mb-3 flex items-center text-blue-200">
-                  <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                  III 类竞赛
-                </h3>
-                <div className="ml-5 text-center py-3 text-blue-200 text-sm bg-blue-700/20 rounded-lg">
-                  <p>更多竞赛即将上线</p>
-                </div>
-              </div>
+{/* III类竞赛 */}
+<div className="mb-4">
+  <h3
+    className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
+      selectedCategory === 'Ⅲ类' ? 'text-pink-600' : 'text-blue-200'
+    }`}
+    onClick={() => handleCategoryClick('Ⅲ类')}
+  >
+    <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
+    III 类竞赛
+  </h3>
+
+  {selectedCategory === 'Ⅲ类' && (
+    <div className="ml-5 text-center py-3 text-blue-200 text-sm bg-blue-700/20 rounded-lg">
+      <p>更多竞赛即将上线</p>
+    </div>
+  )}
+</div>
+
             </div>
           </div>
 
@@ -262,7 +291,7 @@ useEffect(() => {
                 <div className="flex items-center">
                   <span className="text-sm">当前筛选: </span>
                   <span className="font-semibold ml-2 px-2 py-1 bg-blue-100 rounded text-sm">
-                    {selectedSubCategory ? `II类 - ${selectedSubCategory}` : selectedCategory}
+                    {selectedSubCategory ? `${selectedCategory} - ${selectedSubCategory}` : selectedCategory}
                   </span>
                 </div>
                 <button 
@@ -290,12 +319,12 @@ useEffect(() => {
                     ></div>
                     <div className="absolute bottom-4 left-4 z-20">
                       <span className={`text-white text-xs px-3 py-1 rounded-full font-medium ${
-                        card.competition_type.includes('I类') ? 'bg-blue-600' : 
-                        card.competition_type.includes('II类') ? 'bg-green-600' : 
+                        card.competition_level.includes('I类') ? 'bg-blue-600' : 
+                        card.competition_level.includes('II类') ? 'bg-green-600' : 
                         'bg-purple-600'
                       }`}>
-                        {card.competition_type}
-                        {card.competition_type && ` - ${card.competition_type}`}
+                        {card.competition_level}
+                        {card.competition_level && ` - ${card.competition_subtype}`}
                       </span>
                     </div>
                   </div>

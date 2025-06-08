@@ -20,6 +20,8 @@ export type Competition = {
   details: string
   organizer: string
   competition_type: string
+  competition_level: string
+  competition_subtype: string
   cover_image: string
   created_at: string
   updated_at: string
@@ -32,6 +34,8 @@ function CreateCompetitionPage() {
   const [details, setDetails] = useState("")
   const [organizer, setOrganizer] = useState("")
   const [competitionType, setCompetitionType] = useState("")
+  const [competitionLevel, setCompetitionLevel] = useState("")
+  const [competitionSubtype, setCompetitionSubtype] = useState("")
   const [signUpStartTime, setSignUpStartTime] = useState("")
   const [signUpEndTime, setSignUpEndTime] = useState("")
   const [competitionStartTime, setCompetitionStartTime] = useState("")
@@ -76,6 +80,21 @@ function CreateCompetitionPage() {
     }
   }
 
+   const subtypeOptions: { [key: string]: { key: string; label: string }[] } = {
+    "Ⅰ类": [
+      { key: "中国互联网+大学生创新创业大赛", label: "中国互联网+大学生创新创业大赛" },
+      { key: "挑战杯课外学术科技作品竞赛", label: "挑战杯课外学术科技作品竞赛" },
+      { key: "挑战杯大学生创业计划竞赛", label: "挑战杯大学生创业计划竞赛" },
+    ],
+    "Ⅱ类": [
+      { key: "A类", label: "A类" },
+      { key: "B类", label: "B类" },
+      { key: "C类", label: "C类" },
+    ],
+    // Ⅲ类暂时留空或自定义
+    "Ⅲ类": []
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -85,6 +104,8 @@ function CreateCompetitionPage() {
       !details ||
       !organizer ||
       !competitionType ||
+      !competitionLevel || 
+      !competitionSubtype || 
       !signUpStartTime ||
       !signUpEndTime ||
       !competitionStartTime ||
@@ -102,6 +123,8 @@ function CreateCompetitionPage() {
         details,
         organizer,
         competition_type: competitionType,
+        competition_level: competitionLevel,      
+        competition_subtype: competitionSubtype, 
         sign_up_start_time: signUpStartTime,
         sign_up_end_time: signUpEndTime,
         competition_start_time: competitionStartTime,
@@ -132,7 +155,7 @@ function CreateCompetitionPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mt-16 w-3/5">
       <h1 className="text-2xl font-bold mb-4">创建新比赛</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
@@ -161,37 +184,102 @@ function CreateCompetitionPage() {
           <SelectItem key="programming">编程竞赛</SelectItem>
         </Select>
 
-        <Input
-          label="报名开始时间"
-          type="datetime-local"
-          value={signUpStartTime}
-          onChange={(e) => setSignUpStartTime(e.target.value)}
+        {/* 新增：比赛等级 */}
+        <Select
+          label="比赛等级"
+          value={competitionLevel}
+          onChange={(e) => {
+            setCompetitionLevel(e.target.value)
+            setCompetitionSubtype("")  // 选择等级时清空子类型
+          }}
           required
-        />
+        >
+          <SelectItem key="Ⅰ类">Ⅰ类</SelectItem>
+          <SelectItem key="Ⅱ类">Ⅱ类</SelectItem>
+          <SelectItem key="Ⅲ类">Ⅲ类</SelectItem>
+        </Select>
 
-        <Input
-          label="报名结束时间"
-          type="datetime-local"
-          value={signUpEndTime}
-          onChange={(e) => setSignUpEndTime(e.target.value)}
-          required
-        />
+        {/* 新增：比赛子类型，基于等级动态显示选项 */}
+        {competitionLevel && (
+          <Select
+            label="比赛子类型"
+            value={competitionSubtype}
+            onChange={(e) => setCompetitionSubtype(e.target.value)}
+            required
+          >
+            {subtypeOptions[competitionLevel]?.map(({ key, label }) => (
+              <SelectItem key={key}>{label}</SelectItem>
+            ))}
+          </Select>
+        )}
 
-        <Input
-          label="比赛开始时间"
-          type="datetime-local"
-          value={competitionStartTime}
-          onChange={(e) => setCompetitionStartTime(e.target.value)}
-          required
-        />
+        <div className="relative w-full">
+          <label
+            htmlFor="signup-start"
+            className="absolute left-3 top-1 text-sm text-gray-600 bg-gray-100 px-1 rounded"
+          >
+            报名开始时间
+          </label>
+          <input
+            id="signup-start"
+            type="datetime-local"
+            value={signUpStartTime}
+            onChange={(e) => setSignUpStartTime(e.target.value)}
+            className="w-full bg-gray-100 rounded-md px-3 pt-6 pb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
 
-        <Input
-          label="比赛结束时间"
-          type="datetime-local"
-          value={competitionEndTime}
-          onChange={(e) => setCompetitionEndTime(e.target.value)}
-          required
-        />
+        <div className="relative w-full">
+          <label
+            htmlFor="signup-start"
+            className="absolute left-3 top-1 text-sm text-gray-600 bg-gray-100 px-1 rounded"
+          >
+            报名结束时间
+          </label>
+          <input
+            id="signup-start"
+            type="datetime-local"
+            value={signUpEndTime}
+            onChange={(e) => setSignUpEndTime(e.target.value)}
+            className="w-full bg-gray-100 rounded-md px-3 pt-6 pb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div className="relative w-full">
+          <label
+            htmlFor="signup-start"
+            className="absolute left-3 top-1 text-sm text-gray-600 bg-gray-100 px-1 rounded"
+          >
+            比赛开始时间
+          </label>
+          <input
+            id="signup-start"
+            type="datetime-local"
+            value={competitionStartTime}
+            onChange={(e) => setCompetitionStartTime(e.target.value)}
+            className="w-full bg-gray-100 rounded-md px-3 pt-6 pb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div className="relative w-full">
+          <label
+            htmlFor="signup-start"
+            className="absolute left-3 top-1 text-sm text-gray-600 bg-gray-100 px-1 rounded"
+          >
+            比赛结束时间
+          </label>
+          <input
+            id="signup-start"
+            type="datetime-local"
+            value={competitionEndTime}
+            onChange={(e) => setCompetitionEndTime(e.target.value)}
+            className="w-full bg-gray-100 rounded-md px-3 pt-6 pb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
 
         <div>
           <label className="block mb-2">封面图片</label>
