@@ -115,6 +115,8 @@ class Competition(Base):
     - details: 比赛详情
     - organizer: 主办方
     - competition_type: 比赛类型
+    - competition_level: 比赛级别
+    - competition_subtype: 比赛子类
     - cover_image: 比赛封面图
     - announcements: 比赛公告关联
     """
@@ -130,6 +132,8 @@ class Competition(Base):
     details = Column(String, nullable=True)
     organizer = Column(String, index=True, nullable=True)
     competition_type = Column(String, index=True, nullable=True)
+    competition_level = Column(String, index=True, nullable=True)
+    competition_subtype = Column(String, index=True, nullable=True)
     cover_image = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)

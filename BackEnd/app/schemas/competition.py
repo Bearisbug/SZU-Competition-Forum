@@ -14,6 +14,8 @@ class CompetitionBase(BaseModel):
     details: Optional[str] = None
     organizer: Optional[str] = None
     competition_type: Optional[str] = None
+    competition_level: Optional[str] = None
+    competition_subtype: Optional[str] = None
     cover_image: Optional[str] = None
 
 class CompetitionCreate(CompetitionBase):
@@ -31,6 +33,8 @@ class CompetitionUpdate(BaseModel):
     details: Optional[str] = None
     organizer: Optional[str] = None
     competition_type: Optional[str] = None
+    competition_level: Optional[str] = None
+    competition_subtype: Optional[str] = None
     cover_image: Optional[str] = None
 
 class CompetitionInDBBase(CompetitionBase):
