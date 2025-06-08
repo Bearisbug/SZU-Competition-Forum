@@ -87,7 +87,7 @@ export default function HomePage() {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   };
 
-  const handleTeamClick = () => router.push('/communication/team');
+  const handleTeamClick = () => router.push('/teams');
   const handleArticleClick = () => router.push('/article');
 
   return (

@@ -18,6 +18,10 @@ yarn-debug.log
 pnpm-debug.log
 dist/
 build/
+package.json
+package-lock.json
+next.config.ts      
+tailwind.config.ts 
 
 # ---- React / Vue ----
 *.env.local
