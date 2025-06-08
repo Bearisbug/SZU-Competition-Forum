@@ -12,6 +12,8 @@ export type Competition = {
   details: string
   organizer: string
   competition_type: string
+  competition_level: string
+  competition_subtype: string
   cover_image: string
   created_at: Date
   updated_at: Date
@@ -19,10 +21,11 @@ export type Competition = {
 
 interface CompetitionCardProps {
   competition?: Competition
+  onClick?: () => void
   //isLoading?: boolean
 }
 
-const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition }) => {
+const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition,onClick }) => {
   //if (isLoading) {
   //  return (
   //    <Card className="w-full border-small border-default-100 p-3" shadow="sm">
@@ -51,6 +54,8 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+       onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       <Card className="w-full border-small border-default-100 p-3" shadow="sm">
         <CardBody className="px-4 pb-1">
