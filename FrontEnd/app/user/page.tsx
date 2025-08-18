@@ -138,6 +138,7 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     toast.dismiss();
   
     if (!userId || !password) {
@@ -197,14 +198,13 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
           inputWrapper: "w-full"
         }}
         endContent={
-          <Button
-            isIconOnly
-            variant="light"
-            size="sm"
+          <button
+            type="button"
+            className="focus:outline-none"
             onClick={toggleVisibility}
           >
-            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
+            {isVisible ? <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
+          </button>
         }
       />
       <div className="flex items-center justify-between">
@@ -231,16 +231,20 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
-  const toggleVisibility = () => setIsVisible(!isVisible);
+  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
+  const toggleConfirmPasswordVisibility = () => setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
   
     // 检查密码和确认密码是否一致
     if (password !== confirmPassword) {
       toast.error("密码和确认密码不一致！");
+      setIsLoading(false);
       return;
     }
   
@@ -279,7 +283,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
         label="密码"
         name="password"
         placeholder="请输入您的密码（至少6位）"
-        type={isVisible ? "text" : "password"}
+        type={isPasswordVisible ? "text" : "password"}
         variant="bordered"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -288,14 +292,13 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
           inputWrapper: "w-full"
         }}
         endContent={
-          <Button
-            isIconOnly
-            variant="light"
-            size="sm"
-            onClick={toggleVisibility}
+          <button
+            type="button"
+            className="focus:outline-none"
+            onClick={togglePasswordVisibility}
           >
-            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
+            {isPasswordVisible ? <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
+          </button>
         }
       />
       <Input
@@ -303,7 +306,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
         label="确认密码"
         name="confirmPassword"
         placeholder="确认您的密码"
-        type={isVisible ? "text" : "password"}
+        type={isConfirmPasswordVisible ? "text" : "password"}
         variant="bordered"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -312,14 +315,13 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
           inputWrapper: "w-full"
         }}
         endContent={
-          <Button
-            isIconOnly
-            variant="light"
-            size="sm"
-            onClick={toggleVisibility}
+          <button
+            type="button"
+            className="focus:outline-none"
+            onClick={toggleConfirmPasswordVisibility}
           >
-            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
+            {isConfirmPasswordVisible ? <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
+          </button>
         }
       />
       <Checkbox isRequired className="py-2">
