@@ -1,8 +1,5 @@
 "use client";
 import {
-  Navbar,
-  NavbarContent,
-  NavbarItem,
   Link,
   Button,
   Dropdown,
@@ -21,53 +18,78 @@ export default function IONavBar() {
 
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isClient, setIsClient] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const setIsLoggedIn = useAuthStore((state) => state.setIsLoggedIn);
 
   // 控制蓝色导航栏显示隐藏
   const controlNavbar = () => {
-    if (typeof window !== "undefined") {
-      if (window.scrollY > lastScrollY) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-      setLastScrollY(window.scrollY);
+    if (window.scrollY > lastScrollY) {
+      setIsVisible(false);
+    } else {
+      setIsVisible(true);
     }
+    setLastScrollY(window.scrollY);
   };
 
+  // 客户端挂载后设置状态
   useEffect(() => {
-    window.addEventListener("scroll", controlNavbar);
-    return () => window.removeEventListener("scroll", controlNavbar);
-  }, [lastScrollY]);
-  useEffect(() => setIsClient(true), []);
-  useEffect(() => {
-    if (isClient) {
-      const token = localStorage.getItem("access_token");
-      setIsLoggedIn(!!token);
-    }
-  }, [isClient]);
+    setMounted(true);
+    const token = localStorage.getItem("access_token");
+    setIsLoggedIn(!!token);
+  }, [setIsLoggedIn]);
 
-  const isActive = (path: string) => pathname === path;
+  // 滚动监听
+  useEffect(() => {
+    if (mounted) {
+      window.addEventListener("scroll", controlNavbar);
+      return () => window.removeEventListener("scroll", controlNavbar);
+    }
+  }, [lastScrollY, mounted]);
+
+  // 路由变化时检查登录状态
+  useEffect(() => {
+    if (mounted) {
+      const token = localStorage.getItem("access_token");
+      const loggedIn = !!token;
+      if (loggedIn !== isLoggedIn) {
+        setIsLoggedIn(loggedIn);
+      }
+    }
+  }, [pathname, mounted, isLoggedIn, setIsLoggedIn]);
+
+  // 监听存储变化
+  useEffect(() => {
+    if (mounted) {
+      const handleStorageChange = () => {
+        const token = localStorage.getItem("access_token");
+        setIsLoggedIn(!!token);
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      return () => window.removeEventListener('storage', handleStorageChange);
+    }
+  }, [setIsLoggedIn, mounted]);
+
+  const isActive = (path: string) => mounted && pathname === path;
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
-    <NavbarItem
+    <div
       className={`rounded-md ${isActive(href) ? "bg-[#940040]" : ""}`}
       style={{ height: "54px" }}
     >
       <Link
         href={href}
-        className={`relative flex items-center h-full px-4 font-bold text-white after:content-[''] 
+        className="relative flex items-center h-full px-4 font-bold text-white after:content-[''] 
           after:absolute after:bottom-0 after:left-0 
           after:w-0 after:h-1 after:bg-white 
           after:transition-all after:duration-300 
-          hover:after:w-full hover:after:left-0`}
+          hover:after:w-full hover:after:left-0"
       >
         {label}
       </Link>
-    </NavbarItem>
+    </div>
   );
 
   return (
@@ -89,61 +111,65 @@ export default function IONavBar() {
           </div>
         </div>
         <div className="ml-auto">
-          {isClient &&
-            (isLoggedIn ? (
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button isIconOnly variant="light" aria-label="User profile">
-                    <User className="w-6 h-6 text-gray-800" />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu aria-label="User actions">
-                  <DropdownItem key="profile" onPress={() => router.push(`/user/${localStorage.getItem("id")}`)}>
-                    <span className="font-bold">个人主页</span>
-                  </DropdownItem>
-                  <DropdownItem
-                    key="logout"
-                    color="danger"
-                    onPress={() => {
-                      localStorage.removeItem("access_token");
-                      localStorage.removeItem("id");
-                      setIsLoggedIn(false);
-                      window.location.reload();
-                    }}
-                  >
-                    <span className="font-bold">登出</span>
-                  </DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            ) : (
-              <Button onPress={() => router.push("/user")} variant="light" className="font-bold text-gray-800">
-                登录
-              </Button>
-            ))}
+          {mounted && isLoggedIn ? (
+            <Dropdown>
+              <DropdownTrigger>
+                <Button isIconOnly variant="light" aria-label="User profile">
+                  <User className="w-6 h-6 text-gray-800" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="User actions">
+                <DropdownItem key="profile" onPress={() => router.push(`/user/${localStorage.getItem("id")}`)}>
+                  <span className="font-bold">个人主页</span>
+                </DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  color="danger"
+                  onPress={() => {
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("id");
+                    setIsLoggedIn(false);
+                    window.location.reload();
+                  }}
+                >
+                  <span className="font-bold">登出</span>
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : mounted ? (
+            <Button onPress={() => router.push("/user")} variant="light" className="font-bold text-gray-800">
+              登录
+            </Button>
+          ) : (
+            <div className="w-16 h-10" />
+          )}
         </div>
       </div>
 
-      {/* 滚动隐藏的蓝色导航栏 - 只有登录用户才显示 */}
-      {isClient && isLoggedIn && (
-        <Navbar
-          className={`fixed top-[60px] left-0 right-0 transition-transform duration-300 z-50 
-          text-white shadow-md ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
-          height="54px"
-          style={{ backgroundColor: "#024d8f" }}
+      {/* 蓝色导航栏 - 只有登录用户才显示 */}
+      {mounted && isLoggedIn && (
+        <div
+          className={`fixed top-[60px] left-0 right-0 transition-all duration-300 z-50 
+          ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
+          style={{ 
+            backgroundColor: "#024d8f",
+            height: "54px"
+          }}
         >
-          <NavbarContent className="hidden sm:flex gap-10" justify="center">
-            <NavLink href="/" label="首页" />
-            <NavLink href="/communication" label="互动交流" />
-            <NavLink href="/competition" label="竞赛信息" />
-            <NavLink href="/training" label="在线培训" />
-            <NavLink href="/resource" label="资源共享" />
-            <NavLink href="/display" label="成果展示" />
-            <NavLink href="/competition" label="比赛" />
-            <NavLink href="/article" label="文章" />
-            <NavLink href="/notification" label="信息" />
-            <NavLink href="/teams" label="队伍" />
-          </NavbarContent>
-        </Navbar>
+          <nav className="flex w-full h-full items-center justify-center">
+            <div className="hidden sm:flex gap-10 items-center h-full">
+              <NavLink href="/" label="首页" />
+              <NavLink href="/communication" label="互动交流" />
+              <NavLink href="/training" label="在线培训" />
+              <NavLink href="/resource" label="资源共享" />
+              <NavLink href="/display" label="成果展示" />
+              <NavLink href="/competition" label="比赛" />
+              <NavLink href="/article" label="文章" />
+              <NavLink href="/notification" label="信息" />
+              <NavLink href="/teams" label="队伍" />
+            </div>
+          </nav>
+        </div>
       )}
     </>
   );

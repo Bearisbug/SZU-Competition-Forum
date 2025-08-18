@@ -207,7 +207,7 @@ const UserProfileSidebar: React.FC<{
             </div>
           </div>
 
-          {typeof window !== 'undefined' && userId === localStorage.getItem("id") && (
+          {userId === localStorage.getItem("id") && (
             <div className="mt-6">
               <Button
                 color={isEditing ? "success" : "primary"}

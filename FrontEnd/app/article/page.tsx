@@ -71,9 +71,10 @@ export default function ArticleListPage() {
   const fetchArticles = useCallback(async () => {
     setIsLoading(true);
     try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem("access_token") || '' : '';
         const response = await fetch(`${API_BASE_URL}/api/articles/all`, {
         headers: {
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`, 
+          Authorization: `Bearer ${token}`, 
         },
       });
 
@@ -224,7 +225,7 @@ export default function ArticleListPage() {
             >
               <ArticleCard
                 {...article}
-                isAuthor={typeof window !== 'undefined' && localStorage.getItem("id") == article.author_id}
+                isAuthor={typeof window !== 'undefined' ? localStorage.getItem("id") == article.author_id : false}
               />
             </motion.div>
           ))}

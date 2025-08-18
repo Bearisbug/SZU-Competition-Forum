@@ -39,9 +39,10 @@ export default function Resource() {
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("access_token") || '' : '';
       const res = await fetch(`${API_BASE_URL}/api/articles/all`, {
         headers: {
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!res.ok) throw new Error("获取文章列表失败");

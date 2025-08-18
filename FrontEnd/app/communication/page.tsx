@@ -37,7 +37,7 @@ export default function HomePage() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/articles/all`, {
         headers: {
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''} || ''`,
         },
       });
       if (!res.ok) throw new Error("获取文章列表失败");

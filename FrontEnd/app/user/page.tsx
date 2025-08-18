@@ -203,7 +203,7 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
             className="focus:outline-none"
             onClick={toggleVisibility}
           >
-            {isVisible ? <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
+            {isVisible ? <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
           </button>
         }
       />
@@ -297,7 +297,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
             className="focus:outline-none"
             onClick={togglePasswordVisibility}
           >
-            {isPasswordVisible ? <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
+            {isPasswordVisible ? <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
           </button>
         }
       />
@@ -320,7 +320,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
             className="focus:outline-none"
             onClick={toggleConfirmPasswordVisibility}
           >
-            {isConfirmPasswordVisible ? <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
+            {isConfirmPasswordVisible ? <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" /> : <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />}
           </button>
         }
       />

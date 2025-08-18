@@ -89,7 +89,7 @@ export default function TeamCardPreview() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/teams/all/details`, {
         headers: {
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+          Authorization: `Bearer ${localStorage.getItem("access_token") || ''}`,
         },
       });
 
