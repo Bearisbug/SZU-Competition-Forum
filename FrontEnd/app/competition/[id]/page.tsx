@@ -27,6 +27,9 @@ import Image from "next/image";
 import { TeamSelectionModal } from "@/components/Modal/TeamSelectionModal";
 import { Trash2, Plus, ArrowLeft, Trophy, Calendar, Users, Info, Megaphone, PlusCircle } from 'lucide-react';
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 export type Competition = {
   id: number;
   name: string;
@@ -69,9 +72,9 @@ export default function CompetitionDetailPage() {
         const response = await fetch(
           `http://127.0.0.1:8000/api/competitions/detail/${id}`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-            },
+        headers: {
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+        },
           }
         );
         if (!response.ok) {
@@ -103,7 +106,7 @@ export default function CompetitionDetailPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
           body: JSON.stringify({
             title: newAnnouncementTitle,
@@ -136,7 +139,7 @@ export default function CompetitionDetailPage() {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         }
       );
@@ -157,7 +160,7 @@ export default function CompetitionDetailPage() {
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         }
       );

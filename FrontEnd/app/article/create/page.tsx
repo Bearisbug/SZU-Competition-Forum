@@ -65,7 +65,7 @@ export default function CreateArticlePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // 根据后端认证需求设置
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`, // 根据后端认证需求设置
         },
         body: JSON.stringify({
           title,

@@ -67,8 +67,8 @@ const fetchCompetitions = useCallback(async () => {
   setIsLoading(true);
   try {
     const response = await fetch(`${API_BASE_URL}/api/competitions/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        headers: {
+        Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
       },
     });
 

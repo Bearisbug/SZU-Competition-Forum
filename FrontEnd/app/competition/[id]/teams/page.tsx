@@ -7,6 +7,9 @@ import { Button } from "@heroui/react";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 interface MemberInfo {
   name: string;
   grade: string;
@@ -36,7 +39,7 @@ export default function TeamsInfoPage() {
           `${API_BASE_URL}/api/competitions/${competitionId}/registrations/teams-info`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
             },
           }
         );

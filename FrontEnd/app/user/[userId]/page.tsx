@@ -28,6 +28,9 @@ import { TeamCard, Team, TeamMember } from "@/components/Card/TeamCard";
 import { ArticleCard } from "@/components/Card/ArticleCard";
 import { API_BASE_URL } from "@/CONFIG";
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 interface User {
   id: number;
   name: string;
@@ -204,7 +207,7 @@ const UserProfileSidebar: React.FC<{
             </div>
           </div>
 
-          {userId === localStorage.getItem("id") && (
+          {typeof window !== 'undefined' && userId === localStorage.getItem("id") && (
             <div className="mt-6">
               <Button
                 color={isEditing ? "success" : "primary"}
@@ -248,7 +251,7 @@ export default function ProfilePage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
           body: JSON.stringify(updatedUser),
         }
@@ -273,12 +276,12 @@ export default function ProfilePage() {
       const [teamsResponse, articlesResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/api/user/teams/${userId}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         }),
         fetch(`${API_BASE_URL}/api/user/articles/${userId}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         }),
       ]);

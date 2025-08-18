@@ -7,6 +7,9 @@ import toast from "react-hot-toast";
 import { Calendar, Eye, GraduationCap, Briefcase, User, CircleUserRound } from 'lucide-react';
 import { API_BASE_URL } from "@/CONFIG";
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 type Author = {
   id: number;
   name: string;
@@ -40,7 +43,7 @@ export default function ArticleDetailPage() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/articles/detail/${id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         });
 

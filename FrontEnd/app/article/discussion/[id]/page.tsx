@@ -8,6 +8,9 @@ import { Calendar, Eye, GraduationCap, Briefcase, User, CircleUserRound, ThumbsU
 import { API_BASE_URL } from "@/CONFIG";
 import { ArrowLeft } from 'lucide-react';
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 type Author = {
   id: number;
   name: string;
@@ -52,20 +55,28 @@ type Article = {
 
       // 文章点赞数
       const [likes, setLikes] = useState(() => {
-          const saved = localStorage.getItem(`likes-${id}`);
-          return saved ? parseInt(saved) : 0;
+          if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`likes-${id}`);
+            return saved ? parseInt(saved) : 0;
+          }
+          return 0;
         });
 
       const handleLike = () => {
         const newLikes = likes + 1;
         setLikes(newLikes);
-        localStorage.setItem(`likes-${id}`, newLikes.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`likes-${id}`, newLikes.toString());
+        }
       };
 
        const [likesForComments, setLikesForComments] = useState<{ [key: number]: number }>(() => {
         // 从localStorage加载(后期可改数据库)
-        const savedLikes = localStorage.getItem(`comment-likes-${id}`);
-        return savedLikes ? JSON.parse(savedLikes) : {};
+        if (typeof window !== 'undefined') {
+          const savedLikes = localStorage.getItem(`comment-likes-${id}`);
+          return savedLikes ? JSON.parse(savedLikes) : {};
+        }
+        return {};
       });
 
         // 点赞某条评论
@@ -73,7 +84,9 @@ type Article = {
           setLikesForComments(prev => {
             const newLikes = { ...prev };
             newLikes[commentId] = (newLikes[commentId] || 0) + 1;
-            localStorage.setItem(`comment-likes-${id}`, JSON.stringify(newLikes));
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(`comment-likes-${id}`, JSON.stringify(newLikes));
+            }
             return newLikes;
           });
         };
@@ -170,7 +183,7 @@ type Article = {
           try {
             const response = await fetch(`${API_BASE_URL}/api/articles/detail/${id}`, {
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
               },
             });
 

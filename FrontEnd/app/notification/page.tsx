@@ -19,7 +19,7 @@ const SystemInfoPage = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/notifications`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
         },
       });
       const data = await response.json();
@@ -44,7 +44,7 @@ const SystemInfoPage = () => {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
         },
       }
     );
@@ -61,7 +61,7 @@ const SystemInfoPage = () => {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
         },
       }
     );
@@ -79,7 +79,7 @@ const SystemInfoPage = () => {
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         }
       );
@@ -101,7 +101,7 @@ const SystemInfoPage = () => {
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
           },
         }
       );

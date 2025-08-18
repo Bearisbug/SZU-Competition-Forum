@@ -76,7 +76,7 @@ function CreateCompetitionPage() {
     try {
       const response = await fetch(`${API_BASE_URL}/upload_image`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
+        headers: { Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}` },
         body: formData,
       });
       if (!response.ok) {
@@ -129,7 +129,7 @@ function CreateCompetitionPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
         },
         body: JSON.stringify(bodyData),
       });
