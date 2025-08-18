@@ -1,183 +1,262 @@
-import React from 'react';
-import './steps.css'; // 引入CSS文件
+'use client';
+import React, { useEffect, useState } from 'react';
 
 export default function HomePage() {
+  const [currentSection, setCurrentSection] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const totalSections = 4;
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      if (isScrolling) return;
+      
+      setIsScrolling(true);
+      
+      if (e.deltaY > 0 && currentSection < totalSections - 1) {
+        // 向下滚动
+        setCurrentSection(prev => prev + 1);
+      } else if (e.deltaY < 0 && currentSection > 0) {
+        // 向上滚动
+        setCurrentSection(prev => prev - 1);
+      }
+      
+      setTimeout(() => setIsScrolling(false), 1000);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isScrolling) return;
+      
+      if (e.key === 'ArrowDown' && currentSection < totalSections - 1) {
+        setIsScrolling(true);
+        setCurrentSection(prev => prev + 1);
+        setTimeout(() => setIsScrolling(false), 1000);
+      } else if (e.key === 'ArrowUp' && currentSection > 0) {
+        setIsScrolling(true);
+        setCurrentSection(prev => prev - 1);
+        setTimeout(() => setIsScrolling(false), 1000);
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentSection, isScrolling]);
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      {/* 标题卡片（带背景图） */}
-      <header className="text-center relative overflow-hidden min-h-[700px] w-full">
-        {/* 背景图层 */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ backgroundImage: "url('/images/f.png')" }}
-        >
-          {/* 半透明遮罩 */}
-          <div className="absolute inset-0 bg-black/10 "></div>
-        </div>
-
-        {/* 标题半透明卡片*/}
-        <div className="text-center mb-48">
-          <div className="absolute inset-10 flex items-center justify-center">
-            <div className="w-full max-w-2xl h-80 bg-white/80 bg-opacity-70 shadow-lg flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-5xl font-bold text-pink-800 mb-2">
-                  一体化竞赛交流云平台
-                </h1>
-                <h2 className="text-xl text-pink-800 mb-4">
-                  Kiouting Nexus | Academic Competition Platform
-                </h2>
-                <h3 className="text-3xl text-pink-800">
-                  数智驱动/协同创新/生态赋能
-                </h3>
-              </div>
-            </div>
+    <div className="h-screen overflow-hidden mt-6">
+      <div 
+        className="transition-transform duration-1000 ease-in-out"
+        style={{ transform: `translateY(-${currentSection * 100}vh)` }}
+      >
+      {/* Hero Section - 全屏背景图 */}
+      <section className="h-screen bg-cover bg-center bg-no-repeat relative flex items-center justify-center" style={{backgroundImage: "url('/images/f.png')"}}>
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="relative z-10 text-center text-white px-6 max-w-4xl">
+          <h1 className="text-6xl lg:text-8xl font-bold mb-6 leading-tight">
+            深圳大学
+            <span className="block text-pink-800">竞赛交流平台</span>
+          </h1>
+          <p className="text-xl lg:text-2xl mb-8 leading-relaxed">
+            一体化竞赛交流云平台，为深圳大学学生提供全面的竞赛服务
+          </p>
+          <div className="mb-8">
+            <h3 className="text-2xl lg:text-3xl font-semibold text-pink-100">
+              数智驱动 / 协同创新 / 生态赋能
+            </h3>
           </div>
+          <button className="bg-pink-600 text-white px-12 py-4 rounded-full text-lg font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
+            现在登录
+          </button>
         </div>
-      </header>
+      </section>
 
-      {/* Main Content */}
-      <div className="max-w-10xl mx-auto ">
-        {/* Section 1 */}
-        <section className="bg-white p-8 shadow-md">
-          <h2 className="text-4xl font-semibold text-pink-800">
-            参加竞赛需要考虑哪些问题？
-          </h2>
+      {/* Steps Section - 全屏 */}
+      <section className="h-screen bg-gray-50 flex items-center">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-pink-800 mb-6">
+              参加竞赛需要考虑哪些问题？
+            </h2>
+            <p className="text-xl text-gray-600">
+              我们为您梳理了完整的竞赛参与流程
+            </p>
+          </div>
           
-        </section>
-        <section className="bg-gray-200 p-8 shadow-md">
-          <div className="steps">
-            {['确定目标', '时间协调', '备赛计划', '严选赛项', '导师指导', '团队合作'].map((step, index) => (
-              <div key={index} className={`step ${index === 5 ? 'last-step' : ''}`}>
-                {step}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
+            {[
+              { title: '确定目标', desc: '明确参赛目标和期望收获', icon: '🎯' },
+              { title: '时间协调', desc: '合理安排学习和竞赛时间', icon: '⏰' },
+              { title: '备赛计划', desc: '制定详细的备赛计划', icon: '📋' },
+              { title: '严选赛项', desc: '选择适合的竞赛项目', icon: '🏆' },
+              { title: '导师指导', desc: '寻找专业导师指导', icon: '👨‍🏫' },
+              { title: '团队合作', desc: '组建高效的竞赛团队', icon: '🤝' }
+            ].map((step, index) => (
+              <div key={index} className="relative">
+                <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 h-48 flex flex-col justify-center">
+                  <div className="text-5xl mb-4">{step.icon}</div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">{step.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{step.desc}</p>
+                </div>
+                {index < 5 && (
+                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-pink-400 text-3xl">
+                    →
+                  </div>
+                )}
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <hr className="border-gray-200" />
+      {/* Competition Section - 全屏 */}
+      <section className="h-screen bg-white flex items-center mt-16">
+        <div className="container mx-auto px-6 max-h-screen overflow-hidden">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">深圳大学热门竞赛</h2>
+            <p className="text-lg text-gray-600">发现最适合你的竞赛项目</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                title: '全国大学生数学建模竞赛',
+                location: '深圳大学',
+                team: '3人团队',
+                duration: '3天时间',
+                category: '本科组',
+                price: '免费',
+                image: '/images/e.png'
+              },
+              {
+                title: 'ACM程序设计竞赛',
+                location: '深圳大学',
+                team: '3人团队',
+                duration: '5小时',
+                category: '算法竞赛',
+                price: '免费',
+                image: '/images/tzbcy.png'
+              },
+              {
+                title: '互联网+创新创业大赛',
+                location: '深圳大学',
+                team: '5人团队',
+                duration: '6个月',
+                category: '创业组',
+                price: '免费',
+                image: '/images/sj.png'
+              },
+              {
+                title: '蓝桥杯软件设计大赛',
+                location: '深圳大学',
+                team: '个人赛',
+                duration: '4小时',
+                category: '编程组',
+                price: '￥200',
+                image: '/images/lqb.png'
+              }
+            ].map((item, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex h-40">
+                  <div className="w-2/5">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover"/>
+                  </div>
+                  <div className="w-3/5 p-6 flex flex-col justify-center">
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">{item.title}</h3>
+                    <p className="text-gray-600 mb-3 text-sm">📍 {item.location}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                      <span>👥 {item.team}</span>
+                      <span>⏱️ {item.duration}</span>
+                      <span>🏷️ {item.category}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">主办方：深圳大学</span>
+                      <span className="text-lg font-bold text-pink-600">{item.price}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-8">
+            <button className="bg-pink-600 text-white px-8 py-3 rounded-full text-base font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
+              查看全部竞赛
+            </button>
+          </div>
+        </div>
+      </section>
 
-        {/* Section 2 */}
-        <section className="bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[700px] w-full" style={{backgroundImage: "url('/images/g.png')"}}>
-            <div className="container mx-auto px-6 py-20 z-10">
-            <h2 className="text-3xl font-semibold text-white mb-6 text-center">
+      {/* Features Section - 全屏背景图 */}
+      <section className="h-screen bg-cover bg-center relative flex items-center" style={{backgroundImage: "url('/images/g.png')"}}>
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-white mb-6">
               在这里有你所需要的一切
             </h2>
-            <h3 className="text-1xl font-semibold text-white mb-2 text-center">
-              学习基础|技能提升|计划制定
-            </h3>
-            <h4 className="text-1xl font-semibold text-white mb-20 text-center">
-              心态调整|模拟演练|实战演练
-            </h4>
-            <div className="grid md:grid-cols-4 gap-4 text-center">
-              <div className="p-10 bg-white rounded-2xl">
-                <h3 className="font-medium text-gray-800">知识传承</h3>
-                <p className="text-sm text-gray-600">通过“师带徒”形式，实现知识和经验的传承，提升团队整体竞争力。</p>
-              </div>
-              <div className="p-10 bg-white rounded-2xl">
-                <h3 className="font-medium text-gray-800">团队协作</h3>
-                <p className="text-sm text-gray-600">增强团队协作能力，培养高效沟通和协作精神。</p>
-              </div>
-              <div className="p-10 bg-white rounded-2xl">
-                <h3 className="font-medium text-gray-800">竞赛实践</h3>
-                <p className="text-sm text-gray-600">提供丰富的竞赛实践机会，提升实际操作能力。</p>
-              </div>
-              <div className="p-10 bg-white rounded-2xl">
-                <h3 className="font-medium text-gray-800">学术交流</h3>
-                <p className="text-sm text-gray-600">促进学术交流和知识共享，拓宽学术视野。</p>
-              </div>
-              
-            </div>
+            <p className="text-2xl text-white/90 mb-4">
+              学习基础 | 技能提升 | 计划制定
+            </p>
+            <p className="text-2xl text-white/90">
+              心态调整 | 模拟演练 | 实战演练
+            </p>
           </div>
-        </section>
-
-        <hr className="border-gray-200" />
-
-        {/* Section 3 */}
-        <section className="bg-white p-8 shadow-md">
-          <h2 className="text-3xl font-semibold text-blue-900 mb-12 text-center">
-            选择我们的四大优势
-          </h2>
-          <div className="flex flex-col lg:flex-row gap-8 relative z-10">
-            {/* 左侧文字框 */}
-            <div className="flex-1 flex flex-col gap-8">
-              <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border border-blue-100 transition-all duration-300 hover:shadow-xl">
-                <div className="flex items-center mb-4">
-                  <div className="bg-blue-100 text-blue-700 p-3 rounded-full mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-800">信息整理</h3>
-                </div>
-                <p className="text-gray-700 leading-relaxed">
-                  平台对发布的竞赛信息进行整理和展示，让用户能够快速找到自己感兴趣的竞赛项目。同时，平台还提供竞赛的历史数据和统计信息，帮助用户了解竞赛的发展趋势和竞争情况。
-                </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {[
+              { title: '知识传承', desc: '通过"师带徒"形式，实现知识和经验的传承，提升团队整体竞争力。' },
+              { title: '团队协作', desc: '增强团队协作能力，培养高效沟通和协作精神。' },
+              { title: '竞赛实践', desc: '提供丰富的竞赛实践机会，提升实际操作能力。' },
+              { title: '学术交流', desc: '促进学术交流和知识共享，拓宽学术视野。' }
+            ].map((feature, index) => (
+              <div key={index} className="bg-white/95 backdrop-blur-sm rounded-3xl p-10 text-center hover:bg-white transition-all duration-300 transform hover:-translate-y-3 shadow-xl">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-lg">{feature.desc}</p>
               </div>
-              
-              <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border border-blue-100 transition-all duration-300 hover:shadow-xl">
-                <div className="flex items-center mb-4">
-                  <div className="bg-blue-100 text-blue-700 p-3 rounded-full mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-800">知识传承</h3>
-                </div>
-                <p className="text-gray-700 leading-relaxed">
-                  实现了知识传承、在线培训、成果展示、资源共享、竞赛模拟等服务。通过这些服务，为用户提供了学习和成长的平台。
-                </p>
-              </div>
-            </div>
-            
-            {/* 中间四大优势 */}
-            <div className="flex-1 flex flex-col gap-8">
-              <div className="p-10 bg-blue-700 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
-                <h3 className="text-2xl text-white font-bold text-center">信息整理</h3>
-              </div>
-              <div className="p-10 bg-blue-600 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
-                <h3 className="text-2xl text-white font-bold text-center">竞赛报名</h3>
-              </div>
-              <div className="p-10 bg-blue-500 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
-                <h3 className="text-2xl text-white font-bold text-center">学术交流</h3>
-              </div>
-              <div className="p-10 bg-blue-400 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
-                <h3 className="text-2xl text-white font-bold text-center">知识传承</h3>
-              </div>
-            </div>
-            
-            {/* 右侧文字框 */}
-            <div className="flex-1 flex flex-col gap-8">
-              <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border border-blue-100 transition-all duration-300 hover:shadow-xl">
-                <div className="flex items-center mb-4">
-                  <div className="bg-blue-100 text-blue-700 p-3 rounded-full mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-800">竞赛报名</h3>
-                </div>
-                <p className="text-gray-700 leading-relaxed">
-                  为用户提供竞赛信息发布服务。用户可以在平台上发布竞赛的详细信息，包括竞赛的主题、时间、地点、参赛要求等，吸引更多的参与者。
-                </p>
-              </div>
-              
-              <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border border-blue-100 transition-all duration-300 hover:shadow-xl">
-                <div className="flex items-center mb-4">
-                  <div className="bg-blue-100 text-blue-700 p-3 rounded-full mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-800">学术交流</h3>
-                </div>
-                <p className="text-gray-700 leading-relaxed">
-                  整合了来自高校、企业、竞赛单位和学术论坛的各种数据。
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
       </div>
+
+      {/* 导航点 */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50">
+        {Array.from({ length: totalSections }).map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              if (!isScrolling) {
+                setIsScrolling(true);
+                setCurrentSection(index);
+                setTimeout(() => setIsScrolling(false), 1000);
+              }
+            }}
+            className={`block w-3 h-3 rounded-full mb-4 transition-all duration-300 ${
+              currentSection === index 
+                ? 'bg-pink-600 scale-125' 
+                : 'bg-white/50 hover:bg-white/80'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* 滚动提示 */}
+      {currentSection === 0 && (
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 text-white animate-bounce">
+          <div className="flex flex-col items-center">
+            <span className="text-sm mb-2">向下滚动</span>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
