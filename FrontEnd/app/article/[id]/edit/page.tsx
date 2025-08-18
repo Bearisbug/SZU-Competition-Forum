@@ -119,7 +119,7 @@ export default function EditArticlePage() {
       }
 
       toast.success("文章更新成功！");
-      router.push(`/articles/detail/${id}`);
+      router.push(`/articles/${id}`);
     } catch (error) {
       console.error("更新文章错误:", error);
       toast.error("更新文章失败，请重试！");
@@ -184,7 +184,7 @@ export default function EditArticlePage() {
           <MyEditor initialValue={content} onChange={setContent} />
         </div>
         <div className="flex justify-end space-x-4">
-          <Button color="danger" onClick={() => router.push(`/articles/detail/${id}`)}>
+          <Button color="danger" onClick={() => router.push(`/articles/${id}`)}>
             取消
           </Button>
           <Button type="submit" color="primary">

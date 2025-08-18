@@ -214,7 +214,7 @@ export default function ArticleListPage() {
               transition={{ duration: 0.5 }}
               onClick={() => {
                 if (article.post_type === 'share') {
-                  router.push(`/article/share/${article.id}`);
+                  router.push(`/article/${article.id}`);
                 } else if (article.post_type === 'discussion') {
                   router.push(`/article/discussion/${article.id}`);
                 } else {
