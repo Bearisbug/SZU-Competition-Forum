@@ -123,26 +123,28 @@ export default function IONavBar() {
         </div>
       </div>
 
-      {/* 滚动隐藏的蓝色导航栏 */}
-      <Navbar
-        className={`fixed top-[60px] left-0 right-0 transition-transform duration-300 z-50 
-        text-white shadow-md ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
-        height="54px"
-        style={{ backgroundColor: "#024d8f" }}
-      >
-        <NavbarContent className="hidden sm:flex gap-10" justify="center">
-          <NavLink href="/" label="首页" />
-          <NavLink href="/communication" label="互动交流" />
-          <NavLink href="/competition" label="竞赛信息" />
-          <NavLink href="/training" label="在线培训" />
-          <NavLink href="/resource" label="资源共享" />
-          <NavLink href="/display" label="成果展示" />
-          <NavLink href="/competition" label="比赛" />
-          <NavLink href="/article" label="文章" />
-          <NavLink href="/notification" label="信息" />
-          <NavLink href="/teams" label="队伍" />
-        </NavbarContent>
-      </Navbar>
+      {/* 滚动隐藏的蓝色导航栏 - 只有登录用户才显示 */}
+      {isClient && isLoggedIn && (
+        <Navbar
+          className={`fixed top-[60px] left-0 right-0 transition-transform duration-300 z-50 
+          text-white shadow-md ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
+          height="54px"
+          style={{ backgroundColor: "#024d8f" }}
+        >
+          <NavbarContent className="hidden sm:flex gap-10" justify="center">
+            <NavLink href="/" label="首页" />
+            <NavLink href="/communication" label="互动交流" />
+            <NavLink href="/competition" label="竞赛信息" />
+            <NavLink href="/training" label="在线培训" />
+            <NavLink href="/resource" label="资源共享" />
+            <NavLink href="/display" label="成果展示" />
+            <NavLink href="/competition" label="比赛" />
+            <NavLink href="/article" label="文章" />
+            <NavLink href="/notification" label="信息" />
+            <NavLink href="/teams" label="队伍" />
+          </NavbarContent>
+        </Navbar>
+      )}
     </>
   );
 }
