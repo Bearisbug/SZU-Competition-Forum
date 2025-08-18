@@ -4,4 +4,5 @@ PyJWT==2.10.1
 SQLAlchemy==2.0.34
 starlette==0.45.0
 uvicorn==0.34.0
+python-multipart
 redis
