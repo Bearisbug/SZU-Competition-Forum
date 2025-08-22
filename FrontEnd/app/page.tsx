@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { useAuthStore } from '@/components/AuthStore';
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -15,10 +16,8 @@ export default function HomePage() {
       setIsScrolling(true);
       
       if (e.deltaY > 0 && currentSection < totalSections - 1) {
-        // 向下滚动
         setCurrentSection(prev => prev + 1);
       } else if (e.deltaY < 0 && currentSection > 0) {
-        // 向上滚动
         setCurrentSection(prev => prev - 1);
       }
       
@@ -48,14 +47,29 @@ export default function HomePage() {
     };
   }, [currentSection, isScrolling]);
 
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  const contentStyle = {
+    height: "100vh",
+    width: "100%",
+    overflow: "hidden"
+  } as React.CSSProperties;
+
   return (
-    <div className="h-screen overflow-hidden mt-6">
+    <div className="fixed inset-0 overflow-hidden" style={{ top: isLoggedIn ? "114px" : "60px", height: `calc(100vh - ${isLoggedIn ? "114px" : "60px"})` }}>
       <div 
-        className="transition-transform duration-1000 ease-in-out"
-        style={{ transform: `translateY(-${currentSection * 100}vh)` }}
+        className="absolute inset-0 transition-transform duration-1000 ease-in-out"
+        style={{ 
+          transform: `translateY(-${currentSection * 100}%)`,
+        }}
       >
       {/* Hero Section - 全屏背景图 */}
-      <section className="h-screen bg-cover bg-center bg-no-repeat relative flex items-center justify-center" style={{backgroundImage: "url('/images/f.png')"}}>
+      <section className="h-full bg-cover bg-center bg-no-repeat relative flex items-center justify-center" style={{backgroundImage: "url('/images/f.png')"}}>
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative z-10 text-center text-white px-6 max-w-4xl">
           <h1 className="text-6xl lg:text-8xl font-bold mb-6 leading-tight">
@@ -77,7 +91,7 @@ export default function HomePage() {
       </section>
 
       {/* Steps Section - 全屏 */}
-      <section className="h-screen bg-gray-50 flex items-center">
+      <section className="h-full bg-gray-50 flex items-center">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold text-pink-800 mb-6">
@@ -115,7 +129,7 @@ export default function HomePage() {
       </section>
 
       {/* Competition Section - 全屏 */}
-      <section className="h-screen bg-white flex items-center mt-16">
+      <section className="h-full bg-white flex items-center">
         <div className="container mx-auto px-6 max-h-screen overflow-hidden">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">深圳大学热门竞赛</h2>
@@ -193,7 +207,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section - 全屏背景图 */}
-      <section className="h-screen bg-cover bg-center relative flex items-center" style={{backgroundImage: "url('/images/g.png')"}}>
+      <section className="h-full bg-cover bg-center relative flex items-center" style={{backgroundImage: "url('/images/g.png')"}}>
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">

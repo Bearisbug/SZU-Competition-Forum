@@ -13,7 +13,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <HeroUIProvider>
-          <main className="flex-1 min-h-[calc(110vh)] text-foreground mx-auto bg-background pt-[54px]">
+          <main className="flex-1 min-h-[calc(110vh)] text-foreground mx-auto bg-background">
             <title>竞赛论坛</title>
             <IONavBar />
             {children}

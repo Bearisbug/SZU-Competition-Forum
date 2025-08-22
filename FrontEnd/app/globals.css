@@ -2,14 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 通用 reset，保留 */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* Tailwind 主题变量，保留 */
 @layer base {
   :root {
     --background: 0 0% 100%;
