@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
+import { useAuthStore } from '@/components/AuthStore';
 
 type Article = {
   id: number;
@@ -35,6 +36,14 @@ export default function Resource() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const visibleCount = 3;
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchArticles = async () => {
     setIsLoading(true);
@@ -93,7 +102,7 @@ export default function Resource() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen mt-[114px]">
+    <div className="flex flex-col min-h-screen" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       {/* 上方标题区 */}
       <div className="bg-white py-8 shadow-md">
         <div className="container mx-auto px-4 text-center">

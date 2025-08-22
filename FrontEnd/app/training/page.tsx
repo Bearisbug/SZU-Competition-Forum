@@ -1,12 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@heroui/react";
 import { Search } from "lucide-react";
+import { useAuthStore } from '@/components/AuthStore';
 
 export default function OnlineLectureIntro() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const categories = [
     {
@@ -107,7 +116,7 @@ export default function OnlineLectureIntro() {
       <div className="relative z-10 min-h-screen">
         <div className="container mx-auto p-4 lg:p-8">
           {/* 顶部标题和搜索 */}
-          <div className="flex flex-col lg:flex-row justify-between items-center mb-8 pt-16">
+          <div className="flex flex-col lg:flex-row justify-between items-center mb-8" style={{ paddingTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
             <div className="text-center lg:text-left mb-4 lg:mb-0">
               <h1 className="text-3xl font-bold mb-4 text-[#024d8f] inline-block pb-2 border-b-4 border-[#024d8f]">
                 在线讲座

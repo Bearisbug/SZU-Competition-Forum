@@ -8,6 +8,7 @@ import { CreateTeamModal } from "@/components/Modal/CreateTeamModal";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { API_BASE_URL } from "@/CONFIG";
+import { useAuthStore } from '@/components/AuthStore';
 
 type Team = {
   id: number;
@@ -81,8 +82,16 @@ export default function TeamCardPreview() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [competitions, setCompetitions] = useState<Competition[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const teamsPerPage = 4;
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -357,7 +366,7 @@ const competitionMap = useMemo(() => {
 
   if (filteredTeams.length === 0) {
     return (
-      <div className="container mx-auto p-4 flex mt-16">
+      <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
         <FilterSidebar
           onFilterChange={handleFilterChange}
           filterCategories={filterCategories}
@@ -385,7 +394,7 @@ const competitionMap = useMemo(() => {
   }
 
   return (
-    <div className="container mx-auto p-4 flex mt-16">
+    <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <FilterSidebar
         onFilterChange={handleFilterChange}
         filterCategories={filterCategories}

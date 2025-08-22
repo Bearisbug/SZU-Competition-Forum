@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
+import { useAuthStore } from '@/components/AuthStore';
 
 type Article = {
   id: number;
@@ -30,7 +31,15 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const visibleCount = 3;
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchArticles = async () => {
     setIsLoading(true);
@@ -91,7 +100,7 @@ export default function HomePage() {
   const handleArticleClick = () => router.push('/article');
 
   return (
-    <div className="min-h-screen bg-gray-50 mt-12">
+    <div className="min-h-screen bg-gray-50" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
 
       {/* 顶部标题卡片 */}
       <header className="text-center relative overflow-hidden min-h-[700px] w-full p-8">

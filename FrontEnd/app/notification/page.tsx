@@ -4,6 +4,7 @@ import SystemInfoDisplay from "@/components/SystemInfoDisplay";
 import toast from "react-hot-toast";
 import { Spinner } from "@heroui/react";
 import { API_BASE_URL } from "@/CONFIG";
+import { useAuthStore } from '@/components/AuthStore';
 
 type SystemInfo = {
     id: string;
@@ -14,6 +15,14 @@ type SystemInfo = {
 const SystemInfoPage = () => {
   const [systemInfo, setSystemInfo] = useState<SystemInfo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [mounted, setMounted] = useState(false);
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -130,7 +139,7 @@ const SystemInfoPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-8 mt-16">
+    <div className="container mx-auto p-8" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <SystemInfoDisplay
         infoList={systemInfo}
         onApprove={handleApprove}

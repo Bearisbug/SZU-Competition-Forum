@@ -7,6 +7,7 @@ import { FilterSidebar, FilterOption} from "@/components/FilterSidebar"
 import { API_BASE_URL } from "@/CONFIG";
 import CompetitionCard, { Competition } from "@/components/Card/CompetitionCard"
 import toast from 'react-hot-toast';
+import { useAuthStore } from '@/components/AuthStore';
 
 type FilterCategory = "competition_type" | "organizer"
 
@@ -19,6 +20,14 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const filterCategories = [
     {
@@ -125,7 +134,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
+    <div className="min-h-screen bg-gray-50" style={{ paddingTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <div className="max-w-7xl mx-auto p-4">
         {/* 顶部标题栏 */}
         <div className="flex justify-between items-center mb-6">

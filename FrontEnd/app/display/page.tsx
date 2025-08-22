@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useAuthStore } from '@/components/AuthStore';
 
 export default function AchievementShowcase() {
   const carouselSlides = [
@@ -12,6 +13,14 @@ export default function AchievementShowcase() {
   ];
 
   const [current, setCurrent] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,7 +58,7 @@ const getPositionClass = (index: number) => {
   return (
     <div className="min-h-screen">
       {/* 成果展示 */}
-      <section className="mt-8 bg-white py-12">
+      <section className="bg-white py-12" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-[#024d8f] inline-block pb-2 border-b-4 border-[#024d8f]">
             成果展示

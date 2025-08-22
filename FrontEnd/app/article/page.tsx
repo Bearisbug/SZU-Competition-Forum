@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { X } from 'lucide-react';
 import { motion } from "framer-motion";
 import { API_BASE_URL } from '@/CONFIG';
+import { useAuthStore } from '@/components/AuthStore';
 
 type Article = {
   id: number;
@@ -65,8 +66,16 @@ export default function ArticleListPage() {
   const [filters, setFilters] = useState<FilterOption[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   const articlesPerPage = 6;
+  
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchArticles = useCallback(async () => {
     setIsLoading(true);
@@ -146,7 +155,7 @@ export default function ArticleListPage() {
 
   if (filteredArticles.length === 0) {
     return (
-      <div className="container mx-auto p-4 flex mt-16">
+      <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
         <FilterSidebar
           //@ts-ignore
           onFilterChange={handleFilterChange}
@@ -175,7 +184,7 @@ export default function ArticleListPage() {
   }
 
   return (
-    <div className="container mx-auto p-4 flex mt-16">
+    <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <FilterSidebar
         //@ts-ignore
         onFilterChange={handleFilterChange}

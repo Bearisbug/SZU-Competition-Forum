@@ -16,8 +16,10 @@ export default function HomePage() {
       setIsScrolling(true);
       
       if (e.deltaY > 0 && currentSection < totalSections - 1) {
+        // 向下滚动
         setCurrentSection(prev => prev + 1);
       } else if (e.deltaY < 0 && currentSection > 0) {
+        // 向上滚动
         setCurrentSection(prev => prev - 1);
       }
       
@@ -47,6 +49,7 @@ export default function HomePage() {
     };
   }, [currentSection, isScrolling]);
 
+  // 从 AuthStore 获取登录状态
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const [mounted, setMounted] = useState(false);
   
@@ -54,6 +57,7 @@ export default function HomePage() {
     setMounted(true);
   }, []);
   
+  // 计算内容的样式
   const contentStyle = {
     height: "100vh",
     width: "100%",
