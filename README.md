@@ -87,25 +87,11 @@ cd SZU-Competition-Forum
    这将自动从 `requirements.txt` 文件中读取依赖并安装相应的包。
 3. **配置 FastAPI 启动脚本**：
    
-   `在配置 FastAPI 启动脚本之前，请单独运行 app.db.models 文件，他将会生成一份 .db 文件，此文件即为 SQLite 数据库，将这份文件放在启动与你的启动脚本同级的目录下面。`
-   
-   FastAPI 应用通常会有一个启动脚本（比如 `main.py`），你需要确保在本地运行时能够启动 FastAPI。
-   
-   - 确保安装了 `uvicorn`，这是用于启动 FastAPI 应用的 ASGI 服务器：
-     
-     ```bash
-     pip install uvicorn
-     ```
-   - 然后使用以下命令启动 FastAPI 后端：
-     
-     ```bash
-     uvicorn main:app --reload
-     ```
-     
-     - `main` 是你的 FastAPI 应用所在的 Python 文件名（不带 `.py` 后缀）。
-     - `app` 是 FastAPI 实例化的对象，通常写作 `app = FastAPI()`。
-     - `--reload` 选项表示开发模式下每次修改代码后自动重启服务器。
-   
+   执行以下命令来启动后端
+   ```bash
+   python -m app.db.models
+   python main.py
+   ```
    启动后，你可以通过浏览器访问 `http://localhost:8000` 来访问后端 API，默认端口是 `8000`。
 
 ## 4. 前后端同时启动
