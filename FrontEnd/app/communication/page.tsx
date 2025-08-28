@@ -98,6 +98,7 @@ export default function HomePage() {
 
   const handleTeamClick = () => router.push('/teams');
   const handleArticleClick = () => router.push('/article');
+  const handleCompetitionClick = () => router.push('/competition');
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
@@ -128,11 +129,11 @@ export default function HomePage() {
               <h3 className="text-2xl font-bold text-blue-800 mb-3">技术讨论</h3>
             </div>
 
-            <div onClick={handleArticleClick} className="p-8 cursor-pointer">
+            <div onClick={handleCompetitionClick} className="p-8 cursor-pointer">
               <div className="flex items-center justify-center mx-auto mb-6">
               <Trophy className="text-blue-800 w-10 h-10" />
             </div>
-              <h3 className="text-2xl font-bold text-blue-800 mb-3">竞赛经验分享</h3>
+              <h3 className="text-2xl font-bold text-blue-800 mb-3">竞赛分享</h3>
             </div>
 
             <div onClick={handleTeamClick} className="p-8 cursor-pointer">

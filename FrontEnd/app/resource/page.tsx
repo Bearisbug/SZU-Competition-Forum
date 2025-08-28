@@ -1,5 +1,10 @@
 "use client";
 
+import React from "react";
+
+/**
+ * 原页面代码已注释
+ * 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -103,14 +108,14 @@ export default function Resource() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
-      {/* 上方标题区 */}
+      // 上方标题区
       <div className="bg-white py-8 shadow-md">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold mb-2 text-[#024d8f] inline-block pb-2 border-b-4 border-[#024d8f]">
             资源共享
           </h1>
 
-          {/* 分类图标卡片 */}
+          // 分类图标卡片
           <div className="flex justify-center gap-8 mt-8">
             {images.map((image, index) => (
               <Card
@@ -134,14 +139,14 @@ export default function Resource() {
         </div>
       </div>
 
-      {/* 下方内容区 */}
+      // 下方内容区
       <div
         className="flex-1 bg-cover bg-center pt-12 pb-20 relative"
         style={{ backgroundImage: "url('/bg2.png')" }}
       >
         <div className="absolute inset-0 bg-[#024d8f] opacity-60 pointer-events-none"></div>
         <div className="relative container mx-auto px-4">
-          {/* 标题与搜索框 */}
+          // 标题与搜索框
           <div className="max-w-6xl mx-auto mb-12 relative text-center">
             <h2 className="inline-block text-3xl font-bold text-white border-b-4 border-white pb-2">
               最新帖子
@@ -165,9 +170,9 @@ export default function Resource() {
             </div>
           </div>
 
-          {/* 帖子卡片区域 */}
+          // 帖子卡片区域
           <div className="relative max-w-6xl mx-auto mt-12">
-            {/* 左右箭头 */}
+            // 左右箭头
             <button
               onClick={prevSlide}
               disabled={currentIndex === 0}
@@ -185,7 +190,7 @@ export default function Resource() {
               <ChevronRight size={100} />
             </button>
 
-            {/* 卡片区域（只渲染当前页） */}
+            // 卡片区域（只渲染当前页）
             <div className="overflow-hidden px-12">
               <div className="flex gap-6 transition-all duration-300">
                 {filteredArticles
@@ -223,6 +228,24 @@ export default function Resource() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+*/
+
+export default function Resource() {
+  return (
+    <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gradient-to-b from-white to-gray-100 overflow-hidden">
+      <div className="w-full max-w-4xl mx-auto px-4 text-center">
+        <div className="mb-8">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-wider text-[#024d8f] mb-4 drop-shadow-md">
+            COMING SOON. . .
+          </h1>
+          <p className="text-xl md:text-2xl font-semibold text-[#024d8f] drop-shadow-sm">
+            页面正在建设中. . .
+          </p>
         </div>
       </div>
     </div>

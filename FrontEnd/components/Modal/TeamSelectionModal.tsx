@@ -27,7 +27,7 @@ export function TeamSelectionModal({ isOpen, onClose, onSelectTeam }: TeamSelect
 
   const fetchTeams = async () => {
     try {
-      const response = await fetch('${API_BASE_URL}/api/teams/my-captain-teams', {
+      const response = await fetch(`${API_BASE_URL}/api/teams/my-captain-teams`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         },

@@ -163,10 +163,10 @@ export default function IONavBar() {
               <NavLink href="/training" label="在线培训" />
               <NavLink href="/resource" label="资源共享" />
               <NavLink href="/display" label="成果展示" />
-              <NavLink href="/competition" label="比赛" />
-              <NavLink href="/article" label="文章" />
+              {/* <NavLink href="/competition" label="比赛" /> */}
+              {/* <NavLink href="/article" label="文章" /> */}
               <NavLink href="/notification" label="信息" />
-              <NavLink href="/teams" label="队伍" />
+              {/* <NavLink href="/teams" label="队伍" /> */}
             </div>
           </nav>
         </div>

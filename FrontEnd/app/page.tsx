@@ -89,7 +89,7 @@ export default function HomePage() {
             </h3>
           </div>
           <button className="bg-pink-600 text-white px-12 py-4 rounded-full text-lg font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
-            现在登录
+            现在加入我们！
           </button>
         </div>
       </section>
