@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 type Article = {
   id: number;

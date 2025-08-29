@@ -12,7 +12,7 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 type Article = {
   id: number;

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { withAuth } from "@/lib/auth-guards";
 import { useRouter } from "next/navigation";
 import { Input, Button, Textarea, Select, SelectItem } from "@heroui/react";
 import MyEditor from "@/components/IOEditor";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
 
-export default function CreateArticlePage() {
+function CreateArticlePageContent() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -90,8 +91,17 @@ export default function CreateArticlePage() {
     }
   };
 
+  const [mounted, setMounted] = useState(false);
+  
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = true; // 已登录页面必定是登录状态
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   return (
-    <div className="container mx-auto p-4 mt-16 w-3/5">
+    <div className="container mx-auto p-4 w-3/5" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <h1 className="text-2xl font-bold mb-4">创建新文章</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
@@ -154,3 +164,7 @@ export default function CreateArticlePage() {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const CreateArticlePage = withAuth(CreateArticlePageContent);
+export default CreateArticlePage;

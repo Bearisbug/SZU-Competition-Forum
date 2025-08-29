@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { withAuth } from "@/lib/auth-guards";
 import {
   Card,
   CardBody,
@@ -228,7 +229,7 @@ const UserProfileSidebar: React.FC<{
   );
 };
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const [user, setUser] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -377,8 +378,17 @@ export default function ProfilePage() {
     },
   };
 
+  const [mounted, setMounted] = useState(false);
+  
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = true; // 已登录页面必定是登录状态
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 mt-16">
+    <div className="min-h-screen bg-background p-4 md:p-8" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-1/3">
@@ -451,3 +461,7 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const ProfilePage = withAuth(ProfilePageContent);
+export default ProfilePage;

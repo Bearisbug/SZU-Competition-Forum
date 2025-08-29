@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 export default function AchievementShowcase() {
   const carouselSlides = [

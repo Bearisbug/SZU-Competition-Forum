@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -88,7 +88,7 @@ export default function HomePage() {
               数智驱动 / 协同创新 / 生态赋能
             </h3>
           </div>
-          <button className="bg-pink-600 text-white px-12 py-4 rounded-full text-lg font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
+          <button disabled className="bg-pink-600 text-white px-12 py-4 rounded-full text-lg font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
             现在加入我们！
           </button>
         </div>

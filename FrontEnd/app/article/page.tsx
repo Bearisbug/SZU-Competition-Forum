@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { withAuth } from "@/lib/auth-guards";
 import { ArticleCard } from "@/components/Card/ArticleCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { Pagination, Spinner, Button } from "@heroui/react";
@@ -9,7 +10,7 @@ import toast from "react-hot-toast";
 import { X } from 'lucide-react';
 import { motion } from "framer-motion";
 import { API_BASE_URL } from '@/CONFIG';
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 type Article = {
   id: number;
@@ -59,7 +60,7 @@ const filterCategories = [
   },
 ];
 
-export default function ArticleListPage() {
+function ArticleListPageContent() {
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
@@ -253,4 +254,8 @@ export default function ArticleListPage() {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const ArticleListPage = withAuth(ArticleListPageContent);
+export default ArticleListPage;
 

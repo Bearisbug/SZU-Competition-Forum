@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { withAuth } from "@/lib/auth-guards";
 import { TeamCard } from "@/components/Card/TeamCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
 import { Pagination, Spinner, Button } from "@heroui/react";
@@ -8,7 +9,7 @@ import { CreateTeamModal } from "@/components/Modal/CreateTeamModal";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { API_BASE_URL } from "@/CONFIG";
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 type Team = {
   id: number;
@@ -71,7 +72,7 @@ const filterCategories = [
   },
 ];
 
-export default function TeamCardPreview() {
+function TeamCardPreviewContent() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamMembers, setTeamMembers] = useState<{ [key: number]: TeamMember[] }>(
     {}
@@ -442,3 +443,7 @@ const competitionMap = useMemo(() => {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const TeamCardPreview = withAuth(TeamCardPreviewContent);
+export default TeamCardPreview;

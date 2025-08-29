@@ -1,6 +1,7 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { withAdmin } from "@/lib/auth-guards";
 import { Input, Button, Select, SelectItem, DateInput } from "@heroui/react";
 import { CalendarDate } from "@internationalized/date";
 import MyEditor from "@/components/IOEditor"; // 你自行实现的富文本编辑组件
@@ -27,7 +28,7 @@ export type Competition = {
   updated_at: string;
 };
 
-function CreateCompetitionPage() {
+function CreateCompetitionPageContent() {
   const router = useRouter();
 
   // 默认今天
@@ -142,8 +143,17 @@ function CreateCompetitionPage() {
     }
   };
 
+  const [mounted, setMounted] = useState(false);
+  
+  // 从 AuthStore 获取登录状态
+  const isLoggedIn = true; // 管理员页面必定是登录状态
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   return (
-    <div className="container mx-auto p-4 mt-16 w-3/5">
+    <div className="container mx-auto p-4 w-3/5" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <h1 className="text-2xl font-bold mb-4">创建新比赛</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label="比赛名称" value={name} onChange={e => setName(e.target.value)} required />
@@ -196,4 +206,6 @@ function CreateCompetitionPage() {
   );
 }
 
+// 使用管理员权限校验高阶组件包装原始组件
+const CreateCompetitionPage = withAdmin(CreateCompetitionPageContent);
 export default CreateCompetitionPage;

@@ -4,7 +4,7 @@ import SystemInfoDisplay from "@/components/SystemInfoDisplay";
 import toast from "react-hot-toast";
 import { Spinner } from "@heroui/react";
 import { API_BASE_URL } from "@/CONFIG";
-import { useAuthStore } from '@/components/AuthStore';
+import { useAuthStore } from '@/lib/auth-guards';
 
 type SystemInfo = {
     id: string;

@@ -15,7 +15,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuthStore } from "@/components/AuthStore";
+import { useAuthStore } from "@/lib/auth-guards";
 import { API_BASE_URL } from "@/CONFIG";
 
 interface User {

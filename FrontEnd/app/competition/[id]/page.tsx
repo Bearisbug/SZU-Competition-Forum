@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { withAuth } from "@/lib/auth-guards";
 import {
   Button,
   Tabs,
@@ -55,7 +56,7 @@ type CompetitionAnnouncement = {
   published_at: string;
 };
 
-export default function CompetitionDetailPage() {
+function CompetitionDetailPageContent() {
   const params = useParams();
   const id = params.id;
   const router = useRouter();
@@ -388,3 +389,7 @@ export default function CompetitionDetailPage() {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const CompetitionDetailPage = withAuth(CompetitionDetailPageContent);
+export default CompetitionDetailPage;

@@ -10,7 +10,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "lucide-react";
-import { useAuthStore } from "./AuthStore";
+import { useAuthStore } from "@/lib/auth-guards";
 
 export default function IONavBar() {
   const pathname = usePathname();
@@ -166,6 +166,7 @@ export default function IONavBar() {
               {/* <NavLink href="/competition" label="比赛" /> */}
               {/* <NavLink href="/article" label="文章" /> */}
               <NavLink href="/notification" label="信息" />
+              <NavLink href="/test" label="测试页面" />
               {/* <NavLink href="/teams" label="队伍" /> */}
             </div>
           </nav>

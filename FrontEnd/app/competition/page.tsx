@@ -9,7 +9,7 @@ import CompetitionCard, {
   Competition,
 } from "@/components/Card/CompetitionCard";
 import toast from "react-hot-toast";
-import { useAuthStore } from "@/components/AuthStore";
+import { useAuthStore } from "@/lib/auth-guards";
 
 type FilterCategory = "competition_type" | "organizer";
 
