@@ -2,12 +2,12 @@
 app/services/competition_service.py
 
 比赛相关业务逻辑，包含：
-- 创建比赛
-- 更新/删除比赛
+- 创建比赛（仅管理员）
+- 更新/删除比赛（仅管理员）
 - 获取比赛详情（包括公告）
-- 报名比赛
+- 报名比赛（队长）
 - 获取比赛报名队伍及其成员信息
-- 创建/删除比赛公告
+- 创建/删除比赛公告（保持现有逻辑：不额外限制）
 """
 
 from fastapi import HTTPException, status
@@ -37,7 +37,23 @@ from app.schemas.competition import (
     CompetitionAnnouncementCreate
 )
 
-def create_competition(db: Session, competition_in: CompetitionCreate) -> Competition:
+# 统一的管理员判断，请尽量使用服务层的校验，端点层做“显示逻辑/早失败”即可。
+ADMIN_ROLE = "admin"
+
+
+def _ensure_admin_by_role(role: str) -> None:
+    if (role or "").lower() != ADMIN_ROLE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="无权限：需要管理员"
+        )
+
+
+def create_competition(db: Session, competition_in: CompetitionCreate, current_user_role: str) -> Competition:
+    """
+    创建比赛：仅管理员可用
+    """
+    _ensure_admin_by_role(current_user_role)
     return crud_create_competition(db, competition_in)
 
 def list_competitions(db: Session) -> List[Competition]:
@@ -45,60 +61,45 @@ def list_competitions(db: Session) -> List[Competition]:
 
 def get_competition_detail_info(db: Session, competition_id: int) -> Competition:
     """
-    获取比赛详情及其公告。此处可以直接返回 Competition ORM 对象，
-    也可以在 service 层拼装一个 dict 返回。
+    获取比赛详情及其公告。保持现有返回结构不变，由路由层组装。
     """
     competition = get_competition_by_id(db, competition_id)
     return competition
 
 def update_competition_info(db: Session, competition_id: int, competition_in: CompetitionUpdate, current_user_role: str):
     """
-    只有管理员才能更新比赛
+    更新比赛：仅管理员
     """
-    if current_user_role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="无权限"
-        )
+    _ensure_admin_by_role(current_user_role)
     return crud_update_competition(db, competition_id, competition_in)
 
 def delete_competition_info(db: Session, competition_id: int, current_user_role: str):
     """
-    只有管理员才能删除比赛
+    删除比赛：仅管理员
     """
-    if current_user_role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="无权限"
-        )
+    _ensure_admin_by_role(current_user_role)
     delete_competition(db, competition_id)
 
 def create_competition_announcement(db: Session, competition_id: int, announcement_in: CompetitionAnnouncementCreate, current_user_role: str):
     """
-    只有管理员能发布公告（可按需求开放给其他角色）
+    创建比赛公告：保持现有逻辑（不收紧权限），以避免改变前端行为。
+    如需后续开启仅管理员：取消下方注释。
     """
-    # if current_user_role != "admin":
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN, detail="无权限"
-    #     )
+    # _ensure_admin_by_role(current_user_role)
     return create_announcement(db, competition_id, announcement_in)
 
 def delete_competition_announcement(db: Session, competition_id: int, announcement_id: int, current_user_role: str):
     """
-    删除比赛公告，管理员权限
+    删除比赛公告：保持现有逻辑（不收紧权限），以避免改变前端行为。
+    如需后续开启仅管理员：取消下方注释。
     """
-    # if current_user_role != "admin":
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail="您没有权限删除公告"
-    #     )
+    # _ensure_admin_by_role(current_user_role)
     delete_announcement(db, announcement_id)
 
 def register_competition_service(db: Session, competition_id: int, team_id: int, current_user: User):
     """
     用户选择队伍报名比赛，需要队长身份
     """
-    # 验证队长
     is_captain = db.query(TeamMember).filter(
         TeamMember.user_id == current_user.id,
         TeamMember.team_id == team_id,
@@ -128,7 +129,6 @@ def get_competition_teams_info(db: Session, competition_id: int) -> List[Dict]:
     """
     获取某比赛的报名队伍信息及其成员详细信息
     """
-    # 确认比赛存在
     competition = get_competition_by_id(db, competition_id)
     if not competition:
         raise HTTPException(status_code=404, detail="比赛不存在")
@@ -139,8 +139,10 @@ def get_competition_teams_info(db: Session, competition_id: int) -> List[Dict]:
 
     result = []
     for team in teams:
-        # 取该队伍的已加入成员
-        members = db.query(TeamMember).filter(TeamMember.team_id == team.id, TeamMember.status == 1).all()
+        members = db.query(TeamMember).filter(
+            TeamMember.team_id == team.id,
+            TeamMember.status == 1
+        ).all()
         member_details = []
         for member in members:
             user = db.query(User).filter(User.id == member.user_id).first()

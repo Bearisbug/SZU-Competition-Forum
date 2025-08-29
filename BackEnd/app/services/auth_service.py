@@ -40,7 +40,6 @@ def authenticate_user(db: Session, user_id: int, password: str) -> str:
     """
     验证用户用户名和密码是否匹配，成功则返回生成的 JWT token。
     """
-    from app.crud.user import get_user_by_id
     db_user = get_user_by_id(db, user_id)
     if not db_user or not verify_password(password, db_user.password):
         raise HTTPException(
@@ -90,7 +89,6 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token 中未找到用户信息",
         )
-    from app.crud.user import get_user_by_id
     user = get_user_by_id(db, int(user_id))
     if not user:
         raise HTTPException(
@@ -98,3 +96,23 @@ def get_current_user(
             detail="用户不存在或已被删除",
         )
     return user
+
+def is_admin(role_or_user) -> bool:
+    """
+    允许传入 User 实例或 role 字符串，统一判断是否为管理员。
+    """
+    if hasattr(role_or_user, "role"):  # User 实例
+        value = (role_or_user.role or "")
+    else:
+        value = (role_or_user or "")
+    return value.lower() == "admin"
+
+def ensure_admin(role_or_user) -> None:
+    """
+    不满足管理员时抛出 403。
+    """
+    if not is_admin(role_or_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="无权限：需要管理员"
+        )

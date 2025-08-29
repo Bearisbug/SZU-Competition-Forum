@@ -38,16 +38,20 @@ def create_competition_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # 只有管理员才能创建比赛（示例中注释掉可选逻辑）
-    # if current_user.role != "admin":
-    #     ...
-    return create_competition(db, competition_in)
+    """
+    创建比赛：仅管理员。保持前端 JSON 返回样式不变（由 Pydantic response_model 保证）。
+    """
+    return create_competition(db, competition_in, current_user.role)
+
 
 @router.get("/", response_model=List[Competition])
 def list_competitions_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    列出全部比赛
+    """
     return list_competitions(db)
 
 @router.get("/detail/{competition_id}")
@@ -56,8 +60,11 @@ def get_competition_detail_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    获取比赛详情（保持现有 JSON 结构：在 Competition 基础上附带 announcements）。
+    注：沿用原先的 __dict__ 组合返回，避免破坏前端字段名/结构。
+    """
     competition = get_competition_detail_info(db, competition_id)
-    # 仅获取比赛+公告
     return {
         **competition.__dict__,
         "announcements": competition.announcements
@@ -70,6 +77,9 @@ def update_competition_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    更新比赛：仅管理员
+    """
     return update_competition_info(db, competition_id, competition_in, current_user.role)
 
 @router.delete("/{competition_id}")
@@ -78,6 +88,9 @@ def delete_competition_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    删除比赛：仅管理员。保持前端 JSON 返回样式不变。
+    """
     delete_competition_info(db, competition_id, current_user.role)
     return {"msg": "比赛已删除"}
 
@@ -88,6 +101,9 @@ def create_competition_announcement_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    创建比赛公告：保持现有逻辑（不额外限制），以避免改变前端行为。
+    """
     return create_competition_announcement(db, competition_id, announcement_in, current_user.role)
 
 @router.delete("/detail/{competition_id}/announcements/{announcement_id}")
@@ -97,6 +113,9 @@ def delete_competition_announcement_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    删除比赛公告：保持现有逻辑（不额外限制），以避免改变前端行为。
+    """
     delete_competition_announcement(db, competition_id, announcement_id, current_user.role)
     return {"msg": "公告已成功删除"}
 
@@ -107,6 +126,9 @@ def register_competition_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    报名比赛：队长权限
+    """
     registration = register_competition_service(db, competition_id, team_id, current_user)
     return {"msg": "报名成功", "registration_id": registration.id}
 
@@ -116,4 +138,7 @@ def get_competition_teams_info_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    获取报名队伍信息及其成员详情
+    """
     return get_competition_teams_info(db, competition_id)
