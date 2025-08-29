@@ -7,10 +7,10 @@ import { FilterSidebar } from "@/components/FilterSidebar";
 import { Pagination, Spinner, Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { X } from 'lucide-react';
+import { X } from "lucide-react";
 import { motion } from "framer-motion";
-import { API_BASE_URL } from '@/CONFIG';
-import { useAuthStore } from '@/lib/auth-guards';
+import { API_BASE_URL } from "@/CONFIG";
+import { useAuthStore } from "@/lib/auth-guards";
 
 type Article = {
   id: number;
@@ -23,7 +23,7 @@ type Article = {
   created_at: string;
   author_name: string;
   author_id: string;
-  post_type:string;
+  post_type: string;
 };
 
 type FilterCategory = "category" | "date" | "author";
@@ -68,33 +68,72 @@ function ArticleListPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-
+  const [role, setRole] = useState<string | null>(null);
+  const isAdmin = (role || "").toLowerCase() === "admin";
   const articlesPerPage = 6;
-  
-  // 从 AuthStore 获取登录状态
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   useEffect(() => {
     setMounted(true);
+
+    // 获取用户角色
+    const fetchRole = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setRole(null);
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const uid = payload?.sub;
+        if (!uid) {
+          setRole(null);
+          return;
+        }
+
+        const res = await fetch(`${API_BASE_URL}/api/user/info/${uid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const user = await res.json();
+          setRole(user?.role ?? null);
+        } else {
+          setRole(null);
+        }
+      } catch {
+        setRole(null);
+      }
+    };
+
+    fetchRole();
   }, []);
 
   const fetchArticles = useCallback(async () => {
     setIsLoading(true);
     try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem("access_token") || '' : '';
-        const response = await fetch(`${API_BASE_URL}/api/articles/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`, 
-        },
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("access_token") || ""
+          : "";
+      const response = await fetch(`${API_BASE_URL}/api/articles/all`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) {
-        throw new Error("无法加载文章列表！");
-      }
+      if (!response.ok) throw new Error("无法加载文章列表！");
 
       const data = await response.json();
-      setArticles(data);
-      setFilteredArticles(data);
+
+      // ✅ 关键：把后端返回的 author 嵌套拍平成 author_id/author_name，兼容你现有类型与逻辑
+      const normalized = (data || []).map((a: any) => ({
+        ...a,
+        author_id: a?.author?.id ?? a?.author_id,
+        author_name: a?.author?.name ?? a?.author_name,
+        created_at: a?.created_at, // 保留原字段
+      }));
+
+      setArticles(normalized);
+      setFilteredArticles(normalized);
     } catch (error) {
       console.error("获取文章列表错误:", error);
       toast.error("加载文章列表失败，请稍后重试！");
@@ -156,7 +195,12 @@ function ArticleListPageContent() {
 
   if (filteredArticles.length === 0) {
     return (
-      <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
+      <div
+        className="container mx-auto p-4 flex"
+        style={{
+          marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px",
+        }}
+      >
         <FilterSidebar
           //@ts-ignore
           onFilterChange={handleFilterChange}
@@ -185,7 +229,10 @@ function ArticleListPageContent() {
   }
 
   return (
-    <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
+    <div
+      className="container mx-auto p-4 flex"
+      style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+    >
       <FilterSidebar
         //@ts-ignore
         onFilterChange={handleFilterChange}
@@ -222,21 +269,30 @@ function ArticleListPageContent() {
                 visible: { opacity: 1, y: 0 },
               }}
               transition={{ duration: 0.5 }}
-              onClick={() => {
-                if (article.post_type === 'share') {
-                  router.push(`/article/${article.id}`);
-                } else if (article.post_type === 'discussion') {
-                  router.push(`/article/discussion/${article.id}`);
-                } else {
-                  toast.error("未知的文章类型！");
-                }
-              }}
-              className="cursor-pointer"
+              className="relative"
             >
-              <ArticleCard
-                {...article}
-                isAuthor={typeof window !== 'undefined' ? localStorage.getItem("id") == article.author_id : false}
-              />
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  if (article.post_type === "share") {
+                    router.push(`/article/${article.id}`);
+                  } else if (article.post_type === "discussion") {
+                    router.push(`/article/discussion/${article.id}`);
+                  } else {
+                    toast.error("未知的文章类型！");
+                  }
+                }}
+              >
+                <ArticleCard
+                  {...article}
+                  isAuthor={
+                    typeof window !== "undefined" &&
+                    String(localStorage.getItem("id") ?? "") ===
+                      String(article.author_id ?? "")
+                  }
+                  isAdmin={isAdmin}
+                />
+              </div>
             </motion.div>
           ))}
         </motion.div>
@@ -258,4 +314,3 @@ function ArticleListPageContent() {
 // 使用登录校验高阶组件包装原始组件
 const ArticleListPage = withAuth(ArticleListPageContent);
 export default ArticleListPage;
-

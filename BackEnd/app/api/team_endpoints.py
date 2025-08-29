@@ -83,9 +83,6 @@ def disband_team_endpoint(
     team = db.query(Team).filter(Team.id == team_id).first()
     if not team:
         raise HTTPException(status_code=404, detail="队伍不存在")
-
-    # 校验队长
-    # 在 service 层也会二次校验，这里只演示
     disband_team(db, team)
     return {"msg": "队伍已解散，并已通知所有成员。"}
 
@@ -169,3 +166,19 @@ def get_my_captain_teams_endpoint(
     获取当前用户作为队长的队伍及其成员信息
     """
     return get_my_captain_teams(db, current_user)
+
+@router.delete("/{team_id}")
+def disband_team_endpoint(
+    team_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    解散队伍：需要队长或管理员
+    """
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="队伍不存在")
+
+    disband_team(db, team, current_user)
+    return {"msg": "队伍已解散，并已通知所有成员。"}

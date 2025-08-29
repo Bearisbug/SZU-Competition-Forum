@@ -47,6 +47,7 @@ interface TeamCardProps {
   onUpdateTeam: (teamId: number, data: Partial<Team>) => Promise<void>;
   onDisbandTeam: (teamId: number) => Promise<void>;
   onRemoveMember: (teamId: number, memberId: number) => Promise<void>;
+  isAdmin?: boolean;
 }
 
 export function TeamCard({
@@ -57,6 +58,7 @@ export function TeamCard({
   onUpdateTeam,
   onDisbandTeam,
   onRemoveMember,
+  isAdmin = false,
 }: TeamCardProps) {
   const [startIndex, setStartIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -64,14 +66,12 @@ export function TeamCard({
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // 假设我们在 localStorage 中存储了用户id
   const userId = typeof window !== "undefined" ? localStorage.getItem("id") : null;
   const currentUser = members.find(member => member.user_id.toString() === userId);
   const isLeader = currentUser?.role === "队长";
   const isMember = !!currentUser;
 
   useEffect(() => {
-    // 用来控制卡片出现的动画
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -146,19 +146,21 @@ export function TeamCard({
             {members.length}/{team.max_members}
           </span>
           <Users className="w-4 h-4 text-gray-500" />
-          {isLeader ? (
+          {isLeader || isAdmin ? (
             <div className="flex gap-2">
-              <Tooltip content="编辑队伍">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="light"
-                  onPress={() => setShowEditModal(true)}
-                >
-                  <SquarePen className="w-4 h-4" />
-                </Button>
-              </Tooltip>
-              <Tooltip content="解散队伍">
+              {isLeader && (
+                <Tooltip content="编辑队伍">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={() => setShowEditModal(true)}
+                  >
+                    <SquarePen className="w-4 h-4" />
+                  </Button>
+                </Tooltip>
+              )}
+              <Tooltip content={isAdmin && !isLeader ? "管理员解散队伍" : "解散队伍"}>
                 <Button
                   isIconOnly
                   size="sm"

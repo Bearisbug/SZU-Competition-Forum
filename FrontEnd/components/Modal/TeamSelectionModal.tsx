@@ -141,6 +141,7 @@ export function TeamSelectionModal({ isOpen, onClose, onSelectTeam }: TeamSelect
                             members={teamMembers[team.id] || []}
                             //@ts-ignore
                             {...mockTeamActions}
+                            isAdmin={false} // 在选择队伍模态框中不需要管理员功能
                           />
                         </div>
                       </div>

@@ -123,7 +123,6 @@ export default function HomePage() {
   };
 
   // 卡片数据
-
   const fetchCompetitions = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -422,67 +421,13 @@ export default function HomePage() {
             {/* 竞赛卡片网格 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredCards.map((card) => (
-                <div
+                <CompetitionCard
                   key={card.id}
-                  className="relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group"
-                  onClick={() =>
-                    handlePostClick(card.id, card.competition_type)
-                  }
-                >
-                  {/* 顶图 */}
-                  <div className="relative h-48 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
-                    <div
-                      className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                      style={{ backgroundImage: `url('${card.cover_image}')` }}
-                    />
-                    <div className="absolute bottom-4 left-4 z-20">
-                      <span
-                        className={`text-white text-xs px-3 py-1 rounded-full font-medium ${
-                          card.competition_level.includes("I类")
-                            ? "bg-blue-600"
-                            : card.competition_level.includes("II类")
-                            ? "bg-green-600"
-                            : "bg-purple-600"
-                        }`}
-                      >
-                        {card.competition_level}
-                        {card.competition_level &&
-                          ` - ${card.competition_subtype}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 文本内容 */}
-                  <div className="p-5">
-                    <h4 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                      {card.name}
-                    </h4>
-                    <div
-                      className="text-sm text-gray-600 mb-3 line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: card.details }}
-                    />
-                    <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span>
-                        {new Date(card.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {isAdmin && (
-                    <button
-                      className="absolute bottom-4 right-4 z-30 rounded-full p-2 bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteCompetition(card.id);
-                      }}
-                      title="删除比赛"
-                      aria-label="删除比赛"
-                    >
-                      <Trash2 className="w-5 h-5 text-red-600" />
-                    </button>
-                  )}
-                </div>
+                  competition={card}
+                  isAdmin={isAdmin}
+                  onClick={(id) => handlePostClick(id, card.competition_type)}
+                  onDelete={handleDeleteCompetition}
+                />
               ))}
             </div>
 

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Card, CardBody, Chip, Link, Image, Button } from "@heroui/react";
-import { Eye, Trash2, Edit } from 'lucide-react';
+import { Eye, Trash2, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
 
@@ -13,6 +13,7 @@ interface ArticleCardProps {
   view_count: number;
   created_at: string;
   isAuthor: boolean;
+  isAdmin?: boolean;
 }
 
 export function ArticleCard({
@@ -24,15 +25,19 @@ export function ArticleCard({
   view_count,
   created_at,
   isAuthor,
+  isAdmin = false,
 }: ArticleCardProps) {
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/articles/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/articles/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -52,7 +57,7 @@ export function ArticleCard({
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <Card className="bg-content1 h-full">
+      <Card className="bg-content1 h-full relative">
         <CardBody className="p-0">
           <div className="relative w-full h-48">
             <div className="absolute inset-0">
@@ -89,19 +94,31 @@ export function ArticleCard({
                 <span>{view_count}</span>
               </div>
             </div>
-            {isAuthor && (
-              <div className="absolute bottom-2 right-2 flex gap-2">
-                <Link href={`/article/${id}/edit`}>
-                  <Button isIconOnly size="sm" variant="light">
-                    <Edit size={16} />
-                  </Button>
-                </Link>
+            {(isAuthor || isAdmin) && (
+              // 2) 阻止冒泡，避免点击按钮触发外层跳转
+              <div
+                className="absolute bottom-2 right-2 flex gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {isAuthor && (
+                  <Link href={`/article/${id}/edit`}>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      title="编辑文章"
+                    >
+                      <Edit size={16} />
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   isIconOnly
                   size="sm"
                   color="danger"
                   variant="light"
                   onPress={handleDelete}
+                  title={isAdmin && !isAuthor ? "管理员删除" : "删除文章"}
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -113,4 +130,3 @@ export function ArticleCard({
     </motion.div>
   );
 }
-

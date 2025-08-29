@@ -1,93 +1,104 @@
-import React from 'react'
-import { Card, CardBody, CardFooter, Button, Chip, Avatar, Link, Image } from "@heroui/react"
-import { motion } from 'framer-motion';
+import React from 'react';
+import { Trash2 } from "lucide-react";
 
 export type Competition = {
-  id: number
-  name: string
-  sign_up_start_time: Date
-  sign_up_end_time: Date
-  competition_start_time: Date
-  competition_end_time: Date
-  details: string
-  organizer: string
-  competition_type: string
-  competition_level: string
-  competition_subtype: string
-  cover_image: string
-  created_at: Date
-  updated_at: Date
-}
+  id: number;
+  name: string;
+  sign_up_start_time: Date;
+  sign_up_end_time: Date;
+  competition_start_time: Date;
+  competition_end_time: Date;
+  details: string;
+  organizer: string;
+  competition_type: string;
+  competition_level: string;
+  competition_subtype: string;
+  cover_image: string;
+  created_at: Date;
+  updated_at: Date;
+};
 
 interface CompetitionCardProps {
-  competition?: Competition
-  onClick?: () => void
-  //isLoading?: boolean
+  competition: Competition;
+  isAdmin?: boolean;
+  onDelete?: (id: number) => void;
+  onClick?: (id: number) => void;
 }
 
-const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition,onClick }) => {
-  //if (isLoading) {
-  //  return (
-  //    <Card className="w-full border-small border-default-100 p-3" shadow="sm">
-  //      <CardBody className="px-4 pb-1">
-  //        <div className="flex items-center justify-between gap-2">
-  //          <div className="flex max-w-[80%] flex-col gap-1">
-  //            <Skeleton className="w-3/4 h-4 rounded-lg" />
-  //            <Skeleton className="w-1/2 h-3 rounded-lg" />
-  //          </div>
-  //          <Skeleton className="rounded-full w-10 h-10" />
-  //        </div>
-  //        <Skeleton className="w-full h-16 rounded-lg mt-4" />
-  //      </CardBody>
-  //      <CardFooter className="justify-between gap-2">
-  //        <Skeleton className="w-24 h-8 rounded-lg" />
-  //        <Skeleton className="w-20 h-6 rounded-full" />
-  //      </CardFooter>
-  //    </Card>
-  //  )
-  //}
+const CompetitionCard: React.FC<CompetitionCardProps> = ({ 
+  competition, 
+  isAdmin = false, 
+  onDelete, 
+  onClick 
+}) => {
+  if (!competition) return null;
 
-  if (!competition) return null
+  const handleClick = () => {
+    if (onClick) onClick(competition.id);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDelete) onDelete(competition.id);
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-       onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    <div
+      className="relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group"
+      onClick={handleClick}
     >
-      <Card className="w-full border-small border-default-100 p-3" shadow="sm">
-        <CardBody className="px-4 pb-1">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex max-w-[80%] flex-col gap-1">
-              <p className="text-medium font-medium">{competition.name}</p>
-              <p className="text-small text-default-500">由 {competition.organizer} 主办</p>
-            </div>
-            <Image
-              src={competition.cover_image}
-              alt={competition.name}
-              width={40}
-              height={40}
-              className="object-cover rounded-full"
-            />
-          </div>
-          <p className="pt-4 text-small text-default-500" dangerouslySetInnerHTML={{ __html: competition.details.substring(0, 100)}} />
-        </CardBody>
-        <CardFooter className="justify-between gap-2">
-          <Link href={`/competition/${competition.id}`}>
-            <Button size="sm" variant="faded">
-              查看详情
-            </Button>
-          </Link>
-          <Chip color="primary" variant="dot">
-            {competition.competition_type}
-          </Chip>
-        </CardFooter>
-      </Card>
-    </motion.div>
-  )
-}
+      {/* 顶图 */}
+      <div className="relative h-48 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
+        <div
+          className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+          style={{ backgroundImage: `url('${competition.cover_image}')` }}
+        />
+        <div className="absolute bottom-4 left-4 z-20">
+          <span
+            className={`text-white text-xs px-3 py-1 rounded-full font-medium ${
+              competition.competition_level.includes("I类")
+                ? "bg-blue-600"
+                : competition.competition_level.includes("II类")
+                ? "bg-green-600"
+                : "bg-purple-600"
+            }`}
+          >
+            {competition.competition_level}
+            {competition.competition_level &&
+              ` - ${competition.competition_subtype}`}
+          </span>
+        </div>
+      </div>
 
-export default CompetitionCard
+      {/* 文本内容 */}
+      <div className="p-5">
+        <h4 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+          {competition.name}
+        </h4>
+        <div
+          className="text-sm text-gray-600 mb-3 line-clamp-2"
+          dangerouslySetInnerHTML={{ __html: competition.details }}
+        />
+        <div className="flex justify-between items-center text-xs text-gray-500">
+          <span>
+            {new Date(competition.created_at).toLocaleDateString()}
+          </span>
+        </div>
+      </div>
 
+      {isAdmin && (
+        <button
+          className="absolute bottom-4 right-4 z-30 rounded-full p-2 bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm"
+          onClick={handleDelete}
+          title="删除比赛"
+          aria-label="删除比赛"
+        >
+          <Trash2 className="w-5 h-5 text-red-600" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default CompetitionCard;

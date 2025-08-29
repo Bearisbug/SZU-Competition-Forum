@@ -16,7 +16,7 @@ import {
 import {
   Edit3,
   Check,
-  X,
+  X as XIcon,
   Mail,
   GraduationCap,
   BookOpenIcon,
@@ -25,12 +25,11 @@ import {
 import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { TeamCard, Team, TeamMember } from "@/components/Card/TeamCard";
+import { TeamCard, Team } from "@/components/Card/TeamCard";
 import { ArticleCard } from "@/components/Card/ArticleCard";
 import { API_BASE_URL } from "@/CONFIG";
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface User {
   id: number;
@@ -52,47 +51,60 @@ interface Article {
   created_at: string;
 }
 
-const UserProfileSidebar: React.FC<{
+type SidebarProps = {
   user: User;
-  onEdit: () => void;
   isEditing: boolean;
+  onEdit: () => void;
   onSave: (updatedUser: User) => void;
-}> = ({ user, onEdit, isEditing, onSave }) => {
-  const [editedUser, setEditedUser] = useState(user);
+  isSelf: boolean;
+};
+
+const UserProfileSidebar: React.FC<SidebarProps> = ({
+  user,
+  onEdit,
+  isEditing,
+  onSave,
+  isSelf,
+}) => {
+  const [editedUser, setEditedUser] = useState<User>(user);
   const [avatarPreview, setAvatarPreview] = useState<string>(user.avatar_url);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { userId } = useParams();
+
+  useEffect(() => {
+    setEditedUser(user);
+    setAvatarPreview(user.avatar_url);
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedUser({ ...editedUser, [e.target.name]: e.target.value });
+    setEditedUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setAvatarPreview(reader.result as string);
-      reader.readAsDataURL(file);
+    if (!file) return;
 
-      const formData = new FormData();
-      formData.append("image", file);
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(reader.result as string);
+    reader.readAsDataURL(file);
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/upload_image`, {
-          method: "POST",
-          body: formData,
-        });
-        const data = await response.json();
-        if (data.errno === 0) {
-          setEditedUser({ ...editedUser, avatar_url: data.data.url });
-          toast.success("头像上传成功！");
-        } else {
-          toast.error("上传图片失败！");
-        }
-      } catch (error) {
-        console.error("图片上传失败:", error);
-        toast.error("上传图片出错！");
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload_image`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.errno === 0) {
+        setEditedUser((prev) => ({ ...prev, avatar_url: data.data.url }));
+        toast.success("头像上传成功！");
+      } else {
+        toast.error("上传图片失败！");
       }
+    } catch (error) {
+      console.error("图片上传失败:", error);
+      toast.error("上传图片出错！");
     }
   };
 
@@ -102,9 +114,7 @@ const UserProfileSidebar: React.FC<{
     }
   };
 
-  const handleSave = () => {
-    onSave(editedUser);
-  };
+  const handleSave = () => onSave(editedUser);
 
   return (
     <motion.div
@@ -116,16 +126,11 @@ const UserProfileSidebar: React.FC<{
         <CardBody className="p-6">
           <div className="flex flex-col items-center">
             <div
-              className={`relative ${
-                isEditing ? "cursor-pointer" : "cursor-default"
-              }`}
+              className={`relative ${isEditing ? "cursor-pointer" : "cursor-default"}`}
               onClick={handleAvatarClick}
               title={isEditing ? "点击上传头像" : ""}
             >
-              <Avatar
-                src={avatarPreview}
-                className="w-32 h-32 text-large mb-4"
-              />
+              <Avatar src={avatarPreview} className="w-32 h-32 text-large mb-4" />
               {isEditing && (
                 <Tooltip content="点击更改头像">
                   <div className="absolute bottom-2 right-2 bg-gray-700 rounded-full p-1">
@@ -150,13 +155,9 @@ const UserProfileSidebar: React.FC<{
                 className="text-2xl font-bold text-center mb-2 w-full"
               />
             ) : (
-              <h2 className="text-2xl font-bold text-center mb-2">
-                {editedUser.name}
-              </h2>
+              <h2 className="text-2xl font-bold text-center mb-2">{editedUser.name}</h2>
             )}
-            <p className="text-default-500 text-center mb-4">
-              {editedUser.role}
-            </p>
+            <p className="text-default-500 text-center mb-4">{editedUser.role}</p>
           </div>
 
           <div className="space-y-4">
@@ -208,14 +209,12 @@ const UserProfileSidebar: React.FC<{
             </div>
           </div>
 
-          {userId === localStorage.getItem("id") && (
+          {isSelf && (
             <div className="mt-6">
               <Button
                 color={isEditing ? "success" : "primary"}
                 variant="shadow"
-                startContent={
-                  isEditing ? <Check size={18} /> : <Edit3 size={18} />
-                }
+                startContent={isEditing ? <Check size={18} /> : <Edit3 size={18} />}
                 className="w-full"
                 onPress={isEditing ? handleSave : onEdit}
               >
@@ -234,56 +233,65 @@ function ProfilePageContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const { userId } = useParams();
   const router = useRouter();
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoadingTeamsArticles, setIsLoadingTeamsArticles] = useState(true);
 
-  const handleEdit = () => {
-    setIsEditing(!isEditing);
-  };
+  const [role, setRole] = useState<string | null>(null);
+  const isAdmin = (role || "").toLowerCase() === "admin";
 
-  const handleSave = async (updatedUser: User) => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user/info/${userId}/update`,
-        {
+  // 为了页面顶部间距（与导航条匹配）
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleEdit = () => setIsEditing((prev) => !prev);
+
+  const handleSave = useCallback(
+    async (updatedUser: User) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/user/info/${userId}/update`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+            Authorization: `Bearer ${
+              typeof window !== "undefined" ? localStorage.getItem("access_token") : ""
+            }`,
           },
           body: JSON.stringify(updatedUser),
-        }
-      );
+        });
 
-      if (!response.ok) {
-        throw new Error("保存失败！");
+        if (!response.ok) {
+          throw new Error("保存失败！");
+        }
+        const data = await response.json();
+        setUser(data);
+        toast.success("信息保存成功！");
+        setIsEditing(false);
+      } catch (err) {
+        console.error("保存失败:", err);
+        toast.error("保存失败！");
       }
-      const data = await response.json();
-      setUser(data);
-      toast.success("信息保存成功！");
-      setIsEditing(false);
-    } catch (error) {
-      console.error("保存失败:", error);
-      toast.error("保存失败！");
-    }
-  };
+    },
+    [userId]
+  );
 
   const fetchData = useCallback(async () => {
     setIsLoadingTeamsArticles(true);
     try {
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("access_token") : "";
       const [teamsResponse, articlesResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/api/user/teams/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_BASE_URL}/api/user/articles/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
 
@@ -294,18 +302,18 @@ function ProfilePageContent() {
       const teamsData = await teamsResponse.json();
       const articlesData = await articlesResponse.json();
 
-      const formattedTeams: Team[] = teamsData.map((item: any) => ({
+      const formattedTeams: Team[] = (teamsData || []).map((item: any) => ({
         ...item.team,
-        requirements: item.team.requirements.flatMap((req: string) =>
-          req.split("\n")
+        requirements: (item.team?.requirements || []).flatMap((req: string) =>
+          String(req).split("\n")
         ),
         members: item.members,
       }));
 
       setTeams(formattedTeams);
-      setArticles(articlesData);
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
+      setArticles(articlesData || []);
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
       setError("加载数据失败，请稍后重试！");
     } finally {
       setIsLoadingTeamsArticles(false);
@@ -314,29 +322,51 @@ function ProfilePageContent() {
 
   const fetchUser = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user/info/${userId}`
-      );
-      if (!response.ok) {
-        throw new Error("User not found");
-      }
+      const response = await fetch(`${API_BASE_URL}/api/user/info/${userId}`);
+      if (!response.ok) throw new Error("User not found");
       const data = await response.json();
       setUser(data);
-    } catch (error) {
+    } catch (err) {
       setError("用户不存在");
       toast.error("页面找不到，3 秒后自动返回主页...");
-      setTimeout(() => {
-        router.push("/");
-      }, 3000);
+      setTimeout(() => router.push("/"), 3000);
     } finally {
       setLoading(false);
     }
   }, [userId, router]);
 
+  const fetchRole = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    if (!token) {
+      setRole(null);
+      return;
+    }
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1] || ""));
+      const uid = payload?.sub;
+      if (!uid) {
+        setRole(null);
+        return;
+      }
+      const res = await fetch(`${API_BASE_URL}/api/user/info/${uid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const me = await res.json();
+        setRole((me?.role ?? "").toLowerCase());
+      } else {
+        setRole(null);
+      }
+    } catch {
+      setRole(null);
+    }
+  }, []);
+
   useEffect(() => {
     fetchUser();
     fetchData();
-  }, [fetchUser, fetchData]);
+    fetchRole();
+  }, [fetchUser, fetchData, fetchRole]);
 
   if (loading) {
     return (
@@ -350,45 +380,22 @@ function ProfilePageContent() {
   if (error) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <X size={100} color="red" />
+        <XIcon size={100} color="red" />
         <h1 className="text-2xl font-bold mt-4">{error}</h1>
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
-  const mockTeamActions = {
-    onJoinTeam: async () => {
-      toast.error("你没办法在此页面进行该操作！");
-    },
-    onLeaveTeam: async () => {
-      toast.error("你没办法在此页面进行该操作！");
-    },
-    onUpdateTeam: async () => {
-      toast.error("你没办法在此页面进行该操作！");
-    },
-    onDisbandTeam: async () => {
-      toast.error("你没办法在此页面进行该操作！");
-    },
-    onRemoveMember: async () => {
-      toast.error("你没办法在此页面进行该操作！");
-    },
-  };
+  const isSelf = String(userId) === String(localStorage.getItem("id"));
+  const isLoggedIn = true; 
 
-  const [mounted, setMounted] = useState(false);
-  
-  // 从 AuthStore 获取登录状态
-  const isLoggedIn = true; // 已登录页面必定是登录状态
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
+    <div
+      className="min-h-screen bg-background p-4 md:p-8"
+      style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-1/3">
@@ -397,8 +404,10 @@ function ProfilePageContent() {
               onEdit={handleEdit}
               isEditing={isEditing}
               onSave={handleSave}
+              isSelf={isSelf}
             />
           </div>
+
           <div className="flex-1">
             <Card className="w-full">
               <CardBody>
@@ -414,20 +423,25 @@ function ProfilePageContent() {
                               key={team.id}
                               team={team}
                               members={team.members}
-                              {...mockTeamActions}
+                              // 该页面仅展示，不在此做操作
+                              onJoinTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
+                              onLeaveTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
+                              onUpdateTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
+                              onDisbandTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
+                              onRemoveMember={async () => { toast.error("你没办法在此页面进行该操作！"); }}
+                              isAdmin={isAdmin}
                             />
                           ))
                         ) : (
                           <div className="flex flex-col items-center justify-center h-64">
-                            <X className="w-16 h-16 text-gray-400 mb-4" />
-                            <p className="text-center text-gray-500">
-                              该用户没有加入任何队伍！
-                            </p>
+                            <XIcon className="w-16 h-16 text-gray-400 mb-4" />
+                            <p className="text-center text-gray-500">该用户没有加入任何队伍！</p>
                           </div>
                         )}
                       </div>
                     </div>
                   </Tab>
+
                   <Tab key="articles" title="我的文章">
                     <div className="p-4">
                       <div className="grid grid-cols-1 gap-4">
@@ -438,15 +452,15 @@ function ProfilePageContent() {
                             <ArticleCard
                               key={article.id}
                               {...article}
+                              // 在个人主页里，列表都是该用户的文章
                               isAuthor={true}
+                              isAdmin={isAdmin}
                             />
                           ))
                         ) : (
                           <div className="flex flex-col items-center justify-center h-64">
-                            <X className="w-16 h-16 text-gray-400 mb-4" />
-                            <p className="text-center text-gray-500">
-                              该用户没有发布任何文章！
-                            </p>
+                            <XIcon className="w-16 h-16 text-gray-400 mb-4" />
+                            <p className="text-center text-gray-500">该用户没有发布任何文章！</p>
                           </div>
                         )}
                       </div>
@@ -462,6 +476,5 @@ function ProfilePageContent() {
   );
 }
 
-// 使用登录校验高阶组件包装原始组件
 const ProfilePage = withAuth(ProfilePageContent);
 export default ProfilePage;

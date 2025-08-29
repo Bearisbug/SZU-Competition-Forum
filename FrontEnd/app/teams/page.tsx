@@ -84,6 +84,8 @@ function TeamCardPreviewContent() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+  const isAdmin = (role || "").toLowerCase() === "admin";
 
   const teamsPerPage = 4;
 
@@ -92,6 +94,38 @@ function TeamCardPreviewContent() {
 
   useEffect(() => {
     setMounted(true);
+    
+    // 获取用户角色
+    const fetchRole = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setRole(null);
+        return;
+      }
+      
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const uid = payload?.sub;
+        if (!uid) {
+          setRole(null);
+          return;
+        }
+        
+        const res = await fetch(`${API_BASE_URL}/api/user/info/${uid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const user = await res.json();
+          setRole(user?.role ?? null);
+        } else {
+          setRole(null);
+        }
+      } catch {
+        setRole(null);
+      }
+    };
+    
+    fetchRole();
   }, []);
 
   const fetchData = useCallback(async () => {
@@ -417,9 +451,10 @@ const competitionMap = useMemo(() => {
               competitionName={competitionMap[team.competition_id] || "未知比赛"}
               onJoinTeam={handleJoinTeam}
               onLeaveTeam={handleLeaveTeam}
-            onUpdateTeam={handleUpdateTeam}
+              onUpdateTeam={handleUpdateTeam}
               onDisbandTeam={handleDisbandTeam}
               onRemoveMember={handleRemoveMember}
+              isAdmin={isAdmin}
             />
           ))}
         </div>

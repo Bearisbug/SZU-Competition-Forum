@@ -41,9 +41,11 @@ def delete_article_by_id_endpoint(
     current_user: User = Depends(get_current_user)
 ):
     """
-    删除文章：只有作者本人才能删除
+    删除文章：
+    - 作者本人可删
+    - 管理员可删任意文章
     """
-    remove_article_by_id(db, article_id, current_user.id)
+    remove_article_by_id(db, article_id, current_user.id, current_user.role)
     return {"message": "文章已删除"}
 
 @router.put("/update/{article_id}", response_model=ArticleResponse)
