@@ -4,7 +4,7 @@ app/db/models.py
 定义数据库模型。使用 SQLAlchemy 的 ORM 模型。
 """
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 
@@ -174,6 +174,34 @@ class CompetitionAnnouncement(Base):
     competition = relationship("Competition", back_populates="announcements")
 
 
-# 如果需要自动建表，可执行以下命令。一般生产环境不会直接用此方式。
+class ProjectRecruitment(Base):
+    """
+    老师项目招聘卡片
+    - card_id: 业务侧卡片唯一标识（便于前端卡片化展示/路由）
+    - teacher_name: 老师姓名
+    - teacher_avatar_url: 老师头像
+    - institution: 老师所属机构
+    - project_summary: 项目简介
+    - recruitment_info: 招聘信息
+    - assessment_method: 考核方式
+    - contacts: 联系方式（字典，示例：{"email":"xxx@xx.com","wechat":"io-xyz"}）
+    """
+    __tablename__ = "project_recruitments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    card_id = Column(String, unique=True, index=True, nullable=False)
+
+    teacher_name = Column(String, index=True, nullable=False)
+    teacher_avatar_url = Column(String, nullable=True)
+    institution = Column(String, index=True, nullable=True)
+    project_summary = Column(String, nullable=True)
+    recruitment_info = Column(String, nullable=True)
+    assessment_method = Column(String, nullable=True)
+
+    contacts = Column(JSON, nullable=False, default={})  # SQLite 下 JSON 会以 TEXT 存储
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

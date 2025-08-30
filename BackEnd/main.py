@@ -17,7 +17,8 @@ from app.api import (
     team_endpoints,
     notification_endpoints,
     article_endpoints,
-    competition_endpoints
+    competition_endpoints,
+    recruitment_endpoints 
 )
 
 from app.db.session import SessionLocal
@@ -34,7 +35,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # 若后续需收紧来源，可在这里替换成 origins
+    allow_origins=["*"],      
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,7 +48,7 @@ app.include_router(notification_endpoints.router, prefix='/api/notifications', t
 app.include_router(article_endpoints.router, prefix='/api/articles', tags=["Articles"])
 app.include_router(competition_endpoints.router, prefix='/api/competitions', tags=["Competitions"])
 app.include_router(upload_endpoints.upload_router)
-
+app.include_router(recruitment_endpoints.router, prefix="/api/recruitments", tags=["Recruitments"])
 # 配置静态文件路径
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
