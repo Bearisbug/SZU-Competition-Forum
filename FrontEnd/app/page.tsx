@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/auth-guards';
 import { Play, CheckCircle, Users, Trophy, Star, ArrowRight } from 'lucide-react';
+import CompetitionCard from '@/components/Card/CompetitionCard';
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const totalSections = 8;
+  const totalSections = 5;
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -18,10 +19,14 @@ export default function HomePage() {
       
       if (e.deltaY > 0 && currentSection < totalSections - 1) {
         // 向下滚动
-        setCurrentSection(prev => prev + 1);
+        setCurrentSection(prev => Math.min(prev + 1, totalSections - 1));
       } else if (e.deltaY < 0 && currentSection > 0) {
         // 向上滚动
-        setCurrentSection(prev => prev - 1);
+        setCurrentSection(prev => Math.max(prev - 1, 0));
+      } else {
+        // 如果已经在边界，直接结束滚动状态
+        setIsScrolling(false);
+        return;
       }
       
       setTimeout(() => setIsScrolling(false), 1000);
@@ -32,11 +37,11 @@ export default function HomePage() {
       
       if (e.key === 'ArrowDown' && currentSection < totalSections - 1) {
         setIsScrolling(true);
-        setCurrentSection(prev => prev + 1);
+        setCurrentSection(prev => Math.min(prev + 1, totalSections - 1));
         setTimeout(() => setIsScrolling(false), 1000);
       } else if (e.key === 'ArrowUp' && currentSection > 0) {
         setIsScrolling(true);
-        setCurrentSection(prev => prev - 1);
+        setCurrentSection(prev => Math.max(prev - 1, 0));
         setTimeout(() => setIsScrolling(false), 1000);
       }
     };
@@ -48,7 +53,7 @@ export default function HomePage() {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentSection, isScrolling]);
+  }, [currentSection, isScrolling, totalSections]);
 
   // 从 AuthStore 获取登录状态
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -73,350 +78,250 @@ export default function HomePage() {
           transform: `translateY(-${currentSection * 100}%)`,
         }}
       >
-      {/* Hero Section - 全屏背景图 */}
-      <section className="h-full bg-cover bg-center bg-no-repeat relative flex items-center justify-center" style={{backgroundImage: "url('/images/f.png')"}}>
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="relative z-10 text-center text-white px-6 max-w-4xl">
-          <h1 className="text-6xl lg:text-8xl font-bold mb-6 leading-tight">
-            深圳大学
-            <span className="block text-pink-800">竞赛交流平台</span>
-          </h1>
-          <p className="text-xl lg:text-2xl mb-8 leading-relaxed">
-            一体化竞赛交流云平台，为深圳大学学生提供全面的竞赛服务
-          </p>
+      {/* 第一页 - 火种云平台主页 */}
+      <section className="h-full bg-cover bg-center bg-no-repeat relative flex items-center justify-center" style={{backgroundImage: "url('/hero-background.png')"}}>
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative z-10 text-center px-6 max-w-6xl">
           <div className="mb-8">
-            <h3 className="text-2xl lg:text-3xl font-semibold text-pink-100">
-              数智驱动 / 协同创新 / 生态赋能
-            </h3>
+            <p className="text-3xl font-medium tracking-[16.5px] mb-4 text-white opacity-70">欢迎来到</p>
+            <h1 className="text-xl lg:text-9xl font-bold mb-8 text-white">
+              火种云平台
+            </h1>
           </div>
-          <button disabled className="bg-pink-600 text-white px-12 py-4 rounded-full text-lg font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
-            现在加入我们！
-          </button>
-        </div>
-      </section>
-
-      {/* Steps Section - 全屏 */}
-      <section className="h-full bg-gray-50 flex items-center">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-pink-800 mb-6">
-              参加竞赛需要考虑哪些问题？
+          <div className="mt-8">
+            <h2 className="text-4xl font-bold text-[#389ACF] mb-4">
+              深圳大学计算机与软件学院竞赛交流平台
             </h2>
-            <p className="text-xl text-gray-600">
-              我们为您梳理了完整的竞赛参与流程
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
-            {[
-              { title: '确定目标', desc: '明确参赛目标和期望收获', icon: '🎯' },
-              { title: '时间协调', desc: '合理安排学习和竞赛时间', icon: '⏰' },
-              { title: '备赛计划', desc: '制定详细的备赛计划', icon: '📋' },
-              { title: '严选赛项', desc: '选择适合的竞赛项目', icon: '🏆' },
-              { title: '导师指导', desc: '寻找专业导师指导', icon: '👨‍🏫' },
-              { title: '团队合作', desc: '组建高效的竞赛团队', icon: '🤝' }
-            ].map((step, index) => (
-              <div key={index} className="relative">
-                <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-3 h-48 flex flex-col justify-center">
-                  <div className="text-5xl mb-4">{step.icon}</div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">{step.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{step.desc}</p>
-                </div>
-                {index < 5 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-pink-400 text-3xl">
-                    →
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Competition Section - 全屏 */}
-      <section className="h-full bg-white flex items-center">
-        <div className="container mx-auto px-6 max-h-screen overflow-hidden">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">深圳大学热门竞赛</h2>
-            <p className="text-lg text-gray-600">发现最适合你的竞赛项目</p>
+      {/* 第二页 - 研究中心选择 */}
+      <section className="h-full bg-white flex items-center py-4">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-6">
+            <p className="text-sm font-semibold tracking-[8px] text-gray-500 mb-2">RESEARCH CENTER</p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">选择你的心仪研究所</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                title: '全国大学生数学建模竞赛',
-                location: '深圳大学',
-                team: '3人团队',
-                duration: '3天时间',
-                category: '本科组',
-                price: '免费',
-                image: '/images/e.png'
-              },
-              {
-                title: 'ACM程序设计竞赛',
-                location: '深圳大学',
-                team: '3人团队',
-                duration: '5小时',
-                category: '算法竞赛',
-                price: '免费',
-                image: '/images/tzbcy.png'
-              },
-              {
-                title: '互联网+创新创业大赛',
-                location: '深圳大学',
-                team: '5人团队',
-                duration: '6个月',
-                category: '创业组',
-                price: '免费',
-                image: '/images/sj.png'
-              },
-              {
-                title: '蓝桥杯软件设计大赛',
-                location: '深圳大学',
-                team: '个人赛',
-                duration: '4小时',
-                category: '编程组',
-                price: '￥200',
-                image: '/images/lqb.png'
-              }
-            ].map((item, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex h-40">
-                  <div className="w-2/5">
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover"/>
+          {/* 三角形布局：第一行1个，第二行2个，第三行3个 */}
+          <div className="max-w-4xl mx-auto">
+            {/* 第一行 - 1个 */}
+            <div className="flex justify-center mb-4">
+              <div className="flex flex-col items-center">
+                <img src="/visualization-computing-center.png" alt="可视计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[4px] text-gray-500">可视计算研究中心</h3>
+              </div>
+            </div>
+
+            {/* 第二行 - 2个 */}
+            <div className="flex justify-center gap-12 mb-4">
+              <div className="flex flex-col items-center">
+                <img src="/intelligent-service-center.png" alt="智能服务计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">智能服务计算研究中心</h3>
+              </div>
+              <div className="flex flex-col items-center">
+                <img src="/big-data-institute.png" alt="大数据技术与应用研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">大数据技术与应用研究所</h3>
+              </div>
+            </div>
+
+            {/* 第三行 - 3个 */}
+            <div className="flex justify-center gap-8">
+              <div className="flex flex-col items-center">
+                <img src="/computer-vision-center.png" alt="计算机视觉研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">计算机视觉研究所</h3>
+              </div>
+              <div className="flex flex-col items-center">
+                <img src="/high-performance-center.png" alt="高性能计算研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">高性能计算研究所</h3>
+              </div>
+              <div className="flex flex-col items-center">
+                <img src="/future-media-center.png" alt="未来媒体技术与计算研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[1px] text-gray-500">未来媒体技术与计算研究所</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 第三页 - 功能介绍 */}
+      <section className="h-full bg-white flex items-center py-4">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
+            <div className="order-2 lg:order-1">
+              <img src="/function-demo.png" alt="功能展示" className="w-full rounded-xl shadow-lg"/>
+            </div>
+            
+            <div className="order-1 lg:order-2">
+              <p className="text-sm font-semibold tracking-[8px] text-gray-500 mb-2">Function</p>
+              <h2 className="text-3xl font-bold text-gray-800 mb-6">在这里，结识你的伙伴</h2>
+              
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <span className="text-2xl font-medium text-gray-400 tracking-[1.3px]">01</span>
+                  <div>
+                    <h3 className="text-xl font-medium text-gray-800 mb-2">组队功能</h3>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                      快速找到志同道合的队友，智能匹配系统帮助你组建高效的竞赛团队。
+                    </p>
                   </div>
-                  <div className="w-3/5 p-6 flex flex-col justify-center">
-                    <h3 className="text-lg font-bold text-gray-800 mb-2">{item.title}</h3>
-                    <p className="text-gray-600 mb-3 text-sm">📍 {item.location}</p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                      <span>👥 {item.team}</span>
-                      <span>⏱️ {item.duration}</span>
-                      <span>🏷️ {item.category}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">主办方：深圳大学</span>
-                      <span className="text-lg font-bold text-pink-600">{item.price}</span>
-                    </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <span className="text-2xl font-medium text-gray-400 tracking-[1.3px]">02</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">参加竞赛</h3>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                      浏览各类竞赛信息，一键报名参加，获取最新的竞赛动态和通知。
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <span className="text-2xl font-medium text-gray-400 tracking-[1.3px]">03</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">经验分享</h3>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                      分享竞赛经验和获奖作品，学习优秀团队的成功经验和技术方案。
+                    </p>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 第四页 - 竞赛展示 */}
+      <section className="h-full bg-white flex items-center py-4">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-6">
+            <p className="text-sm font-semibold tracking-[8px] text-gray-500 mb-2">COMPETITIONS</p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">竞赛等你参与！</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+            {[
+              {
+                id: 1,
+                name: '全国大学生数学建模竞赛',
+                sign_up_start_time: new Date('2024-08-01'),
+                sign_up_end_time: new Date('2024-09-01'),
+                competition_start_time: new Date('2024-09-10'),
+                competition_end_time: new Date('2024-09-13'),
+                details: '全国大学生数学建模竞赛是面向全国大学生的群众性科技活动，旨在激励学生学习数学的积极性。',
+                organizer: '深圳大学',
+                competition_type: '学科竞赛',
+                competition_level: 'I类竞赛',
+                competition_subtype: '数学建模',
+                cover_image: '/hero-background.png',
+                created_at: new Date('2024-01-01'),
+                updated_at: new Date('2024-01-01')
+              },
+              {
+                id: 2,
+                name: 'ACM程序设计竞赛',
+                sign_up_start_time: new Date('2024-09-01'),
+                sign_up_end_time: new Date('2024-10-01'),
+                competition_start_time: new Date('2024-10-15'),
+                competition_end_time: new Date('2024-10-15'),
+                details: 'ACM国际大学生程序设计竞赛是世界上公认的规模最大、水平最高的国际大学生程序设计竞赛。',
+                organizer: '深圳大学',
+                competition_type: '学科竞赛',
+                competition_level: 'I类竞赛',
+                competition_subtype: '程序设计',
+                cover_image: '/function-demo.png',
+                created_at: new Date('2024-01-01'),
+                updated_at: new Date('2024-01-01')
+              },
+              {
+                id: 3,
+                name: '互联网+创新创业大赛',
+                sign_up_start_time: new Date('2024-03-01'),
+                sign_up_end_time: new Date('2024-05-01'),
+                competition_start_time: new Date('2024-06-01'),
+                competition_end_time: new Date('2024-08-01'),
+                details: '中国国际"互联网+"大学生创新创业大赛旨在深化高等教育综合改革，激发大学生的创造力。',
+                organizer: '深圳大学',
+                competition_type: '创新创业',
+                competition_level: 'II类竞赛',
+                competition_subtype: '创业实践',
+                cover_image: '/big-data-institute.png',
+                created_at: new Date('2024-01-01'),
+                updated_at: new Date('2024-01-01')
+              }
+            ].map((competition) => (
+              <CompetitionCard
+                key={competition.id}
+                competition={competition}
+                onClick={(id) => console.log('点击竞赛:', id)}
+              />
             ))}
           </div>
           
-          <div className="text-center mt-8">
-            <button className="bg-pink-600 text-white px-8 py-3 rounded-full text-base font-medium hover:bg-pink-700 transition-colors duration-300 shadow-lg">
+          <div className="text-center mt-6">
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors duration-300">
               查看全部竞赛
             </button>
           </div>
         </div>
       </section>
 
-      {/* Features Section - 全屏背景图 */}
-      <section className="h-full bg-cover bg-center relative flex items-center" style={{backgroundImage: "url('/images/g.png')"}}>
-        <div className="absolute inset-0 bg-black/50"></div>
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-white mb-6">
-              在这里有你所需要的一切
-            </h2>
-            <p className="text-2xl text-white/90 mb-4">
-              学习基础 | 技能提升 | 计划制定
-            </p>
-            <p className="text-2xl text-white/90">
-              心态调整 | 模拟演练 | 实战演练
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {[
-              { title: '知识传承', desc: '通过"师带徒"形式，实现知识和经验的传承，提升团队整体竞争力。' },
-              { title: '团队协作', desc: '增强团队协作能力，培养高效沟通和协作精神。' },
-              { title: '竞赛实践', desc: '提供丰富的竞赛实践机会，提升实际操作能力。' },
-              { title: '学术交流', desc: '促进学术交流和知识共享，拓宽学术视野。' }
-            ].map((feature, index) => (
-              <div key={index} className="bg-white/95 backdrop-blur-sm rounded-3xl p-10 text-center hover:bg-white transition-all duration-300 transform hover:-translate-y-3 shadow-xl">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed text-lg">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Competition Results Features Section */}
-      <section className="h-full bg-gray-50 flex items-center">
+      {/* 第五页 - 合作伙伴和用户评价 */}
+      <section className="h-full bg-gray-100 flex flex-col justify-center py-4">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              竞赛成果特色
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              展示优秀竞赛团队的创新成果，为学生提供学习和交流的平台
-            </p>
+          <div className="text-center mb-6">
+            <p className="text-sm font-semibold tracking-[8px] text-gray-500 mb-2">NETWORK</p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Partners</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Trophy className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                获奖项目展示
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                展示各类竞赛的获奖项目，包括项目介绍、技术方案和创新点，为其他团队提供参考
-              </p>
-            </div>
-
-            <div className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                团队经验分享
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                优秀团队分享竞赛经验、团队协作方法和项目管理技巧，帮助新团队快速成长
-              </p>
-            </div>
-
-            <div className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Star className="w-8 h-8 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                创新技术展示
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                展示项目中使用的创新技术和解决方案，推动技术交流和知识共享
-              </p>
-            </div>
+          {/* 合作伙伴 Logo */}
+          <div className="flex justify-center items-center gap-8 mb-8">
+            <img src="/partner-1.png" alt="合作伙伴1" className="w-20 h-20 object-contain"/>
+            <img src="/partner-2.png" alt="合作伙伴2" className="w-28 h-16 object-contain"/>
+            <img src="/partner-3.png" alt="合作伙伴3" className="w-28 h-16 object-contain"/>
+            <img src="/partner-4.png" alt="合作伙伴4" className="w-24 h-8 object-contain"/>
           </div>
-        </div>
-      </section>
 
-      {/* Team Organization Section */}
-      <section className="h-full bg-white flex items-center">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                最快速的方式
-                <br />
-                组织竞赛团队
-              </h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                通过我们的平台快速找到志同道合的队友，组建高效的竞赛团队。智能匹配系统帮助你找到最合适的合作伙伴。
-              </p>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
-                立即组队
-              </button>
-            </div>
-            
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-8">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-gray-700">数学建模竞赛团队</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-gray-700">ACM程序设计竞赛</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-gray-700">创新创业大赛项目</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border-2 border-blue-200">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full animate-pulse"></div>
-                    <span className="text-blue-700 font-medium">电子设计竞赛 (进行中)</span>
+          {/* 用户评价 */}
+          <div className="bg-gray-300 rounded-xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+              {[
+                {
+                  name: 'Jane Cooper',
+                  title: 'CEO, ABC Corporation',
+                  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
+                  avatar: '/12.svg'
+                },
+                {
+                  name: 'Alan Jackson',
+                  title: 'CEO, Travelers Community',
+                  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
+                  avatar: '/15.svg'
+                },
+                {
+                  name: 'Jane Cooper',
+                  title: 'CEO, Go Travel',
+                  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat.',
+                  avatar: '/19.svg'
+                }
+              ].map((testimonial, index) => (
+                <div key={index} className="bg-white rounded-xl p-4 relative">
+                  <div className="text-3xl text-orange-400 opacity-40 font-bold mb-2">"</div>
+                  <p className="text-gray-700 text-xs leading-relaxed mb-4">
+                    {testimonial.content}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <img src={testimonial.avatar} alt={testimonial.name} className="w-8 h-8 rounded-full"/>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-xs">{testimonial.name}</h4>
+                      <p className="text-xs text-gray-600 opacity-70">{testimonial.title}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners Section */}
-      <section className="h-full bg-gray-50 flex items-center">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              合作伙伴
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              与知名企业和机构合作，为学生提供更多实践机会和就业资源
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">腾讯</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">阿里巴巴</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">华为</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">字节跳动</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">百度</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">美团</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">滴滴</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-400">小米</div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
-              查看所有合作伙伴
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="h-full bg-white flex items-center">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              学生评价
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              听听参与竞赛的学生们对平台的真实评价和使用体验
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-blue-50 rounded-2xl p-8 md:p-12 text-center">
-              <div className="w-16 h-16 bg-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">深大</span>
-              </div>
-              <blockquote className="text-xl md:text-2xl text-gray-700 mb-6 leading-relaxed">
-                "通过深大竞赛论坛，我们团队不仅找到了优秀的队友，还学习到了很多实用的竞赛经验。平台上的成果展示给了我们很大的启发，最终在全国大学生数学建模竞赛中获得了一等奖。"
-              </blockquote>
-              <div className="text-gray-600">
-                <div className="font-semibold">张同学</div>
-                <div className="text-sm">计算机科学与技术专业</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
-              查看更多评价
-            </button>
           </div>
         </div>
       </section>
@@ -428,9 +333,9 @@ export default function HomePage() {
           <button
             key={index}
             onClick={() => {
-              if (!isScrolling) {
+              if (!isScrolling && index >= 0 && index < totalSections) {
                 setIsScrolling(true);
-                setCurrentSection(index);
+                setCurrentSection(Math.min(Math.max(index, 0), totalSections - 1));
                 setTimeout(() => setIsScrolling(false), 1000);
               }
             }}

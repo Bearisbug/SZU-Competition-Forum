@@ -99,13 +99,12 @@ export default function IONavBar() {
         style={{ backgroundColor: "#fff", height: 60 }}
         className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-start gap-14 px-6 shadow-md"
       >
-        <div className="flex items-center gap-2">
-          <img src="/SZU-logo.png" alt="深圳大学" className="h-10 w-12 cursor-pointer" />
-          <img src="/szu.png" alt="深圳大学" className="h-10 w-30 cursor-pointer" />
+        <div className="flex items-center">
+          <img src="/NavLogo.png" alt="深圳大学" className="h-10 w-18 cursor-pointer" />
         </div>
-        <img src="/logo_red.png" alt="计软学院" className="h-10 w-30 cursor-pointer" />
+        <img src="/CollegeLogo.png" alt="计软学院" className="h-10 w-30 cursor-pointer" />
         <div className="flex items-center gap-2">
-          <img src="/huozhong.png" alt="火种图标" className="h-10 w-10 cursor-pointer" />
+          <img src="/ForumLogo.png" alt="火种图标" className="h-10 w-10 cursor-pointer" />
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-semibold text-gray-800">火种云平台</span>
           </div>
@@ -159,15 +158,11 @@ export default function IONavBar() {
           <nav className="flex w-full h-full items-center justify-center">
             <div className="hidden sm:flex gap-10 items-center h-full">
               <NavLink href="/" label="首页" />
-              <NavLink href="/communication" label="互动交流" />
-              <NavLink href="/training" label="在线培训" />
-              <NavLink href="/resource" label="资源共享" />
-              <NavLink href="/display" label="成果展示" />
-              {/* <NavLink href="/competition" label="比赛" /> */}
-              {/* <NavLink href="/article" label="文章" /> */}
+              <NavLink href="/teams" label="队伍" />
+              <NavLink href="/recruitment" label="项目招聘" />
+              <NavLink href="/article" label="文章" />
+              <NavLink href="/competition" label="比赛" />
               <NavLink href="/notification" label="信息" />
-              <NavLink href="/test" label="测试页面" />
-              {/* <NavLink href="/teams" label="队伍" /> */}
             </div>
           </nav>
         </div>
