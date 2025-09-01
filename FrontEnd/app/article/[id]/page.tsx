@@ -153,11 +153,11 @@ export default function ArticleDetailPage() {
       {/* 全页背景图 */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/bg3.png')" }}
+        style={{ backgroundImage: "url('/article-background.jpg')" }}
       />
       
       {/* 半透明遮罩层 */}
-      <div className="fixed inset-0 z-1 bg-white/50" />
+      <div className="fixed inset-0 z-1 bg-white/30" />
       
 
       {/* 全局内容区域 */}

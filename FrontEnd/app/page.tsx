@@ -109,36 +109,48 @@ export default function HomePage() {
             {/* 第一行 - 1个 */}
             <div className="flex justify-center mb-4">
               <div className="flex flex-col items-center">
-                <img src="/visualization-computing-center.png" alt="可视计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                <h3 className="text-xs font-semibold tracking-[4px] text-gray-500">可视计算研究中心</h3>
+                <a href="https://vcc.tech/index" target="_blank" rel="noopener noreferrer">
+                  <img src="/visualization-computing-center.png" alt="可视计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                  <h3 className="text-xs font-semibold tracking-[4px] text-gray-500">可视计算研究中心</h3>
+                </a>
               </div>
             </div>
 
             {/* 第二行 - 2个 */}
             <div className="flex justify-center gap-12 mb-4">
               <div className="flex flex-col items-center">
-                <img src="/intelligent-service-center.png" alt="智能服务计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">智能服务计算研究中心</h3>
+                <a href="https://aisc.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
+                  <img src="/intelligent-service-center.png" alt="智能服务计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                  <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">智能服务计算研究中心</h3>
+                </a> 
               </div>
               <div className="flex flex-col items-center">
-                <img src="/big-data-institute.png" alt="大数据技术与应用研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">大数据技术与应用研究所</h3>
+                <a href="https://bigdata.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
+                  <img src="/big-data-institute.png" alt="大数据技术与应用研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                  <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">大数据技术与应用研究所</h3>
+                </a>
               </div>
             </div>
 
             {/* 第三行 - 3个 */}
             <div className="flex justify-center gap-8">
               <div className="flex flex-col items-center">
-                <img src="/computer-vision-center.png" alt="计算机视觉研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
-                <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">计算机视觉研究所</h3>
+                <a href="https://csse.szu.edu.cn/cv/" target="_blank" rel="noopener noreferrer">
+                  <img src="/computer-vision-center.png" alt="计算机视觉研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
+                  <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">计算机视觉研究所</h3>
+                </a>
               </div>
               <div className="flex flex-col items-center">
-                <img src="/high-performance-center.png" alt="高性能计算研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">高性能计算研究所</h3>
+                <a href="https://nhpcc.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
+                  <img src="/high-performance-center.png" alt="高性能计算研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                  <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">高性能计算研究所</h3>
+                </a>
               </div>
               <div className="flex flex-col items-center">
-                <img src="/future-media-center.png" alt="未来媒体技术与计算研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
-                <h3 className="text-xs font-semibold tracking-[1px] text-gray-500">未来媒体技术与计算研究所</h3>
+                <a href="https://futuremedia.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
+                  <img src="/future-media-center.png" alt="未来媒体技术与计算研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
+                  <h3 className="text-xs font-semibold tracking-[1px] text-gray-500">未来媒体技术与计算研究所</h3>
+                </a>
               </div>
             </div>
           </div>
@@ -285,42 +297,85 @@ export default function HomePage() {
           </div>
 
           {/* 用户评价 */}
-          <div className="bg-gray-300 rounded-xl p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-              {[
-                {
-                  name: 'Jane Cooper',
-                  title: 'CEO, ABC Corporation',
-                  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
-                  avatar: '/12.svg'
-                },
-                {
-                  name: 'Alan Jackson',
-                  title: 'CEO, Travelers Community',
-                  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
-                  avatar: '/15.svg'
-                },
-                {
-                  name: 'Jane Cooper',
-                  title: 'CEO, Go Travel',
-                  content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat.',
-                  avatar: '/19.svg'
-                }
-              ].map((testimonial, index) => (
-                <div key={index} className="bg-white rounded-xl p-4 relative">
-                  <div className="text-3xl text-orange-400 opacity-40 font-bold mb-2">"</div>
-                  <p className="text-gray-700 text-xs leading-relaxed mb-4">
-                    {testimonial.content}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <img src={testimonial.avatar} alt={testimonial.name} className="w-8 h-8 rounded-full"/>
-                    <div>
-                      <h4 className="font-bold text-gray-900 text-xs">{testimonial.name}</h4>
-                      <p className="text-xs text-gray-600 opacity-70">{testimonial.title}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* 左侧轮播区域 */}
+            <div className="relative h-[24rem] overflow-hidden">
+              <div className="absolute inset-0 overflow-y-auto snap-y snap-mandatory space-y-8">
+                {[
+                  {
+                    name: 'Jane Cooper',
+                    title: 'CEO, ABC Corporation',
+                    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
+                    avatar: '/12.svg'
+                  },
+                  {
+                    name: 'Alan Jackson',
+                    title: 'CEO, Travelers Community',
+                    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
+                    avatar: '/15.svg'
+                  },
+                  {
+                    name: 'William Chen',
+                    title: 'CEO, Go Travel',
+                    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat.',
+                    avatar: '/19.svg'
+                  }
+                ].map((testimonial, index) => (
+                  <div 
+                    key={index} 
+                    className="bg-white rounded-xl p-8 relative snap-start min-h-[360px]"
+                  >
+                    <div className="text-5xl text-orange-400 opacity-40 font-bold mb-6">"</div>
+                    <p className="text-gray-700 text-sm leading-relaxed mb-8 line-clamp-4">
+                      {testimonial.content}
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <img 
+                        src={testimonial.avatar} 
+                        alt={testimonial.name} 
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
+                        <p className="text-sm text-gray-600 opacity-70">{testimonial.title}</p>
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+              
+              {/* 轮播指示器 */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
+                  {[0, 1, 2].map((dot) => (
+                    <button
+                      key={dot}
+                      className="w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-100 transition-all"
+                      onClick={() => {
+                        // 使用可选链操作符安全地访问元素
+                        const container = document.querySelector('.overflow-y-auto');
+                        const cards = container?.querySelectorAll('.snap-start');
+                        
+                        // 只有在container和cards都存在时才执行
+                        if (container && cards && cards[dot]) {
+                          cards[dot].scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                    />
+                  ))}
                 </div>
-              ))}
+              </div>
+
+            {/* 右侧图片区域 */}
+            <div className="flex items-center justify-center">
+              <div className="relative w-full h-[24rem] bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl overflow-hidden">
+                <img 
+                  src="/user-background.png" // 请替换为你的图片路径
+                  alt="Featured" 
+                  className="w-full h-full object-cover"
+                />
+                {/* 图片遮罩层 */}
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+              </div>
             </div>
           </div>
         </div>
