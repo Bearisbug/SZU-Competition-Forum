@@ -67,12 +67,23 @@ const UserProfileSidebar: React.FC<SidebarProps> = ({
   isSelf,
 }) => {
   const [editedUser, setEditedUser] = useState<User>(user);
-  const [avatarPreview, setAvatarPreview] = useState<string>(user.avatar_url);
+  const [avatarPreview, setAvatarPreview] = useState<string>(""); // 初始化为空
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  const handleNavigateProfile = () => {
+    router.push(`/user/${user.id}`);
+  };
+
+  // 处理头像 URL
+  const getFullAvatarUrl = (url: string) => {
+    if (!url) return "";
+    return url.startsWith("http") ? url : `${API_BASE_URL}/${url}`;
+  };
 
   useEffect(() => {
     setEditedUser(user);
-    setAvatarPreview(user.avatar_url);
+    setAvatarPreview(getFullAvatarUrl(user.avatar_url));
   }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +108,12 @@ const UserProfileSidebar: React.FC<SidebarProps> = ({
       });
       const data = await response.json();
       if (data.errno === 0) {
-        setEditedUser((prev) => ({ ...prev, avatar_url: data.data.url }));
+        const fullUrl = getFullAvatarUrl(data.data.url);
+        setEditedUser((prev) => ({
+          ...prev,
+          avatar_url: fullUrl,
+        }));
+        setAvatarPreview(fullUrl);
         toast.success("头像上传成功！");
       } else {
         toast.error("上传图片失败！");
@@ -126,11 +142,11 @@ const UserProfileSidebar: React.FC<SidebarProps> = ({
         <CardBody className="p-6">
           <div className="flex flex-col items-center">
             <div
-              className={`relative ${isEditing ? "cursor-pointer" : "cursor-default"}`}
-              onClick={handleAvatarClick}
-              title={isEditing ? "点击上传头像" : ""}
+              className={`relative ${isEditing ? "cursor-pointer" : "cursor-pointer"}`}
+              onClick={isEditing ? handleAvatarClick : handleNavigateProfile}
+              title={isEditing ? "点击上传头像" : "查看主页"}
             >
-              <Avatar src={avatarPreview} className="w-32 h-32 text-large mb-4" />
+              <Avatar src={avatarPreview} className="w-32 h-32 rounded-full text-large mb-4" />
               {isEditing && (
                 <Tooltip content="点击更改头像">
                   <div className="absolute bottom-2 right-2 bg-gray-700 rounded-full p-1">
@@ -227,6 +243,7 @@ const UserProfileSidebar: React.FC<SidebarProps> = ({
     </motion.div>
   );
 };
+
 
 function ProfilePageContent() {
   const [user, setUser] = useState<User | null>(null);

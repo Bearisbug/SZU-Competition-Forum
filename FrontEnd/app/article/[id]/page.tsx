@@ -32,6 +32,7 @@ type Article = {
   author: Author;
 };
 
+
 export default function ArticleDetailPage() {
   const [article, setArticle] = useState<Article | null>(null);
   const params = useParams();
@@ -158,7 +159,6 @@ export default function ArticleDetailPage() {
       
       {/* 半透明遮罩层 */}
       <div className="fixed inset-0 z-1 bg-white/30" />
-      
 
       {/* 全局内容区域 */}
       <div className="relative z-10 py-8">
@@ -173,9 +173,16 @@ export default function ArticleDetailPage() {
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex flex-col items-center">
                     <img
-                      src={article.author.avatar_url || "https://via.placeholder.com/100"}
+                      src={
+                        article.author.avatar_url
+                          ? article.author.avatar_url.startsWith("http")
+                            ? article.author.avatar_url
+                            : `${API_BASE_URL}/${article.author.avatar_url}`
+                          : `${API_BASE_URL}/uploads/images/default_avatar.png`
+                      }
                       alt="作者头像"
-                      className="w-24 h-24 rounded-full mb-4"
+                      className="w-24 h-24 rounded-full mb-4 cursor-pointer"
+                      onClick={() => router.push(`/user/${article.author.id}`)}
                     />
                     <Link 
                       href={`/user/${article.author.id}`} 
@@ -231,7 +238,7 @@ export default function ArticleDetailPage() {
                   className="prose max-w-none text-gray-800"
                   dangerouslySetInnerHTML={{ __html: article.content }} 
                 />
-
+                
               </div>
             </div>
           </div>
