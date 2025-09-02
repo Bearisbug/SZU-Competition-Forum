@@ -7,6 +7,7 @@ app/services/user_service.py
 3. 更新用户信息
 """
 
+import bcrypt
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.crud.user import create_user, get_user_by_id, update_user
@@ -15,10 +16,19 @@ from app.db.models import User
 
 def create_new_user(db: Session, user_data: UserCreate) -> User:
     """
-    创建新用户：将 id 与 password 传入 CRUD 层写入数据库。
+    创建新用户：将 id 与 password 传入 CRUD 层写入数据库，密码后端加密。
     """
-    # 你可以在这里加更多业务校验，比如 ID 是否已存在等。
-    return create_user(db, user_data.id, user_data.password)
+    # 校验用户是否存在
+    existing_user = get_user_by_id(db, user_data.id)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="用户已存在")
+
+    # 使用 bcrypt 对密码加密
+    hashed_password = bcrypt.hashpw(user_data.password.encode(), bcrypt.gensalt()).decode()
+
+    # 调用 CRUD 创建用户
+    return create_user(db,user_id=user_data.id,password=hashed_password,)
+
 
 def get_user_info(db: Session, user_id: int) -> User:
     """
