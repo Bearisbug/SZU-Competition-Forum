@@ -4,16 +4,18 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Spinner, Input } from '@heroui/react';
 import { Plus, Search } from 'lucide-react';
-import { useAuthStore } from '@/lib/auth-guards';
+import { useAuthStore, withAuth } from '@/lib/auth-guards';
 import RecruitmentCard, { Recruitment } from '@/components/Card/RecruitmentCard';
 import { API_BASE_URL } from '@/CONFIG';
 import toast from 'react-hot-toast';
 
-export default function RecruitmentPage() {
+function RecruitmentPageContent() {
   const router = useRouter();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const [role, setRole] = useState<string | null>(null);
   const isAdmin = (role || "").toLowerCase() === "admin";
+  const isTeacher = (role || "").toLowerCase() === "教师";
+  const canCreateRecruitment = isAdmin || isTeacher;
   
   const [recruitments, setRecruitments] = useState<Recruitment[]>([]);
   const [filteredRecruitments, setFilteredRecruitments] = useState<Recruitment[]>([]);
@@ -183,7 +185,7 @@ export default function RecruitmentPage() {
     router.push('/recruitment/create');
   };
 
-  // 如果未登录，显示提示信息
+  // 如果未挂载，显示加载状态
   if (!mounted) {
     return (
       <div 
@@ -195,6 +197,7 @@ export default function RecruitmentPage() {
     );
   }
 
+  // 如果未登录，显示提示信息
   if (!isLoggedIn) {
     return (
       <div 
@@ -213,6 +216,7 @@ export default function RecruitmentPage() {
     );
   }
 
+  // 如果正在加载，显示加载状态
   if (loading) {
     return (
       <div 
@@ -233,7 +237,7 @@ export default function RecruitmentPage() {
         {/* 顶部标题栏 */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">招聘信息</h1>
-          {isAdmin && (
+          {canCreateRecruitment && (
             <Button
               color="primary"
               size="lg"
@@ -371,10 +375,10 @@ export default function RecruitmentPage() {
                 <p className="text-gray-400 mb-6">
                   {selectedInstitution 
                     ? '尝试选择其他机构或清除筛选条件'
-                    : (isAdmin ? '点击右上角按钮发布第一条招聘信息' : '请等待管理员发布招聘信息')
+                    : (canCreateRecruitment ? '点击右上角按钮发布第一条招聘信息' : '请等待管理员或教师发布招聘信息')
                   }
                 </p>
-                {!selectedInstitution && isAdmin && (
+                {!selectedInstitution && canCreateRecruitment && (
                   <Button
                     color="primary"
                     size="lg"
@@ -401,9 +405,9 @@ export default function RecruitmentPage() {
                   <div key={recruitment.id} className="break-inside-avoid">
                     <RecruitmentCard
                       recruitment={recruitment}
-                      isAdmin={isAdmin}
-                      onEdit={isAdmin ? handleEdit : undefined}
-                      onDelete={isAdmin ? handleDelete : undefined}
+                      isAdmin={canCreateRecruitment}
+                      onEdit={canCreateRecruitment ? handleEdit : undefined}
+                      onDelete={canCreateRecruitment ? handleDelete : undefined}
                     />
                   </div>
                 ))}
@@ -415,3 +419,7 @@ export default function RecruitmentPage() {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const RecruitmentPage = withAuth(RecruitmentPageContent);
+export default RecruitmentPage;

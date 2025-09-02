@@ -23,19 +23,31 @@ export default function IONavBar() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const setIsLoggedIn = useAuthStore((state) => state.setIsLoggedIn);
 
+  // 确保页面始终有滚动条，避免布局变化
+  // 组件挂载后的初始化
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // 控制蓝色导航栏显示隐藏
   const controlNavbar = () => {
-    if (window.scrollY > lastScrollY) {
-      setIsVisible(false);
-    } else {
-      setIsVisible(true);
+    // 添加防抖，避免频繁切换
+    const currentScrollY = window.scrollY;
+    
+    // 只有滚动距离超过一定阈值才切换状态
+    if (Math.abs(currentScrollY - lastScrollY) > 10) {
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
     }
-    setLastScrollY(window.scrollY);
   };
 
   // 客户端挂载后设置状态
+  // 客户端挂载后设置状态
   useEffect(() => {
-    setMounted(true);
     const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   }, [setIsLoggedIn]);
@@ -43,8 +55,20 @@ export default function IONavBar() {
   // 滚动监听
   useEffect(() => {
     if (mounted) {
-      window.addEventListener("scroll", controlNavbar);
-      return () => window.removeEventListener("scroll", controlNavbar);
+      let ticking = false;
+      
+      const handleScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            controlNavbar();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+      
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      return () => window.removeEventListener("scroll", handleScroll);
     }
   }, [lastScrollY, mounted]);
 
@@ -67,8 +91,8 @@ export default function IONavBar() {
         setIsLoggedIn(!!token);
       };
 
-      window.addEventListener('storage', handleStorageChange);
-      return () => window.removeEventListener('storage', handleStorageChange);
+      window.addEventListener("storage", handleStorageChange);
+      return () => window.removeEventListener("storage", handleStorageChange);
     }
   }, [setIsLoggedIn, mounted]);
 
@@ -100,17 +124,43 @@ export default function IONavBar() {
         className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-start gap-14 px-6 shadow-md"
       >
         <div className="flex items-center">
-          <a href="https://www.szu.edu.cn" target="_blank" rel="noopener noreferrer">
-            <img src="/NavLogo.png" alt="深圳大学" className="h-10 w-18 cursor-pointer" />
+          <a
+            href="https://www.szu.edu.cn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/NavLogo.png"
+              alt="深圳大学"
+              className="h-10 w-18 cursor-pointer"
+            />
           </a>
         </div>
-        <a href="https://csse.szu.edu.cn" target="_blank" rel="noopener noreferrer">
-          <img src="/CollegeLogo.png" alt="计软学院" className="h-10 w-30 cursor-pointer" />
+        <a
+          href="https://csse.szu.edu.cn"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src="/CollegeLogo.png"
+            alt="计软学院"
+            className="h-10 w-30 cursor-pointer"
+          />
         </a>
         <div className="flex items-center gap-2">
-          <img src="/ForumLogo.png" alt="火种图标" className="h-10 w-10 cursor-pointer" />
+          <a href="/" rel="noopener noreferrer">
+            <img
+              src="/ForumLogo.png"
+              alt="火种图标"
+              className="h-10 w-10 cursor-pointer"
+            />
+          </a>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-gray-800">火种云平台</span>
+            <a href="/" rel="noopener noreferrer">
+              <span className="text-sm font-semibold text-gray-800">
+                火种云平台
+              </span>
+            </a>
           </div>
         </div>
         <div className="ml-auto">
@@ -122,7 +172,12 @@ export default function IONavBar() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="User actions">
-                <DropdownItem key="profile" onPress={() => router.push(`/user/${localStorage.getItem("id")}`)}>
+                <DropdownItem
+                  key="profile"
+                  onPress={() =>
+                    router.push(`/user/${localStorage.getItem("id")}`)
+                  }
+                >
                   <span className="font-bold">个人主页</span>
                 </DropdownItem>
                 <DropdownItem
@@ -131,8 +186,9 @@ export default function IONavBar() {
                   onPress={() => {
                     localStorage.removeItem("access_token");
                     localStorage.removeItem("id");
+                    localStorage.removeItem("remember");
                     setIsLoggedIn(false);
-                    window.location.reload();
+                    router.push('/');
                   }}
                 >
                   <span className="font-bold">登出</span>
@@ -140,7 +196,14 @@ export default function IONavBar() {
               </DropdownMenu>
             </Dropdown>
           ) : mounted ? (
-            <Button onPress={() => router.push("/user")} variant="light" className="font-bold text-gray-800">
+            <Button
+              onPress={() => {
+                // 使用平滑的路由跳转
+                router.push("/user");
+              }}
+              variant="light"
+              className="font-bold text-gray-800"
+            >
               登录
             </Button>
           ) : (
@@ -149,23 +212,23 @@ export default function IONavBar() {
         </div>
       </div>
 
-      {/* 蓝色导航栏 - 只有登录用户才显示 */}
       {mounted && isLoggedIn && (
         <div
-          className={`fixed top-[60px] left-0 right-0 transition-all duration-300 z-50 
-          ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
-          style={{ 
+          className={`fixed top-[60px] left-0 right-0 transition-all duration-300 z-50`}
+          style={{
             backgroundColor: "#024d8f",
-            height: "54px"
+            height: "54px",
+            opacity: isVisible ? 1 : 0,
+            pointerEvents: isVisible ? 'auto' : 'none',
           }}
         >
           <nav className="flex w-full h-full items-center justify-center">
             <div className="hidden sm:flex gap-10 items-center h-full">
               <NavLink href="/" label="首页" />
-              <NavLink href="/teams" label="队伍" />
+              <NavLink href="/competition" label="比赛" />
               <NavLink href="/recruitment" label="项目招聘" />
               <NavLink href="/article" label="文章" />
-              <NavLink href="/competition" label="比赛" />
+              <NavLink href="/teams" label="队伍" />
               <NavLink href="/notification" label="信息" />
             </div>
           </nav>

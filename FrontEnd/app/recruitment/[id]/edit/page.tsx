@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { 
   Input, 
@@ -13,7 +13,6 @@ import {
   Spinner
 } from '@heroui/react';
 import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
-import { AdminGuard } from '@/lib/auth-guards';
 import { API_BASE_URL } from '@/CONFIG';
 import toast from 'react-hot-toast';
 
@@ -23,11 +22,14 @@ interface ContactEntry {
   value: string;
 }
 
-function EditRecruitmentPageContent() {
+export default function EditRecruitmentPage() {
   const router = useRouter();
   const params = useParams();
   const recruitmentId = params.id as string;
   const [mounted, setMounted] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const authCheckExecuted = useRef(false);
   
   // 表单状态
   const [teacherName, setTeacherName] = useState('');
@@ -45,6 +47,54 @@ function EditRecruitmentPageContent() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // 检查登录状态和用户权限 - 只执行一次
+  useEffect(() => {
+    const checkAuthAndPermission = async () => {
+      if (mounted && !authCheckExecuted.current) {
+        authCheckExecuted.current = true;
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          toast.error('请先登录');
+          router.replace('/');
+          return;
+        }
+
+        try {
+          // 从本地存储获取用户ID
+          const userId = localStorage.getItem('id');
+          if (!userId) {
+            throw new Error('用户ID不存在');
+          }
+
+          // 获取用户信息以检查权限
+          const response = await fetch(`${API_BASE_URL}/api/user/info/${userId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('获取用户信息失败');
+          }
+
+          const userData = await response.json();
+          setUserRole(userData.role);
+          setAuthChecked(true);
+        } catch (error) {
+          console.error('获取用户信息错误:', error);
+          toast.error('验证用户权限失败');
+          router.replace('/');
+        }
+      }
+    };
+
+    checkAuthAndPermission();
+  }, [mounted, router]);
+
+  // 检查用户权限（管理员或教师）
+  const canEditRecruitment = userRole === 'admin' || userRole === '教师';
 
   // 获取招聘信息详情
   useEffect(() => {
@@ -91,10 +141,43 @@ function EditRecruitmentPageContent() {
       }
     };
 
-    if (recruitmentId && mounted) {
+    if (recruitmentId && mounted && authChecked && canEditRecruitment) {
       fetchRecruitment();
+    } else if (authChecked && !canEditRecruitment) {
+      setInitialLoading(false);
     }
-  }, [recruitmentId, router, mounted]);
+  }, [recruitmentId, router, mounted, authChecked, canEditRecruitment]);
+
+  // 如果还没有挂载或还没有检查认证状态，显示加载
+  if (!mounted || !authChecked || (canEditRecruitment && initialLoading)) {
+    return (
+      <div 
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        style={{ paddingTop: mounted ? "114px" : "60px" }}
+      >
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  // 如果没有权限，显示无权限提示
+  if (!canEditRecruitment) {
+    return (
+      <div 
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        style={{ paddingTop: "114px" }}
+      >
+        <div className="text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <div className="text-xl text-gray-500 mb-4">权限不足</div>
+          <p className="text-gray-400 mb-6">只有管理员和教师可以编辑招聘信息</p>
+          <Button color="primary" onPress={() => router.back()}>
+            返回上一页
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // 添加联系方式
   const addContact = () => {
@@ -195,17 +278,6 @@ function EditRecruitmentPageContent() {
       setLoading(false);
     }
   };
-
-  if (initialLoading) {
-    return (
-      <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        style={{ paddingTop: mounted ? "114px" : "60px" }}
-      >
-        <Spinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div 
@@ -378,13 +450,5 @@ function EditRecruitmentPageContent() {
         </form>
       </div>
     </div>
-  );
-}
-
-export default function EditRecruitmentPage() {
-  return (
-    <AdminGuard>
-      <EditRecruitmentPageContent />
-    </AdminGuard>
   );
 }

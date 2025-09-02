@@ -9,11 +9,11 @@ import CompetitionCard, {
   Competition,
 } from "@/components/Card/CompetitionCard";
 import toast from "react-hot-toast";
-import { useAuthStore } from "@/lib/auth-guards";
+import { useAuthStore, withAuth } from "@/lib/auth-guards";
 
 type FilterCategory = "competition_type" | "organizer";
 
-export default function HomePage() {
+function CompetitionPageContent() {
   const router = useRouter();
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [filteredCompetitions, setFilteredCompetitions] = useState<
@@ -454,3 +454,7 @@ export default function HomePage() {
     </div>
   );
 }
+
+// 使用登录校验高阶组件包装原始组件
+const CompetitionPage = withAuth(CompetitionPageContent);
+export default CompetitionPage;

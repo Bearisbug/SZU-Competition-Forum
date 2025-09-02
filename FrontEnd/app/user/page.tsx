@@ -10,6 +10,8 @@ import {
   Card,
   CardBody,
   Spinner,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from "next/navigation";
@@ -23,13 +25,13 @@ interface User {
   password: string;
 }
 
-const createUser = async (userId: string, password: string): Promise<User> => {
+const createUser = async (userId: string, password: string, role: string = "学生"): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/api/user/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: userId, password }),
+      body: JSON.stringify({ id: userId, password, role }),
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -232,6 +234,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("学生");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
@@ -252,7 +255,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
     try {
       //哈希加密
       const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-      await createUser(userId, hashedPassword);  // 调用注册接口
+      await createUser(userId, hashedPassword, role);  // 调用注册接口，传入角色
   
       toast.success("注册成功！请使用新账号自行登录！");
       setTimeout(() => {
@@ -281,6 +284,27 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
           inputWrapper: "w-full"
         }}
       />
+      <Select
+        isRequired
+        label="角色"
+        placeholder="请选择您的角色"
+        variant="bordered"
+        selectedKeys={[role]}
+        onSelectionChange={(keys) => {
+          const selectedRole = Array.from(keys)[0] as string;
+          setRole(selectedRole);
+        }}
+        classNames={{
+          trigger: "w-full"
+        }}
+      >
+        <SelectItem key="学生">
+          学生
+        </SelectItem>
+        <SelectItem key="教师">
+          教师
+        </SelectItem>
+      </Select>
       <Input
         isRequired
         label="密码"
@@ -345,4 +369,3 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
     </form>
   );
 }
-

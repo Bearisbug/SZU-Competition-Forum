@@ -4,6 +4,8 @@ import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { HeroUIProvider } from "@heroui/react";
 import IONavBar from "@/components/IONavBar";
+import { TokenMonitor } from "@/components/TokenMonitor";
+
 export default function RootLayout({
   children,
 }: {
@@ -17,6 +19,7 @@ export default function RootLayout({
             <title>竞赛论坛</title>
             <IONavBar />
             {children}
+            <TokenMonitor />
             <Toaster position="bottom-center"/>
           </main>
         </HeroUIProvider>

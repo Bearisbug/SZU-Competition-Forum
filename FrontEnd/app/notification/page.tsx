@@ -4,7 +4,7 @@ import SystemInfoDisplay from "@/components/SystemInfoDisplay";
 import toast from "react-hot-toast";
 import { Spinner } from "@heroui/react";
 import { API_BASE_URL } from "@/CONFIG";
-import { useAuthStore } from '@/lib/auth-guards';
+import { useAuthStore, withAuth } from '@/lib/auth-guards';
 
 type SystemInfo = {
     id: string;
@@ -12,7 +12,7 @@ type SystemInfo = {
     content: string;
     timestamp: string;
   };
-const SystemInfoPage = () => {
+const SystemInfoPageContent = () => {
   const [systemInfo, setSystemInfo] = useState<SystemInfo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [mounted, setMounted] = useState(false);
@@ -151,4 +151,6 @@ const SystemInfoPage = () => {
   );
 };
 
+// 使用登录校验高阶组件包装原始组件
+const SystemInfoPage = withAuth(SystemInfoPageContent);
 export default SystemInfoPage;

@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { create } from "zustand";
 import { API_BASE_URL } from '@/CONFIG';
 import toast from "react-hot-toast";
+import { 
+  getValidToken, 
+  isTokenExpiringSoon, 
+  getTokenRemainingTime,
+  setupTokenExpirationWarning 
+} from '@/lib/token-utils';
 
-// 集成 AuthStore 功能
 type AuthState = {
   isLoggedIn: boolean;
   loading: boolean;
@@ -28,7 +33,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   setIsLoggedIn: (value: boolean) => set({ isLoggedIn: value }),
   setUser: (user) => set({ user }),
   setLoading: (value: boolean) => set({ loading: value }),
-  logout: () => set({ isLoggedIn: false, user: null }),
+  logout: () => {
+    // 清除本地存储
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('id');
+    localStorage.removeItem('remember');
+    // 更新状态
+    set({ isLoggedIn: false, user: null });
+  },
 }));
 
 // 自定义 Hook，用于获取和管理认证状态
@@ -44,11 +56,22 @@ export function useAuth() {
         const userId = localStorage.getItem('id');
         
         if (token && userId) {
-          // 这里可以添加验证 token 有效性的逻辑
-          // 例如向后端发送请求验证 token
-          
-          // 获取用户信息
+          // 检查 token 是否过期
           try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const exp = payload.exp * 1000; // 转换为毫秒
+            const now = Date.now();
+            
+            if (exp <= now) {
+              // Token 已过期
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('id');
+              setIsLoggedIn(false);
+              toast.error('登录已过期，请重新登录');
+              return;
+            }
+            
+            // Token 未过期，获取用户信息
             const response = await fetch(`${API_BASE_URL}/api/user/info/${userId}`, {
               headers: {
                 Authorization: `Bearer ${token}`
@@ -68,9 +91,14 @@ export function useAuth() {
               localStorage.removeItem('access_token');
               localStorage.removeItem('id');
               setIsLoggedIn(false);
+              if (response.status === 401) {
+                toast.error('登录已过期，请重新登录');
+              }
             }
           } catch (error) {
-            console.error('获取用户信息失败:', error);
+            console.error('Token 解析或获取用户信息失败:', error);
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('id');
             setIsLoggedIn(false);
           }
         } else {
@@ -81,8 +109,19 @@ export function useAuth() {
       }
     };
     
+    // 监听全局登出事件
+    const handleLogout = () => {
+      logout();
+      setLoading(false);
+    };
+    
+    window.addEventListener('auth:logout', handleLogout);
     checkLoginStatus();
-  }, [setIsLoggedIn, setLoading, setUser]);
+    
+    return () => {
+      window.removeEventListener('auth:logout', handleLogout);
+    };
+  }, [setIsLoggedIn, setLoading, setUser, logout]);
   
   return { isLoggedIn, loading, user, setIsLoggedIn, setUser, logout };
 }
@@ -214,4 +253,106 @@ export function useAdminGuard() {
   }, [isLoggedIn, loading, router, user]);
 
   return { isAdmin: !loading && isLoggedIn && user?.role === 'admin' };
+}
+
+// Token 监控相关接口和 Hook
+interface UseTokenMonitorOptions {
+  warningMinutes?: number; // 提前多少分钟警告，默认5分钟
+  checkInterval?: number;  // 检查间隔，默认30秒
+  autoLogout?: boolean;    // 是否自动登出，默认true
+}
+
+export function useTokenMonitor(options: UseTokenMonitorOptions = {}) {
+  const {
+    warningMinutes = 5,
+    checkInterval = 30000, // 30秒
+    autoLogout = true
+  } = options;
+
+  const router = useRouter();
+  const { logout } = useAuthStore();
+  const intervalRef = useRef<NodeJS.Timeout>();
+  const cleanupRef = useRef<(() => void) | null>(null);
+  const hasWarned = useRef(false);
+
+  const handleTokenExpired = useCallback(() => {
+    // 强制退出登录，不管 autoLogout 设置如何
+    logout();
+    toast.error('登录已过期，请重新登录');
+    router.push('/');
+  }, [logout, router]);
+
+  const handleTokenWarning = useCallback(() => {
+    if (!hasWarned.current) {
+      hasWarned.current = true;
+      const token = getValidToken();
+      if (token) {
+        const remainingTime = getTokenRemainingTime(token);
+        const minutes = Math.floor(remainingTime / 60);
+        toast.error(`登录将在 ${minutes} 分钟后过期，请及时保存数据`);
+      }
+    }
+  }, []);
+
+  const checkTokenStatus = useCallback(() => {
+    // 只在浏览器环境中执行
+    if (typeof window === 'undefined') return;
+    
+    const storedToken = localStorage.getItem('access_token');
+    
+    // 如果本来就没有 token，不需要执行任何操作
+    if (!storedToken) {
+      return;
+    }
+    
+    const token = getValidToken();
+    
+    if (!token) {
+      // Token 存在但已过期，需要登出
+      handleTokenExpired();
+      return;
+    }
+
+    // 检查是否即将过期
+    if (isTokenExpiringSoon(token, warningMinutes)) {
+      handleTokenWarning();
+    }
+  }, [warningMinutes, handleTokenExpired, handleTokenWarning]);
+
+  useEffect(() => {
+    // 只有在浏览器环境且有 token 时才启动监控
+    if (typeof window === 'undefined') return;
+    
+    const token = getValidToken();
+    
+    if (token) {
+      // 设置定期检查
+      intervalRef.current = setInterval(checkTokenStatus, checkInterval);
+      
+      // 设置过期警告和自动登出
+      cleanupRef.current = setupTokenExpirationWarning(
+        token,
+        handleTokenWarning,
+        handleTokenExpired,
+        warningMinutes
+      );
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (cleanupRef.current) {
+        cleanupRef.current();
+      }
+    };
+  }, [checkInterval, warningMinutes, checkTokenStatus, handleTokenWarning, handleTokenExpired]);
+
+  return {
+    checkTokenStatus,
+    getRemainingTime: () => {
+      const token = getValidToken();
+      return token ? getTokenRemainingTime(token) : 0;
+    }
+  };
 }

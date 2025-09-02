@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 import uvicorn
 import logging
+import hashlib
 
 # 导入路由
 from app.api import (
@@ -30,7 +31,6 @@ origins = [
     "172.31.234.146:8000",   # 开发服务器
     "http://172.31.234.146", # Nginx (80端口)
     "http://localhost",
-    "http://localhost:8000"
 ]
 
 app.add_middleware(
@@ -49,20 +49,20 @@ app.include_router(article_endpoints.router, prefix='/api/articles', tags=["Arti
 app.include_router(competition_endpoints.router, prefix='/api/competitions', tags=["Competitions"])
 app.include_router(upload_endpoints.upload_router)
 app.include_router(recruitment_endpoints.router, prefix="/api/recruitments", tags=["Recruitments"])
-# 配置静态文件路径
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.on_event("startup")
 def ensure_default_admin():
     admin_id = 123456
     admin_password = "lzl003921"
+    hashed_password = hashlib.sha256(admin_password.encode()).hexdigest()
     db = SessionLocal()
     try:
         user = db.query(User).filter(User.id == admin_id).first()
         if not user:
             user = User(
                 id=admin_id,
-                password=admin_password,
+                password=hashed_password,
                 name="管理员",
                 email="未定义",
                 avatar_url="未定义",
