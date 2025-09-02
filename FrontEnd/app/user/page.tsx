@@ -1,5 +1,5 @@
 "use client";
-
+import crypto from "crypto";
 import React, { useState } from "react";
 import {
   Button,
@@ -148,7 +148,8 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
     }
   
     try {
-      const { access_token } = await loginUser(userId, password);  // 登录请求
+      const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+      const { access_token } = await loginUser(userId, hashedPassword);  // 登录请求
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("id", userId);
       if (remember) {
@@ -249,7 +250,9 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
     }
   
     try {
-      await createUser(userId, password);  // 调用注册接口
+      //哈希加密
+      const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+      await createUser(userId, hashedPassword);  // 调用注册接口
   
       toast.success("注册成功！请使用新账号自行登录！");
       setTimeout(() => {
