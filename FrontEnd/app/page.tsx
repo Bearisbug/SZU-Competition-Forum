@@ -71,7 +71,17 @@ export default function HomePage() {
   } as React.CSSProperties;
 
   return (
-    <div className="fixed inset-0 overflow-hidden" style={{ top: isLoggedIn ? "114px" : "60px", height: `calc(100vh - ${isLoggedIn ? "114px" : "60px"})` }}>
+    <>
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      <div className="fixed inset-0 overflow-hidden" style={{ top: isLoggedIn ? "114px" : "60px", height: `calc(100vh - ${isLoggedIn ? "114px" : "60px"})` }}>
       <div 
         className="absolute inset-0 transition-transform duration-1000 ease-in-out"
         style={{ 
@@ -280,101 +290,106 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第五页 - 合作伙伴和用户评价 */}
+      {/* 第五页 - 前辈箴言 */}
       <section className="h-full bg-gray-100 flex flex-col justify-center py-4">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-6">
-            <p className="text-sm font-semibold tracking-[8px] text-gray-500 mb-2">NETWORK</p>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Partners</h2>
+          <div className="text-center mb-8">
+            <p className="text-sm font-semibold tracking-[8px] text-gray-500 mb-2">WISDOM</p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">前辈箴言</h2>
+            <p className="text-gray-600 text-sm">聆听前辈的智慧，点亮前进的明灯</p>
           </div>
 
-          {/* 合作伙伴 Logo */}
-          <div className="flex justify-center items-center gap-8 mb-8">
-            <img src="/partner-1.png" alt="合作伙伴1" className="w-20 h-20 object-contain"/>
-            <img src="/partner-2.png" alt="合作伙伴2" className="w-28 h-16 object-contain"/>
-            <img src="/partner-3.png" alt="合作伙伴3" className="w-28 h-16 object-contain"/>
-            <img src="/partner-4.png" alt="合作伙伴4" className="w-24 h-8 object-contain"/>
-          </div>
-
-          {/* 用户评价 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* 左侧轮播区域 */}
-            <div className="relative h-[24rem] overflow-hidden">
-              <div className="absolute inset-0 overflow-y-auto snap-y snap-mandatory space-y-8">
+            <div className="relative h-[28rem] overflow-hidden">
+              <div className="absolute inset-0 overflow-y-auto snap-y snap-mandatory hide-scrollbar space-y-4 p-2">
                 {[
                   {
-                    name: 'Jane Cooper',
-                    title: 'CEO, ABC Corporation',
-                    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
+                    name: '张教授',
+                    title: '计算机视觉研究所 教授',
+                    content: '做学问如登山，一步一个脚印。在竞赛中不要急于求成，扎实的基础是成功的关键。记住，每一次失败都是通向成功的垫脚石。',
                     avatar: '/12.svg'
                   },
                   {
-                    name: 'Alan Jackson',
-                    title: 'CEO, Travelers Community',
-                    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat nunc sem.',
+                    name: '李博士',
+                    title: '大数据研究所 副教授',
+                    content: '团队合作是竞赛制胜的法宝。学会倾听队友的想法，发挥每个人的长处。一个人可以走得很快，但一群人可以走得更远。',
                     avatar: '/15.svg'
                   },
                   {
-                    name: 'William Chen',
-                    title: 'CEO, Go Travel',
-                    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor neque sed imperdiet nibh lectus feugiat.',
+                    name: '王老师',
+                    title: '智能服务计算中心 研究员',
+                    content: '创新来源于对问题的深度思考。不要满足于表面的解决方案，要敢于挑战传统思维，用全新的角度看待问题。',
                     avatar: '/19.svg'
+                  },
+                  {
+                    name: '陈院士',
+                    title: '高性能计算研究所 院士',
+                    content: '技术日新月异，但学习的热情永远不能消退。保持好奇心，拥抱变化，让自己成为终身学习者。',
+                    avatar: '/12.svg'
+                  },
+                  {
+                    name: '刘教授',
+                    title: '未来媒体技术研究所 教授',
+                    content: '在追求技术卓越的同时，不要忘记初心。技术是为了服务人类，让世界变得更美好。这是我们做研究的根本目的。',
+                    avatar: '/15.svg'
                   }
-                ].map((testimonial, index) => (
+                ].map((wisdom, index) => (
                   <div 
                     key={index} 
-                    className="bg-white rounded-xl p-8 relative snap-start min-h-[360px]"
+                    className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 backdrop-blur-sm rounded-xl p-8 relative snap-start h-[26rem] flex flex-col justify-between border border-blue-200/30 flex-shrink-0"
                   >
-                    <div className="text-5xl text-orange-400 opacity-40 font-bold mb-6">"</div>
-                    <p className="text-gray-700 text-sm leading-relaxed mb-8 line-clamp-4">
-                      {testimonial.content}
-                    </p>
+                    <div>
+                      <div className="text-5xl text-blue-400 opacity-40 font-bold mb-6">💡</div>
+                      <p className="text-gray-800 text-lg leading-relaxed font-medium">
+                        "{wisdom.content}"
+                      </p>
+                    </div>
                     <div className="flex items-center gap-4">
                       <img 
-                        src={testimonial.avatar} 
-                        alt={testimonial.name} 
-                        className="w-16 h-16 rounded-full object-cover"
+                        src={wisdom.avatar} 
+                        alt={wisdom.name} 
+                        className="w-16 h-16 rounded-full object-cover border-2 border-blue-300"
                       />
                       <div>
-                        <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
-                        <p className="text-sm text-gray-600 opacity-70">{testimonial.title}</p>
+                        <h4 className="font-bold text-gray-900 text-xl">{wisdom.name}</h4>
+                        <p className="text-base text-blue-600 font-medium">{wisdom.title}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
               
-              {/* 轮播指示器 */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
-                  {[0, 1, 2].map((dot) => (
-                    <button
-                      key={dot}
-                      className="w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-100 transition-all"
-                      onClick={() => {
-                        // 使用可选链操作符安全地访问元素
-                        const container = document.querySelector('.overflow-y-auto');
-                        const cards = container?.querySelectorAll('.snap-start');
-                        
-                        // 只有在container和cards都存在时才执行
-                        if (container && cards && cards[dot]) {
-                          cards[dot].scrollIntoView({ behavior: 'smooth' });
-                        }
-                      }}
-                    />
-                  ))}
-                </div>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-2">
+                {[0, 1, 2, 3, 4].map((dot) => (
+                  <button
+                    key={dot}
+                    className="w-2 h-8 rounded-full bg-blue-200 hover:bg-blue-400 transition-all opacity-60 hover:opacity-100"
+                    onClick={() => {
+                      const container = document.querySelector('.overflow-y-auto');
+                      const cards = container?.querySelectorAll('.snap-start');
+                      
+                      if (container && cards && cards[dot]) {
+                        cards[dot].scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  />
+                ))}
               </div>
+            </div>
 
-            {/* 右侧图片区域 */}
             <div className="flex items-center justify-center">
-              <div className="relative w-full h-[24rem] bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl overflow-hidden">
+              <div className="relative w-full h-[28rem] bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl overflow-hidden shadow-lg">
                 <img 
-                  src="/user-background.png" // 请替换为你的图片路径
-                  alt="Featured" 
+                  src="/user-background.png"
+                  alt="前辈箴言" 
                   className="w-full h-full object-cover"
                 />
-                {/* 图片遮罩层 */}
-                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                
+                <div className="absolute bottom-8 left-8 right-8 text-white">
+                  <h3 className="text-2xl font-bold mb-2">追求卓越，永不止步</h3>
+                  <p className="text-sm opacity-90">在知识的海洋中遨游，在竞赛的舞台上闪耀</p>
+                </div>
               </div>
             </div>
           </div>
@@ -414,6 +429,7 @@ export default function HomePage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
