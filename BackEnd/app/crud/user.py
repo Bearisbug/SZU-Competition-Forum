@@ -13,7 +13,7 @@ def create_user(db: Session, user_id: int, password: str) -> User:
         password=password,
         name="未定义",
         email="未定义",
-        avatar_url="未定义",
+        avatar_url="uploads/images/default_avatar.png",
         grade="未定义",
         major="未定义",
         role="学生",
