@@ -13,6 +13,7 @@ function RecruitmentPageContent() {
   const router = useRouter();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const [role, setRole] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const isAdmin = (role || "").toLowerCase() === "admin";
   const isTeacher = (role || "").toLowerCase() === "教师";
   const canCreateRecruitment = isAdmin || isTeacher;
@@ -65,11 +66,14 @@ function RecruitmentPageContent() {
       if (res.ok) {
         const user = await res.json();
         setRole(user?.role ?? null);
+        setCurrentUserId(user?.id ?? null);
       } else {
         setRole(null);
+        setCurrentUserId(null);
       }
     } catch {
       setRole(null);
+      setCurrentUserId(null);
     }
   }, []);
 
@@ -405,9 +409,10 @@ function RecruitmentPageContent() {
                   <div key={recruitment.id} className="break-inside-avoid">
                     <RecruitmentCard
                       recruitment={recruitment}
-                      isAdmin={canCreateRecruitment}
-                      onEdit={canCreateRecruitment ? handleEdit : undefined}
-                      onDelete={canCreateRecruitment ? handleDelete : undefined}
+                      currentUserId={currentUserId ?? undefined}
+                      currentUserRole={role ?? undefined}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
                     />
                   </div>
                 ))}

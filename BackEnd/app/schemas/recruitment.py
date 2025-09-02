@@ -29,6 +29,7 @@ class RecruitmentUpdate(BaseModel):
 class RecruitmentInDB(BaseModel):
     id: int
     card_id: str
+    creator_id: int
     teacher_name: str
     teacher_avatar_url: Optional[str]
     institution: Optional[str]

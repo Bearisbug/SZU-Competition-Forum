@@ -178,6 +178,7 @@ class ProjectRecruitment(Base):
     """
     老师项目招聘卡片
     - card_id: 业务侧卡片唯一标识（便于前端卡片化展示/路由）
+    - creator_id: 创建者用户ID（用于权限控制）
     - teacher_name: 老师姓名
     - teacher_avatar_url: 老师头像
     - institution: 老师所属机构
@@ -190,6 +191,7 @@ class ProjectRecruitment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     card_id = Column(String, unique=True, index=True, nullable=False)
+    creator_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
     teacher_name = Column(String, index=True, nullable=False)
     teacher_avatar_url = Column(String, nullable=True)
@@ -202,6 +204,8 @@ class ProjectRecruitment(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    creator = relationship("User", backref="recruitments")
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

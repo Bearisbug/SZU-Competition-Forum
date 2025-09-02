@@ -13,10 +13,11 @@ def _ensure_card_id(db: Session, card_id: str | None) -> str:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="card_id 已存在")
     return cid
 
-def create_recruitment(db: Session, data: RecruitmentCreate) -> ProjectRecruitment:
+def create_recruitment(db: Session, data: RecruitmentCreate, creator_id: int) -> ProjectRecruitment:
     cid = _ensure_card_id(db, data.card_id)
     obj = ProjectRecruitment(
         card_id=cid,
+        creator_id=creator_id,
         teacher_name=data.teacher_name,
         teacher_avatar_url=data.teacher_avatar_url,
         institution=data.institution,

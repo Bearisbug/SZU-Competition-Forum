@@ -7,6 +7,7 @@ import { Edit, Trash2, MapPin, Clock } from 'lucide-react';
 export interface Recruitment {
   id: number;
   card_id: string;
+  creator_id: number;
   teacher_name: string;
   teacher_avatar_url?: string;
   institution?: string;
@@ -20,14 +21,16 @@ export interface Recruitment {
 
 interface RecruitmentCardProps {
   recruitment: Recruitment;
-  isAdmin?: boolean;
+  currentUserId?: number;
+  currentUserRole?: string;
   onEdit?: (id: number) => void;
   onDelete?: (id: number) => void;
 }
 
 export default function RecruitmentCard({
   recruitment,
-  isAdmin = false,
+  currentUserId,
+  currentUserRole,
   onEdit,
   onDelete,
 }: RecruitmentCardProps) {
@@ -37,6 +40,15 @@ export default function RecruitmentCard({
 
   const handleDelete = () => {
     onDelete?.(recruitment.id);
+  };
+
+  // 判断当前用户是否可以编辑/删除此招募信息
+  const canEdit = () => {
+    if (!currentUserId || !currentUserRole) return false;
+    // 管理员可以编辑所有招募信息
+    if (currentUserRole.toLowerCase() === 'admin') return true;
+    // 创建者可以编辑自己的招募信息
+    return recruitment.creator_id === currentUserId;
   };
 
   // 格式化联系方式显示 - 显示所有联系方式
@@ -49,8 +61,8 @@ export default function RecruitmentCard({
     <Card 
       className="w-full bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 relative"
     >
-      {/* 管理员操作按钮 */}
-      {isAdmin && (
+      {/* 编辑和删除操作按钮 */}
+      {canEdit() && (
         <div className="absolute top-3 right-3 z-10 flex gap-2">
           <Button
             isIconOnly
