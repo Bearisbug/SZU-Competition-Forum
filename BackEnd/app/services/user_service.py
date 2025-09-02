@@ -15,10 +15,10 @@ from app.db.models import User
 
 def create_new_user(db: Session, user_data: UserCreate) -> User:
     """
-    创建新用户：将 id 与 password 传入 CRUD 层写入数据库。
+    创建新用户的业务逻辑
     """
     # 你可以在这里加更多业务校验，比如 ID 是否已存在等。
-    return create_user(db, user_data.id, user_data.password)
+    return create_user(db, user_data.id, user_data.password, user_data.role)
 
 def get_user_info(db: Session, user_id: int) -> User:
     """

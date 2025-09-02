@@ -5,6 +5,7 @@ from typing import Optional
 class UserCreate(BaseModel):
     id: int
     password: str
+    role: str = "student"  # 默认为学生，可选择 "student" 或 "teacher"
 
     class Config:
         orm_mode = True
