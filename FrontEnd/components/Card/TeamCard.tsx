@@ -15,6 +15,7 @@ import { Text, User, Users, Target, FileText, MoreVertical, CircleX, UserRoundPl
 import toast from 'react-hot-toast';
 import { JoinTeamModal } from "../Modal/JoinTeamModal";
 import { EditTeamModal } from "../Modal/EditTeamModal";
+import { API_BASE_URL } from "@/CONFIG";
 
 // 类型定义
 export type Team = {
@@ -221,15 +222,35 @@ export function TeamCard({
                   transform: `translateX(0)`,
                 }}
               >
-                <Avatar
-                  src={member.avatarUrl || undefined}
-                  name={member.name}
-                  className="w-16 h-16"
-                />
+                <div
+                  className="cursor-pointer"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.location.href = `/user/${member.user_id}`;
+                    }
+                  }}
+                >
+                  <Avatar
+                    src={member.avatarUrl
+                      ? member.avatarUrl.startsWith("http")
+                        ? member.avatarUrl
+                        : `${API_BASE_URL}/${member.avatarUrl}`
+                        : undefined}
+                    name={member.name}
+                    className="w-16 h-16"
+                  />
+                </div>
                 <div className="text-center">
-                  <Link href={`/user/${member.user_id}`} color="foreground">
-                  <p className="font-medium text-sm">{member.name}</p>
-                  </Link>
+                  <p
+                    className="font-medium text-sm cursor-pointer"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.location.href = `/user/${member.user_id}`;
+                      }
+                    }}
+                  >
+                    {member.name}
+                  </p>
                   <p className="text-xs text-gray-500">{member.role}</p>
                   <p className="text-xs text-gray-500">{member.position}</p>
                   <p className="text-xs text-gray-500">{member.major}</p>
