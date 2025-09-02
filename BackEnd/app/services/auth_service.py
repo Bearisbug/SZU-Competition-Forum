@@ -4,7 +4,6 @@ app/services/auth_service.py
 与用户认证、授权相关的业务逻辑：JWT token 生成、校验，当前用户获取等。
 """
 
-import bcrypt
 import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends, status
@@ -32,9 +31,10 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    使用 bcrypt 校验密码
+    密码验证逻辑，此处为了演示，直接进行明文比对。
+    若需要更安全，可以使用 passlib 或 bcrypt 等进行哈希验证。
     """
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return plain_password == hashed_password
 
 def authenticate_user(db: Session, user_id: int, password: str) -> str:
     """
