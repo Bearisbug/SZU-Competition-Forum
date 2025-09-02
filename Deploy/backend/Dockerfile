@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 
 # 复制后端内容到镜像中
 COPY . /app/
