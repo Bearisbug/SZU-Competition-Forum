@@ -100,13 +100,9 @@ export default function IONavBar() {
         className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-start gap-14 px-6 shadow-md"
       >
         <div className="flex items-center">
-          <a href="https://www.szu.edu.cn" target="_blank" rel="noopener noreferrer">
-            <img src="/NavLogo.png" alt="深圳大学" className="h-10 w-18 cursor-pointer" />
-          </a>
+          <img src="/NavLogo.png" alt="深圳大学" className="h-10 w-18 cursor-pointer" />
         </div>
-        <a href="https://csse.szu.edu.cn" target="_blank" rel="noopener noreferrer">
-          <img src="/CollegeLogo.png" alt="计软学院" className="h-10 w-30 cursor-pointer" />
-        </a>
+        <img src="/CollegeLogo.png" alt="计软学院" className="h-10 w-30 cursor-pointer" />
         <div className="flex items-center gap-2">
           <img src="/ForumLogo.png" alt="火种图标" className="h-10 w-10 cursor-pointer" />
           <div className="flex flex-col leading-tight">

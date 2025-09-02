@@ -119,48 +119,36 @@ export default function HomePage() {
             {/* 第一行 - 1个 */}
             <div className="flex justify-center mb-4">
               <div className="flex flex-col items-center">
-                <a href="https://vcc.tech/index" target="_blank" rel="noopener noreferrer">
-                  <img src="/visualization-computing-center.png" alt="可视计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                  <h3 className="text-xs font-semibold tracking-[4px] text-gray-500">可视计算研究中心</h3>
-                </a>
+                <img src="/visualization-computing-center.png" alt="可视计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[4px] text-gray-500">可视计算研究中心</h3>
               </div>
             </div>
 
             {/* 第二行 - 2个 */}
             <div className="flex justify-center gap-12 mb-4">
               <div className="flex flex-col items-center">
-                <a href="https://aisc.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
-                  <img src="/intelligent-service-center.png" alt="智能服务计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                  <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">智能服务计算研究中心</h3>
-                </a> 
+                <img src="/intelligent-service-center.png" alt="智能服务计算研究中心" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">智能服务计算研究中心</h3>
               </div>
               <div className="flex flex-col items-center">
-                <a href="https://bigdata.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
-                  <img src="/big-data-institute.png" alt="大数据技术与应用研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                  <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">大数据技术与应用研究所</h3>
-                </a>
+                <img src="/big-data-institute.png" alt="大数据技术与应用研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[2px] text-gray-500">大数据技术与应用研究所</h3>
               </div>
             </div>
 
             {/* 第三行 - 3个 */}
             <div className="flex justify-center gap-8">
               <div className="flex flex-col items-center">
-                <a href="https://csse.szu.edu.cn/cv/" target="_blank" rel="noopener noreferrer">
-                  <img src="/computer-vision-center.png" alt="计算机视觉研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
-                  <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">计算机视觉研究所</h3>
-                </a>
+                <img src="/computer-vision-center.png" alt="计算机视觉研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">计算机视觉研究所</h3>
               </div>
               <div className="flex flex-col items-center">
-                <a href="https://nhpcc.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
-                  <img src="/high-performance-center.png" alt="高性能计算研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
-                  <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">高性能计算研究所</h3>
-                </a>
+                <img src="/high-performance-center.png" alt="高性能计算研究所" className="w-28 h-28 rounded-full mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[3px] text-gray-500">高性能计算研究所</h3>
               </div>
               <div className="flex flex-col items-center">
-                <a href="https://futuremedia.szu.edu.cn/" target="_blank" rel="noopener noreferrer">
-                  <img src="/future-media-center.png" alt="未来媒体技术与计算研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
-                  <h3 className="text-xs font-semibold tracking-[1px] text-gray-500">未来媒体技术与计算研究所</h3>
-                </a>
+                <img src="/future-media-center.png" alt="未来媒体技术与计算研究所" className="w-28 h-28 rounded-lg mb-2 object-cover"/>
+                <h3 className="text-xs font-semibold tracking-[1px] text-gray-500">未来媒体技术与计算研究所</h3>
               </div>
             </div>
           </div>
