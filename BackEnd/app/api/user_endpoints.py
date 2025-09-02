@@ -4,7 +4,7 @@ app/api/user_endpoints.py
 用户相关路由，仅负责请求->调用service->返回结果，不直接编写业务逻辑。
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -12,6 +12,7 @@ from app.schemas.user import UserCreate, UserResponse, LoginRequest, LoginRespon
 from app.services import auth_service, user_service
 from app.services.auth_service import get_current_user
 from app.db.models import User
+from app.core.logging_config import log_user_login, log_user_operation
 
 router = APIRouter()
 
@@ -29,13 +30,58 @@ def create_user_endpoint(
 @router.post("/login/", response_model=LoginResponse)
 def login_for_access_token(
     login: LoginRequest,
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """
     用户登录，返回 Access Token
     """
-    access_token = auth_service.authenticate_user(db, login.id, login.password)
-    return {"access_token": access_token}
+    # 获取客户端IP和User-Agent
+    client_ip = get_client_ip(request)
+    user_agent = request.headers.get("User-Agent", "")
+    
+    try:
+        # 尝试认证用户
+        access_token = auth_service.authenticate_user(db, login.id, login.password)
+        
+        # 获取用户信息用于日志记录
+        user = db.query(User).filter(User.id == login.id).first()
+        if user:
+            # 记录成功登录日志
+            log_user_login(
+                user_id=user.id,
+                username=user.name,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                success=True
+            )
+        
+        return {"access_token": access_token}
+    
+    except Exception as e:
+        # 记录失败登录日志
+        log_user_login(
+            user_id=login.id,
+            username=f"ID:{login.id}",
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False
+        )
+        raise e
+
+def get_client_ip(request: Request) -> str:
+    """获取客户端真实IP地址"""
+    # 检查代理头
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip
+    
+    # 返回直接连接的IP
+    return request.client.host if request.client else "unknown"
 
 @router.get("/info/{user_id}", response_model=UserResponse)
 def get_user_endpoint(

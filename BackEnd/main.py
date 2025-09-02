@@ -11,6 +11,11 @@ import uvicorn
 import logging
 import hashlib
 
+# 导入中间件和日志配置
+from app.core.logging_config import setup_logging, log_user_login
+from app.middleware.logging_middleware import LoggingMiddleware
+from app.middleware.rate_limit import RateLimitMiddleware, APIRateLimitMiddleware
+
 # 导入路由
 from app.api import (
     user_endpoints,
@@ -24,9 +29,14 @@ from app.api import (
 
 from app.db.session import SessionLocal
 from app.db.models import User
+
 app = FastAPI()
 
-# 配置 CORS
+setup_logging()
+
+app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)
+app.add_middleware(APIRateLimitMiddleware)
+app.add_middleware(LoggingMiddleware)
 origins = [
     "172.31.234.146:8000",   # 开发服务器
     "http://172.31.234.146", # Nginx (80端口)
