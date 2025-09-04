@@ -5,7 +5,8 @@ from typing import Optional
 class UserCreate(BaseModel):
     id: int
     password: str
-    role: str = "student"  # 默认为学生，可选择 "student" 或 "teacher"
+    email: str
+    role: str  # 默认为学生，可选择 "student" 或 "teacher"
 
     class Config:
         orm_mode = True
@@ -39,6 +40,13 @@ class UserResponse(BaseModel):
 class LoginRequest(BaseModel):
     id: int
     password: str
+
+#教师登录请求
+class TeacherLoginRequest(BaseModel):
+    id: int
+    password: str
+    email: str
+    code: str
 
 # 登录响应模型
 class LoginResponse(BaseModel):

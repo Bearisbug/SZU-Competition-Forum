@@ -4,15 +4,16 @@ app/api/user_endpoints.py
 用户相关路由，仅负责请求->调用service->返回结果，不直接编写业务逻辑。
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Body
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.user import UserCreate, UserResponse, LoginRequest, LoginResponse, UserUpdate
+from app.schemas.user import UserCreate, UserResponse, LoginRequest, LoginResponse, UserUpdate, TeacherLoginRequest
 from app.services import auth_service, user_service
 from app.services.auth_service import get_current_user
 from app.db.models import User
 from app.core.logging_config import log_user_login, log_user_operation
+from app.services.auth_service import send_email_code, verify_email_code
 
 router = APIRouter()
 
@@ -168,3 +169,52 @@ def get_user_teams(
         })
 
     return my_team_details
+
+@router.post("/send-email-code/")
+def send_email_code_endpoint(email: str = Body(..., embed=True),db: Session = Depends(get_db)):
+    """
+    发送验证码
+    """
+    send_email_code(email,db)
+    return {"message": "验证码已发送"}
+
+@router.post("/login-teacher/", response_model=LoginResponse)
+def login_teacher_endpoint(
+        request: Request,
+        login: TeacherLoginRequest,
+        db: Session = Depends(get_db)
+):
+    """
+    教师登录接口：
+    需要账号、密码、邮箱、验证码
+    """
+    client_ip = get_client_ip(request)
+    user_agent = request.headers.get("User-Agent", "")
+
+    try:
+        # 调用 service 层教师登录方法
+        access_token = auth_service.login_teacher_for_access_token(db, login)
+
+        # 获取用户信息用于日志记录
+        user = db.query(User).filter(User.id == login.id).first()
+        if user:
+            log_user_login(
+                user_id=user.id,
+                username=user.name,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                success=True
+            )
+
+        return {"access_token": access_token}
+
+    except Exception as e:
+        # 登录失败也记录日志
+        log_user_login(
+            user_id=getattr(login, "id", "unknown"),
+            username=f"ID:{getattr(login, 'id', 'unknown')}",
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False
+        )
+        raise e

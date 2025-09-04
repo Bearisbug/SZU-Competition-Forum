@@ -18,7 +18,7 @@ def create_new_user(db: Session, user_data: UserCreate) -> User:
     创建新用户的业务逻辑
     """
     # 你可以在这里加更多业务校验，比如 ID 是否已存在等。
-    return create_user(db, user_data.id, user_data.password, user_data.role)
+    return create_user(db, user_data.id, user_data.password, user_data.email, user_data.role)
 
 def get_user_info(db: Session, user_id: int) -> User:
     """
