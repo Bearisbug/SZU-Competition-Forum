@@ -5,17 +5,32 @@ app/services/auth_service.py
 """
 
 import jwt
+import random
+import smtplib
+import redis
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from app.db.models import User
+from email.mime.text import MIMEText
+from email.header import Header
+from email.utils import formataddr
+from typing import Optional
+from app.crud.user import get_user_by_id
+
 from app.core.config import JWT_SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.crud.user import get_user_by_id
 from app.db.session import get_db
-from app.schemas.user import LoginRequest
+from app.schemas.user import LoginRequest, TeacherLoginRequest
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+# ========== 发件邮箱配置 ==========
+SMTP_SERVER = "smtp.qq.com"
+SMTP_PORT = 465
+SENDER_EMAIL = "1992898402@qq.com"
+SENDER_PASS = "rrwrlnkeztxibeff"  #授权码
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     """
@@ -116,3 +131,100 @@ def ensure_admin(role_or_user) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无权限：需要管理员"
         )
+
+
+
+# 建立连接
+r = redis.Redis(
+    host="localhost",
+    port=6379,
+    db=0,
+    decode_responses=True
+)
+
+def set_code(email: str, code: str, expire_seconds: int = 300):
+    """保存验证码，默认5分钟"""
+    r.setex(f"email_code:{email}", expire_seconds, code)
+
+def get_code(email: str) -> Optional[str]:
+    """获取验证码"""
+    return r.get(f"email_code:{email}")
+
+def delete_code(email: str):
+    """验证通过后删除验证码"""
+    r.delete(f"email_code:{email}")
+
+
+# ========== 生成验证码 ==========
+def generate_code(length=6):
+    return "".join([str(random.randint(0, 9)) for _ in range(length)])
+
+# ========== 发送邮件 ==========
+def send_mail(receiver_email, code):
+    subject = "你的验证码"
+    content = f"您的验证码是：{code}，请在5分钟内使用。"
+
+    message = MIMEText(content, "plain", "utf-8")
+    message["From"] = formataddr(("验证码系统", SENDER_EMAIL))
+    message["To"] = formataddr(("收件人", receiver_email))
+    message["Subject"] = Header(subject, "utf-8")
+
+    try:
+        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
+        server.login(SENDER_EMAIL, SENDER_PASS)
+        server.sendmail(SENDER_EMAIL, [receiver_email], message.as_string())
+        server.quit()
+        print("验证码已发送到", receiver_email)
+    except Exception as e:
+        print("发送失败:", e)
+
+def verify_email_code(email: str, code: str):
+    saved_code = get_code(email)
+    if not saved_code:
+        raise HTTPException(status_code=400, detail="验证码不存在或已过期")
+    if saved_code != code:
+        raise HTTPException(status_code=400, detail="验证码错误")
+    delete_code(email)  # 验证通过删除
+    return True
+
+def send_email_code(email: str, db: Session, code_length: int = 6, expire_seconds: int = 300):
+    """
+    检查邮箱是否存在，若存在则尝试发送验证码
+    """
+    code = generate_code(code_length)
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="邮箱未注册")
+    try:
+        send_mail(email, code)
+        set_code(email, code, expire_seconds)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"发送验证码失败: {e}")
+
+    return {"message": "验证码已发送"}
+
+def login_teacher_for_access_token(db: Session, login: TeacherLoginRequest) -> str:
+    """
+    教师登录逻辑：
+    1. 校验账号+密码
+    2. 校验邮箱验证码
+    3. 返回 JWT 令牌
+    """
+    # 1. 账号+密码校验
+    db_user = get_user_by_id(db, login.id)
+    if not db_user:
+        raise HTTPException(status_code=401, detail="用户不存在")
+    if db_user.role.lower() != "教师":
+        raise HTTPException(status_code=403, detail="非教师账号无法使用该接口")
+    if not verify_password(login.password, db_user.password):
+        raise HTTPException(status_code=401, detail="用户名或密码错误")
+
+    # 2. 验证邮箱验证码
+    try:
+        verify_email_code(login.email, login.code)  # 成功返回 True，失败会抛 HTTPException
+    except HTTPException as e:
+        raise HTTPException(status_code=400, detail=f"邮箱验证码错误或已过期: {e.detail}")
+
+    # 3. 生成 JWT
+    access_token = create_access_token(data={"sub": str(login.id)})
+    return access_token
