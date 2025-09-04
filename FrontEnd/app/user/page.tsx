@@ -25,13 +25,13 @@ interface User {
   password: string;
 }
 
-const createUser = async (userId: string, password: string, role: string = "学生"): Promise<User> => {
+const createUser = async (userId: string, password: string,  email: string, role: string): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/api/user/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: userId, password, role }),
+      body: JSON.stringify({ id: userId, password, role, email }),
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -59,6 +59,41 @@ const createUser = async (userId: string, password: string, role: string = "学�
   
     return response.json(); // 返回登录成功后的数据
   };
+
+    const loginTeacher = async (userId: string, password: string, email: string, code: string): Promise<{ access_token: string }> => {
+    const response = await fetch(`${API_BASE_URL}/api/user/login-teacher`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: userId, password, email, code }),
+    });
+  
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData?.detail || '登录失败，请检查账号和密码！';
+      throw new Error(errorMessage);
+    }
+  
+    return response.json(); // 返回登录成功后的数据
+  };
+
+  const sendEmailCode = async  (email: string) =>{
+    const res = await fetch(`${API_BASE_URL}/api/user/send-email-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json(); 
+
+    if (!res.ok) {
+       throw new Error(data?.detail || "发送失败");
+    }
+    return data; //返回验证码
+  }
+
+
 
 export default function AuthPage() {
   const router = useRouter();
@@ -129,14 +164,47 @@ export default function AuthPage() {
 
 function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => void }) {
   const router = useRouter();
+  const [role, setRole] = useState("学生");
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [remember, setRemember] = useState(false);
   const isLoggedIn = useAuthStore((state: { isLoggedIn: any; }) => state.isLoggedIn);
   const setIsLoggedIn = useAuthStore((state: { setIsLoggedIn: any; }) => state.setIsLoggedIn);
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const handleSendCode = async () => {
+    if (!email) {
+      toast.error("请输入邮箱！");
+      return;
+    }
+    try {
+      const data = await sendEmailCode(email); // 调用后端接口，发送验证码
+      if (data?.message) {
+        toast.success(data.message); 
+    } else {
+        toast.success("验证码已发送，请查收邮箱！");
+    }
+        setIsCodeSent(true);
+        setCountdown(60);
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    } catch (error) {
+      toast.error("发送验证码失败，请重试！");
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,9 +219,21 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
   
     try {
       const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-      const { access_token } = await loginUser(userId, hashedPassword);  // 登录请求
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("id", userId);
+
+      if (role === "学生") {
+        const { access_token } = await loginUser(userId, hashedPassword);
+        localStorage.setItem("access_token", access_token);
+        localStorage.setItem("id", userId);
+      }else {
+        if (!email || !code) {
+          toast.error("请输入邮箱和验证码！");
+          return;
+        }
+        const { access_token } = await loginTeacher(userId, hashedPassword, email, code);
+        localStorage.setItem("access_token", access_token);
+        localStorage.setItem("id", userId);
+      }
+
       if (remember) {
         localStorage.setItem("remember", "true");
       }
@@ -187,6 +267,27 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
           inputWrapper: "w-full"
         }}
       />
+      <Select
+        isRequired
+        label="角色"
+        placeholder="请选择您的角色"
+        variant="bordered"
+        selectedKeys={[role]}
+        onSelectionChange={(keys) => {
+          const selectedRole = Array.from(keys)[0] as string;
+          setRole(selectedRole);
+        }}
+        classNames={{
+          trigger: "w-full"
+        }}
+      >
+        <SelectItem key="学生">
+          学生
+        </SelectItem>
+        <SelectItem key="教师">
+          教师
+        </SelectItem>
+      </Select>
       <Input
         isRequired
         label="密码"
@@ -210,6 +311,34 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
           </button>
         }
       />
+      {role === "教师" && (
+      <>
+        <Input
+          isRequired
+          label="邮箱"
+          placeholder="请输入您的邮箱"
+          type="email"
+          variant="bordered"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <div className="flex gap-2 items-end">
+          <Input
+            isRequired
+            label="验证码"
+            placeholder="请输入验证码"
+            type="text"
+            variant="bordered"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+          />
+          <Button onClick={handleSendCode} disabled={!email || countdown>0}>
+            {countdown > 0 ? `${countdown}s 后重试` : "发送验证码"}
+          </Button>
+        </div>
+      </>
+      )}
+
       <div className="flex items-center justify-between">
         <Checkbox
           isSelected={remember}
@@ -237,6 +366,10 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
   const [role, setRole] = useState("学生");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
   const toggleConfirmPasswordVisibility = () => setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
@@ -255,7 +388,7 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
     try {
       //哈希加密
       const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-      await createUser(userId, hashedPassword, role);  // 调用注册接口，传入角色
+      await createUser(userId, hashedPassword, email, role);  // 调用注册接口，传入角色
   
       toast.success("注册成功！请使用新账号自行登录！");
       setTimeout(() => {
@@ -265,6 +398,34 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
       toast.error(error instanceof Error ? error.message : "注册失败，请稍后再试！");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSendCode = async () => {
+    if (!email) {
+      toast.error("请输入邮箱！");
+      return;
+    }
+    try {
+      const data = await sendEmailCode(email); // 调用后端接口，发送验证码
+      if (data?.message) {
+        toast.success(data.message); 
+    } else {
+        toast.success("验证码已发送，请查收邮箱！");
+    }
+        setIsCodeSent(true);
+        setCountdown(60);
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    } catch (error) {
+      toast.error("发送验证码失败，请重试！");
     }
   };
 
@@ -351,6 +512,29 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
           </button>
         }
       />
+      <Input
+          isRequired
+          label="邮箱"
+          placeholder="请输入您的邮箱"
+          type="email"
+          variant="bordered"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <div className="flex gap-2 items-end">
+          <Input
+            isRequired
+            label="验证码"
+            placeholder="请输入验证码"
+            type="text"
+            variant="bordered"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+          />
+          <Button onClick={handleSendCode} disabled={!email || countdown>0}>
+            {countdown > 0 ? `${countdown}s 后重试` : "发送验证码"}
+          </Button>
+        </div>
       <Checkbox isRequired className="py-2">
         <span className="text-sm">
           我同意&nbsp;
