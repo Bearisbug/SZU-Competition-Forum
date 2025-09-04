@@ -7,11 +7,13 @@ app/services/auth_service.py
 import jwt
 import random
 import smtplib
-import redis
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+import json
+import threading
+from pathlib import Path
 
 from app.db.models import User
 from email.mime.text import MIMEText
@@ -132,27 +134,59 @@ def ensure_admin(role_or_user) -> None:
             detail="无权限：需要管理员"
         )
 
-
-
-# 建立连接
-r = redis.Redis(
-    host="localhost",
-    port=6379,
-    db=0,
-    decode_responses=True
-)
+CODE_FILE = Path("email_codes.jsonl")
+lock = threading.Lock()
 
 def set_code(email: str, code: str, expire_seconds: int = 300):
-    """保存验证码，默认5分钟"""
-    r.setex(f"email_code:{email}", expire_seconds, code)
+    expire_at = (datetime.utcnow() + timedelta(seconds=expire_seconds)).isoformat()
+    record = {"email": email, "code": code, "expire_at": expire_at}
+    with lock, open(CODE_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")
 
-def get_code(email: str) -> Optional[str]:
-    """获取验证码"""
-    return r.get(f"email_code:{email}")
+def get_code(email: str):
+    now = datetime.utcnow()
+    valid_records = []
+    found_code = None
+
+    with lock:
+        if not CODE_FILE.exists():
+            return None
+        with open(CODE_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    rec = json.loads(line.strip())
+                except:
+                    continue
+                expire_at = datetime.fromisoformat(rec["expire_at"])
+                if expire_at > now:
+                    valid_records.append(rec)
+                    if rec["email"] == email:
+                        found_code = rec["code"]
+
+        # 覆盖写入（清理过期的）
+        with open(CODE_FILE, "w", encoding="utf-8") as f:
+            for rec in valid_records:
+                f.write(json.dumps(rec) + "\n")
+
+    return found_code
 
 def delete_code(email: str):
-    """验证通过后删除验证码"""
-    r.delete(f"email_code:{email}")
+    now = datetime.utcnow()
+    valid_records = []
+
+    with lock:
+        if not CODE_FILE.exists():
+            return
+        with open(CODE_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                rec = json.loads(line.strip())
+                expire_at = datetime.fromisoformat(rec["expire_at"])
+                if expire_at > now and rec["email"] != email:
+                    valid_records.append(rec)
+
+        with open(CODE_FILE, "w", encoding="utf-8") as f:
+            for rec in valid_records:
+                f.write(json.dumps(rec) + "\n")
 
 
 # ========== 生成验证码 ==========
