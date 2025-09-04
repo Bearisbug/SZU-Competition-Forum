@@ -7,12 +7,12 @@ app/crud/user.py
 from sqlalchemy.orm import Session
 from app.db.models import User
 
-def create_user(db: Session, user_id: int, password: str, role: str = "学生") -> User:
+def create_user(db: Session, user_id: int, password: str,  email :str, role: str) -> User:
     db_user = User(
         id=user_id,
         password=password,
         name="未定义",
-        email="未定义",
+        email=email,
         avatar_url="uploads/images/default_avatar.png",
         grade="未定义",
         major="未定义",
