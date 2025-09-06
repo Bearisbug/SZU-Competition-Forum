@@ -16,7 +16,7 @@ def create_recruitment(db: Session, data: RecruitmentCreate, current_user: User)
     # 允许管理员和教师发布招聘
     user_role = (current_user.role or "").lower()
     
-    if user_role not in ["admin", "教师"]:
+    if user_role not in ["admin", "teacher"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无权限：需要管理员或教师权限"

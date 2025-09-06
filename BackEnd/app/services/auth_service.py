@@ -248,7 +248,7 @@ def login_teacher_for_access_token(db: Session, login: TeacherLoginRequest) -> s
     db_user = get_user_by_id(db, login.id)
     if not db_user:
         raise HTTPException(status_code=401, detail="用户不存在")
-    if db_user.role.lower() != "教师":
+    if db_user.role.lower() != "teacher":
         raise HTTPException(status_code=403, detail="非教师账号无法使用该接口")
     if not verify_password(login.password, db_user.password):
         raise HTTPException(status_code=401, detail="用户名或密码错误")

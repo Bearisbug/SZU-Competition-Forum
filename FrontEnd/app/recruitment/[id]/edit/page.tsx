@@ -94,7 +94,7 @@ export default function EditRecruitmentPage() {
   }, [mounted, router]);
 
   // 检查用户权限（管理员或教师）
-  const canEditRecruitment = userRole === 'admin' || userRole === '教师';
+  const canEditRecruitment = userRole === 'admin' || userRole === 'teacher';
 
   // 获取招聘信息详情
   useEffect(() => {

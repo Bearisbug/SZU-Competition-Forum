@@ -90,8 +90,7 @@ export default function CreateRecruitmentPage() {
     checkAuthAndPermission();
   }, [mounted, router]);
 
-  const canCreateRecruitment = userRole === 'admin' || userRole === '教师';
-
+  const canCreateRecruitment = userRole === 'admin' || userRole === 'teacher';
   // 如果还没有挂载或还没有检查认证状态，显示加载
   if (!mounted || !authChecked) {
     return (

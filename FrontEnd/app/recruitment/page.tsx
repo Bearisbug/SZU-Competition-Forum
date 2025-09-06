@@ -15,7 +15,7 @@ function RecruitmentPageContent() {
   const [role, setRole] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const isAdmin = (role || "").toLowerCase() === "admin";
-  const isTeacher = (role || "").toLowerCase() === "教师";
+  const isTeacher = (role || "").toLowerCase() === "teacher";
   const canCreateRecruitment = isAdmin || isTeacher;
   
   const [recruitments, setRecruitments] = useState<Recruitment[]>([]);

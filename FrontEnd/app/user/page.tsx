@@ -281,10 +281,10 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
           trigger: "w-full"
         }}
       >
-        <SelectItem key="学生">
+        <SelectItem key="student">
           学生
         </SelectItem>
-        <SelectItem key="教师">
+        <SelectItem key="teacher">
           教师
         </SelectItem>
       </Select>
@@ -311,7 +311,7 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
           </button>
         }
       />
-      {role === "教师" && (
+      {role === "teacher" && (
       <>
         <Input
           isRequired
@@ -459,10 +459,10 @@ function RegisterForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => 
           trigger: "w-full"
         }}
       >
-        <SelectItem key="学生">
+        <SelectItem key="student">
           学生
         </SelectItem>
-        <SelectItem key="教师">
+        <SelectItem key="teacher">
           教师
         </SelectItem>
       </Select>
