@@ -2,6 +2,7 @@
 import React, { useEffect, useCallback, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Link, Input } from "@heroui/react";
+import AppPagination from "@/components/Pagination";
 import { Trash2 } from "lucide-react";
 import { FilterSidebar, FilterOption } from "@/components/FilterSidebar";
 import { API_BASE_URL } from "@/CONFIG";
@@ -172,6 +173,12 @@ function CompetitionPageContent() {
       ? true
       : String(card.name || "").toLowerCase().includes(searchQuery.toLowerCase().trim())
   );
+
+  // 分页计算
+  const totalPages = Math.ceil(filteredCards.length / competitionsPerPage);
+  const indexOfLast = currentPage * competitionsPerPage;
+  const indexOfFirst = indexOfLast - competitionsPerPage;
+  const currentCompetitions = filteredCards.slice(indexOfFirst, indexOfLast);
 
   // 重置筛选
   const resetFilters = () => {
@@ -433,7 +440,7 @@ function CompetitionPageContent() {
 
             {/* 竞赛卡片网格 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredCards.map((card) => (
+              {currentCompetitions.map((card) => (
                 <CompetitionCard
                   key={card.id}
                   competition={card}
@@ -443,6 +450,21 @@ function CompetitionPageContent() {
                 />
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <AppPagination
+                  total={totalPages}
+                  page={currentPage}
+                  onChange={(p) => {
+                    setCurrentPage(p);
+                    if (typeof window !== "undefined") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                />
+              </div>
+            )}
 
             {filteredCards.length === 0 && (
               <div className="text-center py-16">

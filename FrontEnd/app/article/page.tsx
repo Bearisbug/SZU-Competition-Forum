@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { withAuth } from "@/lib/auth-guards";
 import { ArticleCard } from "@/components/Card/ArticleCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
-import { Pagination, Spinner, Button, Input } from "@heroui/react";
+import { Spinner, Button, Input } from "@heroui/react";
+import AppPagination from "@/components/Pagination";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
@@ -320,9 +321,8 @@ function ArticleListPageContent() {
         </motion.div>
         {filteredArticles.length > articlesPerPage && (
           <div className="mt-6 flex justify-center">
-            <Pagination
+            <AppPagination
               total={Math.ceil(filteredArticles.length / articlesPerPage)}
-              initialPage={1}
               page={currentPage}
               onChange={setCurrentPage}
             />

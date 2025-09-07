@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { withAuth } from "@/lib/auth-guards";
 import { TeamCard } from "@/components/Card/TeamCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
-import { Pagination, Spinner, Button, Input } from "@heroui/react";
+import { Spinner, Button, Input } from "@heroui/react";
+import AppPagination from "@/components/Pagination";
 import { CreateTeamModal } from "@/components/Modal/CreateTeamModal";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
@@ -88,7 +89,7 @@ function TeamCardPreviewContent() {
   const isAdmin = (role || "").toLowerCase() === "admin";
   const [searchQuery, setSearchQuery] = useState("");
 
-  const teamsPerPage = 4;
+  const teamsPerPage = 2;
 
   // 从 AuthStore 获取登录状态
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -505,9 +506,8 @@ const competitionMap = useMemo(() => {
         </div>
         {filteredTeams.length > teamsPerPage && (
           <div className="mt-6 flex justify-center">
-            <Pagination
+            <AppPagination
               total={Math.ceil(filteredTeams.length / teamsPerPage)}
-              initialPage={1}
               page={currentPage}
               onChange={setCurrentPage}
             />

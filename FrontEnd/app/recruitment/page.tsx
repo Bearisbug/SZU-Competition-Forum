@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Spinner, Input } from '@heroui/react';
+import AppPagination from '@/components/Pagination';
 import { Plus, Search } from 'lucide-react';
 import { useAuthStore, withAuth } from '@/lib/auth-guards';
 import RecruitmentCard, { Recruitment } from '@/components/Card/RecruitmentCard';
@@ -24,6 +25,10 @@ function RecruitmentPageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  
+  // 分页相关状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
 
   useEffect(() => {
     setMounted(true);
@@ -138,7 +143,15 @@ function RecruitmentPageContent() {
     }
     
     setFilteredRecruitments(filtered);
+    // 重置到第一页
+    setCurrentPage(1);
   }, [recruitments, selectedInstitution, searchQuery]);
+
+  // 计算分页数据
+  const totalPages = Math.ceil(filteredRecruitments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRecruitments = filteredRecruitments.slice(startIndex, endIndex);
 
   // 处理机构筛选
   const handleInstitutionFilter = (institution: string | null) => {
@@ -149,6 +162,14 @@ function RecruitmentPageContent() {
   const resetFilters = () => {
     setSelectedInstitution(null);
     setSearchQuery('');
+    setCurrentPage(1);
+  };
+
+  // 处理页面变化
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // 滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // 处理编辑
@@ -403,19 +424,42 @@ function RecruitmentPageContent() {
                 )}
               </div>
             ) : (
-              /* 招聘信息卡片网格 - 瀑布流布局 */
-              <div className="columns-1 lg:columns-2 gap-6 space-y-6 min-h-screen">
-                {filteredRecruitments.map((recruitment) => (
-                  <div key={recruitment.id} className="break-inside-avoid">
-                    <RecruitmentCard
-                      recruitment={recruitment}
-                      currentUserId={currentUserId ?? undefined}
-                      currentUserRole={role ?? undefined}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
+              <div>
+                {/* 分页信息显示 */}
+                <div className="mb-4 text-sm text-gray-600 flex items-center justify-between">
+                  <span>
+                    共 {filteredRecruitments.length} 条招聘信息，第 {currentPage} 页，共 {totalPages} 页
+                  </span>
+                  <span>
+                    显示第 {startIndex + 1} - {Math.min(endIndex, filteredRecruitments.length)} 条
+                  </span>
+                </div>
+
+                {/* 招聘信息卡片网格 - 瀑布流布局 */}
+                <div className="columns-1 lg:columns-2 gap-6 space-y-6 min-h-[600px]">
+                  {currentRecruitments.map((recruitment) => (
+                    <div key={recruitment.id} className="break-inside-avoid">
+                      <RecruitmentCard
+                        recruitment={recruitment}
+                        currentUserId={currentUserId ?? undefined}
+                        currentUserRole={role ?? undefined}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* 分页组件 */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <AppPagination
+                      total={totalPages}
+                      page={currentPage}
+                      onChange={handlePageChange}
                     />
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
