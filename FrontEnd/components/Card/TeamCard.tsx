@@ -231,11 +231,13 @@ export function TeamCard({
                   }}
                 >
                   <Avatar
-                    src={member.avatarUrl
-                      ? member.avatarUrl.startsWith("http")
-                        ? member.avatarUrl
-                        : `${API_BASE_URL}/${member.avatarUrl}`
-                        : undefined}
+                    src={(() => {
+                      const raw = (member.avatarUrl || "").trim();
+                      if (!raw || raw === "未定义") {
+                        return `${API_BASE_URL}/uploads/images/default_avatar.png`;
+                      }
+                      return raw.startsWith("http") ? raw : `${API_BASE_URL}/${raw}`;
+                    })()}
                     name={member.name}
                     className="w-16 h-16"
                   />

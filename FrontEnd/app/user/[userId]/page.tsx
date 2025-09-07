@@ -275,19 +275,44 @@ function ProfilePageContent() {
   const handleSave = useCallback(
     async (updatedUser: User) => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/user/info/${userId}/update`, {
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("access_token") : "";
+        // 仅提交允许更新且被修改的字段，避免无效邮箱等导致校验失败
+        const allowedKeys: Array<keyof User> = [
+          "name",
+          "email",
+          "avatar_url",
+          "grade",
+          "major",
+        ];
+        const diff: Partial<User> = {};
+        allowedKeys.forEach((k) => {
+          if (!user) return;
+          if (updatedUser[k] !== user[k]) {
+            // @ts-ignore
+            diff[k] = updatedUser[k] as any;
+          }
+        });
+
+        // 若没有任何变化，直接提示并退出编辑
+        if (Object.keys(diff).length === 0) {
+          toast.success("已保存（无变更）");
+          setIsEditing(false);
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/user/info/update`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${
-              typeof window !== "undefined" ? localStorage.getItem("access_token") : ""
-            }`,
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedUser),
+          body: JSON.stringify(diff),
         });
 
         if (!response.ok) {
-          throw new Error("保存失败！");
+          const errText = await response.text().catch(() => "");
+          throw new Error(errText || "保存失败！");
         }
         const data = await response.json();
         setUser(data);
@@ -298,7 +323,7 @@ function ProfilePageContent() {
         toast.error("保存失败！");
       }
     },
-    [userId]
+    [user]
   );
 
   const fetchData = useCallback(async () => {
@@ -321,25 +346,50 @@ function ProfilePageContent() {
 
       const teamsData = await teamsResponse.json();
       const articlesData = await articlesResponse.json();
+      
+      // 若仅返回队伍基础信息，则补充拉取每个队伍的详细信息（含成员列表）
+      let normalizedTeams: Team[] = [];
+      if (Array.isArray(teamsData) && teamsData.length > 0) {
+        const first = teamsData[0];
+        const looksLikeDetailed = first && typeof first === "object" && ("team" in first) && ("members" in first);
+        let detailsList: any[] = [];
+        if (looksLikeDetailed) {
+          detailsList = teamsData;
+        } else {
+          detailsList = await Promise.all(
+            (teamsData as any[]).map(async (t) => {
+              try {
+                const resp = await fetch(`${API_BASE_URL}/api/teams/${t.id}/detail`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!resp.ok) throw new Error("detail fetch failed");
+                return await resp.json();
+              } catch {
+                return { team: t, members: [] };
+              }
+            })
+          );
+        }
 
-      // 后端可能返回两种结构：
-      // 1) [{ team: {...}, members: [...] }, ...]
-      // 2) 直接返回 Team 列表 [{ id, name, ... }, ...]
-      const normalizedTeams: Team[] = (teamsData || []).map((item: any) => {
-        const teamObj = item.team ?? item; // 兼容两种返回
-        const rawReq = teamObj?.requirements ?? [];
-        return {
-          id: Number(teamObj?.id) || 0,
-          name: teamObj?.name || "",
-          description: teamObj?.description || "",
-          goals: teamObj?.goals || "",
-          requirements: Array.isArray(rawReq)
-            ? rawReq.flatMap((req: string) => String(req).split("\n"))
-            : String(rawReq).split("\n"),
-          max_members: Number(teamObj?.max_members) || 0,
-          members: Array.isArray(item.members) ? item.members : [],
-        } as Team;
-      });
+        normalizedTeams = detailsList.map((item: any) => {
+          const teamObj = item.team ?? item; // 兼容两种返回
+          const rawReq = teamObj?.requirements ?? [];
+          const reqs = Array.isArray(rawReq)
+            ? rawReq
+            : String(rawReq || "").split(/\n|,/) // 兼容换行或逗号
+                .map((s: string) => s.trim())
+                .filter(Boolean);
+          return {
+            id: Number(teamObj?.id) || 0,
+            name: teamObj?.name || "",
+            description: teamObj?.description || "",
+            goals: teamObj?.goals || "",
+            requirements: reqs,
+            max_members: Number(teamObj?.max_members) || 0,
+            members: Array.isArray(item.members) ? item.members : [],
+          } as Team;
+        });
+      }
 
       // 去重，避免相同 team.id 导致 React key 警告
       const dedupedTeams = Array.from(
