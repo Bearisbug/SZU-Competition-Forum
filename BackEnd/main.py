@@ -65,8 +65,14 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.on_event("startup")
 def ensure_default_admin():
+    """确保默认管理员存在，且其关键字段有效。
+
+    - 使用有效邮箱占位符，避免响应模型 EmailStr 校验失败
+    - 如已存在则补全无效字段
+    """
     admin_id = 123456
     admin_password = "lzl003921"
+    admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@localhost")
     hashed_password = hashlib.sha256(admin_password.encode()).hexdigest()
     db = SessionLocal()
     try:
@@ -76,20 +82,31 @@ def ensure_default_admin():
                 id=admin_id,
                 password=hashed_password,
                 name="管理员",
-                email="未定义",
-                avatar_url="未定义",
+                email=admin_email,
+                avatar_url="uploads/images/default_avatar.png",
                 grade="未定义",
                 major="未定义",
                 role="admin",
             )
             db.add(user)
             db.commit()
-            logging.info("Default admin created: id=2022152002")
+            logging.info(f"Default admin created: id={admin_id}")
         else:
+            updated = False
             if (user.role or "").lower() != "admin":
                 user.role = "admin"
+                updated = True
+            # 修复无效邮箱，防止响应模型验证错误
+            if not user.email or "@" not in str(user.email):
+                user.email = admin_email
+                updated = True
+            # 兜底头像
+            if not user.avatar_url or str(user.avatar_url).strip() in ("", "未定义"):
+                user.avatar_url = "uploads/images/default_avatar.png"
+                updated = True
+            if updated:
                 db.commit()
-                logging.info("Existing user promoted to admin: id=2022152002")
+                logging.info(f"Default admin corrected: id={admin_id}")
     except Exception as e:
         logging.error(f"Ensure default admin failed: {e}")
     finally:

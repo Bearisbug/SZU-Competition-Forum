@@ -86,20 +86,35 @@ export function useAuth() {
                 role: userData.role
               });
               setIsLoggedIn(true);
-            } else {
-              // Token 无效，清除本地存储
+            } else if (response.status === 401 || response.status === 403) {
+              // 仅在未授权时登出
               localStorage.removeItem('access_token');
               localStorage.removeItem('id');
               setIsLoggedIn(false);
-              if (response.status === 401) {
-                toast.error('登录已过期，请重新登录');
-              }
+              toast.error('登录已过期，请重新登录');
+            } else {
+              // 服务器错误或其他错误，保留登录态，避免误登出
+              setIsLoggedIn(true);
+              // 可选提示（避免频繁打扰）
+              console.warn('获取用户信息失败：', response.status);
             }
           } catch (error) {
             console.error('Token 解析或获取用户信息失败:', error);
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('id');
-            setIsLoggedIn(false);
+            // 非法 token 才清除；否则保留当前登录态
+            try {
+              const payload = JSON.parse(atob((localStorage.getItem('access_token') || '').split('.')[1] || 'null'));
+              if (!payload) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('id');
+                setIsLoggedIn(false);
+              } else {
+                setIsLoggedIn(true);
+              }
+            } catch {
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('id');
+              setIsLoggedIn(false);
+            }
           }
         } else {
           setIsLoggedIn(false);

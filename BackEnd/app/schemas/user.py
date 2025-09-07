@@ -41,6 +41,8 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+        # 兼容 Pydantic v2
+        from_attributes = True
 
 # --- 其他模型 ---
 
@@ -54,3 +56,5 @@ class UserUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+        # 兼容 Pydantic v2
+        from_attributes = True
