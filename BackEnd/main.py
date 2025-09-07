@@ -63,6 +63,24 @@ app.include_router(upload_endpoints.upload_router)
 app.include_router(recruitment_endpoints.router, prefix="/api/recruitments", tags=["Recruitments"])
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+def _looks_like_email(email: str) -> bool:
+    """A lightweight email format check to avoid EmailStr validation failures.
+
+    We only ensure there's a local part, an '@', and a dot in the domain.
+    """
+    try:
+        email = (email or "").strip()
+        if "@" not in email:
+            return False
+        local, domain = email.rsplit("@", 1)
+        if not local or not domain:
+            return False
+        if "." not in domain:
+            return False
+        return True
+    except Exception:
+        return False
+
 @app.on_event("startup")
 def ensure_default_admin():
     """确保默认管理员存在，且其关键字段有效。
@@ -72,7 +90,8 @@ def ensure_default_admin():
     """
     admin_id = 123456
     admin_password = "lzl003921"
-    admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@localhost")
+    # Use a valid default email to satisfy Pydantic EmailStr on responses
+    admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
     hashed_password = hashlib.sha256(admin_password.encode()).hexdigest()
     db = SessionLocal()
     try:
@@ -96,8 +115,9 @@ def ensure_default_admin():
             if (user.role or "").lower() != "admin":
                 user.role = "admin"
                 updated = True
-            # 修复无效邮箱，防止响应模型验证错误
-            if not user.email or "@" not in str(user.email):
+            # 修复无效邮箱，防止响应模型 EmailStr 校验失败
+            # 例如 "admin@localhost" 这类无效域名
+            if not _looks_like_email(getattr(user, "email", "")):
                 user.email = admin_email
                 updated = True
             # 兜底头像
