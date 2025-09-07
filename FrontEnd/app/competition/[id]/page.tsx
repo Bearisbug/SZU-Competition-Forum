@@ -314,35 +314,41 @@ function CompetitionDetailPageContent() {
                   )}
                 </CardHeader>
                 <CardBody>
-                  <Accordion>
-                    {announcements.map((announcement) => (
-                      <AccordionItem
-                        key={announcement.id}
-                        aria-label={announcement.title}
-                        title={announcement.title}
-                        subtitle={<span className="text-xs text-gray-400">{formatDate(announcement.published_at)}</span>}
-                      >
-                        <div className="flex flex-col gap-2">
-                          <p className="text-sm text-gray-700">{announcement.content}</p>
-                          {isAdmin && (
-                            <div className="flex justify-end gap-2">
-                              <Tooltip content="删除公告" placement="bottom">
-                                <Button
-                                  isIconOnly
-                                  color="default"
-                                  size="sm"
-                                  onClick={() => handleDeleteAnnouncement(announcement.id)}
-                                  aria-label="删除公告"
-                                >
-                                  <Trash2 size={16} />
-                                </Button>
-                              </Tooltip>
-                            </div>
-                          )}
-                        </div>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                  {announcements.length === 0 ? (
+                    <div className="text-sm text-gray-500 py-6 text-center">
+                      暂无公告{isAdmin ? "，点击右上角 + 发布第一条公告。" : "。"}
+                    </div>
+                  ) : (
+                    <Accordion>
+                      {announcements.map((announcement) => (
+                        <AccordionItem
+                          key={announcement.id}
+                          aria-label={announcement.title}
+                          title={announcement.title}
+                          subtitle={<span className="text-xs text-gray-400">{formatDate(announcement.published_at)}</span>}
+                        >
+                          <div className="flex flex-col gap-2">
+                            <p className="text-sm text-gray-700">{announcement.content}</p>
+                            {isAdmin && (
+                              <div className="flex justify-end gap-2">
+                                <Tooltip content="删除公告" placement="bottom">
+                                  <Button
+                                    isIconOnly
+                                    color="default"
+                                    size="sm"
+                                    onClick={() => handleDeleteAnnouncement(announcement.id)}
+                                    aria-label="删除公告"
+                                  >
+                                    <Trash2 size={16} />
+                                  </Button>
+                                </Tooltip>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  )}
                 </CardBody>
               </Card>
 
