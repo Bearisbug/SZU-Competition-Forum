@@ -183,7 +183,7 @@ export default function HomePage() {
                 <div className="flex gap-4">
                   <span className="text-2xl font-medium text-gray-400 tracking-[1.3px]">01</span>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">组队功能</h3>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">组队功能</h3>
                     <p className="text-gray-600 leading-relaxed text-sm">
                       快速找到志同道合的队友，智能匹配系统帮助你组建高效的竞赛团队。
                     </p>
@@ -411,9 +411,10 @@ export default function HomePage() {
             }}
             className={`block w-3 h-3 rounded-full mb-2 transition-all duration-300 ${
               currentSection === index 
-                ? 'bg-pink-600 scale-125' 
-                : 'bg-white/50 hover:bg-white/80'
+                ? 'scale-125' 
+                : 'bg-gray-800 hover:bg-white/80'
             }`}
+            style={currentSection === index ? { backgroundColor: '#1F4C8A' } : {}}            
           />
         ))}
       </div>
