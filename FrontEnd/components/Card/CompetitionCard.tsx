@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trash2 } from "lucide-react";
+import { formatDate } from "@/lib/date";
 
 export type Competition = {
   id: number;
@@ -32,6 +33,7 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
   onClick 
 }) => {
   if (!competition) return null;
+
 
   const handleClick = () => {
     if (onClick) onClick(competition.id);
@@ -82,7 +84,7 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
         />
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>
-            {new Date(competition.created_at).toLocaleDateString()}
+            {formatDate(competition.created_at as any)}
           </span>
         </div>
       </div>

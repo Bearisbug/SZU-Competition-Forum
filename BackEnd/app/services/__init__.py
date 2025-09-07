@@ -4,8 +4,16 @@ app/services/__init__.py
 services 包的初始化，可以在这里统一导出需要的服务函数。
 (可按需增删)
 """
-from .auth_service import authenticate_user, verify_token, get_current_user, verify_password, create_access_token
-from .user_service import get_user_info, update_user_info, create_new_user
+from .auth_service import (
+    create_access_token,
+    verify_token,
+    get_current_user,
+    register_student,
+    authenticate_user_by_id,
+    authenticate_teacher,
+    send_email_code,
+)
+from .user_service import get_user_info, update_user_info
 from .team_service import (
     create_new_team,
     list_teams,

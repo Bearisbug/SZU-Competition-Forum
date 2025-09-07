@@ -6,6 +6,7 @@ import { Link, Spinner, Button } from "@heroui/react";
 import toast from "react-hot-toast";
 import { Calendar, Eye, GraduationCap, Briefcase, CircleUserRound, ThumbsUp, Share2 } from 'lucide-react';
 import { API_BASE_URL } from "@/CONFIG";
+import { formatDate } from "@/lib/date";
 import { ArrowLeft } from 'lucide-react';
 
 // 强制动态渲染
@@ -218,7 +219,7 @@ export default function ArticleDetailPage() {
                 <div className="flex items-center text-sm text-gray-500 mb-6 space-x-4">
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />
-                    <span>{new Date(article.created_at).toLocaleDateString()}</span>
+                    <span>{formatDate(article.created_at)}</span>
                   </div>
                   <div className="flex items-center">
                     <Eye className="w-4 h-4 mr-1" />

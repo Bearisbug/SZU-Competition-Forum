@@ -71,20 +71,8 @@ def update_team_info_endpoint(
     updated_team = update_team_info(db, team_id, team_data, current_user.id)
     return updated_team
 
-@router.delete("/{team_id}")
-def disband_team_endpoint(
-    team_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    解散队伍，需要队长身份
-    """
-    team = db.query(Team).filter(Team.id == team_id).first()
-    if not team:
-        raise HTTPException(status_code=404, detail="队伍不存在")
-    disband_team(db, team)
-    return {"msg": "队伍已解散，并已通知所有成员。"}
+## 注意：下方已存在一个相同路径的删除端点，且为最新实现（需要队长或管理员）。
+## 这里删除旧实现以避免冲突和 TypeError。
 
 @router.post("/{team_id}/apply")
 def apply_to_team_endpoint(

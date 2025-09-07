@@ -167,18 +167,18 @@ class APIRateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
         
-        # 不同接口的限流配置 (格式是每分钟请求数, 每小时请求数)
+        # 不同接口的限流配置 (格式是每分钟请求数, 每小时请求数) - 已为开发环境放宽限制
         self.endpoint_limits = {
-            "/api/user/login": (10, 100),      # 登录接口更严格
-            "/api/user/register": (5, 20),     # 注册接口最严格
-            "/api/user/": (30, 500),           # 用户相关接口
-            "/api/teams/": (20, 300),          # 团队相关接口
-            "/api/articles/": (40, 800),       # 文章相关接口
-            "/api/competitions/": (20, 400),   # 比赛相关接口
-            "/api/recruitments/": (20, 300),   # 招聘相关接口
+            "/api/user/login": (1000, 10000),      # 登录接口
+            "/api/user/register": (500, 2000),     # 注册接口
+            "/api/user/": (3000, 5000),           # 用户相关接口
+            "/api/teams/": (2000, 3000),          # 团队相关接口
+            "/api/articles/": (4000, 8000),       # 文章相关接口
+            "/api/competitions/": (2000, 4000),   # 比赛相关接口
+            "/api/recruitments/": (2000, 3000),   # 招聘相关接口
         }
         
-        self.default_limit = (60, 1000)
+        self.default_limit = (6000, 10000)
         
         # 存储每个IP+接口的请求记录
         self.requests: Dict[str, Dict[str, Deque[float]]] = defaultdict(lambda: defaultdict(deque))

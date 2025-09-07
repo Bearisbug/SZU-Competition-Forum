@@ -82,18 +82,16 @@ def delete_competition_info(db: Session, competition_id: int, current_user_role:
 
 def create_competition_announcement(db: Session, competition_id: int, announcement_in: CompetitionAnnouncementCreate, current_user_role: str):
     """
-    创建比赛公告：保持现有逻辑（不收紧权限），以避免改变前端行为。
-    如需后续开启仅管理员：取消下方注释。
+    创建比赛公告：仅管理员
     """
-    # _ensure_admin_by_role(current_user_role)
+    _ensure_admin_by_role(current_user_role)
     return create_announcement(db, competition_id, announcement_in)
 
 def delete_competition_announcement(db: Session, competition_id: int, announcement_id: int, current_user_role: str):
     """
-    删除比赛公告：保持现有逻辑（不收紧权限），以避免改变前端行为。
-    如需后续开启仅管理员：取消下方注释。
+    删除比赛公告：仅管理员
     """
-    # _ensure_admin_by_role(current_user_role)
+    _ensure_admin_by_role(current_user_role)
     delete_announcement(db, announcement_id)
 
 def register_competition_service(db: Session, competition_id: int, team_id: int, current_user: User):

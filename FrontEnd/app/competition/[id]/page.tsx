@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { withAuth } from "@/lib/auth-guards";
+import { useAuthStore, withAuth } from "@/lib/auth-guards";
 import {
   Button,
   Tabs,
@@ -28,6 +28,7 @@ import Image from "next/image";
 import { TeamSelectionModal } from "@/components/Modal/TeamSelectionModal";
 import { Trash2, Plus, ArrowLeft, Trophy, Calendar, Users, Info, Megaphone, PlusCircle } from 'lucide-react';
 import { API_BASE_URL } from "@/CONFIG";
+import { formatDate } from "@/lib/date";
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
@@ -60,6 +61,8 @@ function CompetitionDetailPageContent() {
   const params = useParams();
   const id = params.id;
   const router = useRouter();
+  const userRole = useAuthStore((state) => state.user?.role ?? null);
+  const isAdmin = (userRole || "").toLowerCase() === "admin";
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [competition, setCompetition] = useState<Competition | null>(null);
@@ -96,6 +99,10 @@ function CompetitionDetailPageContent() {
   }, [id]);
 
   const handlePublishAnnouncement = async () => {
+    if (!isAdmin) {
+      toast.error("只有管理员可以发布公告");
+      return;
+    }
     if (!newAnnouncementTitle || !newAnnouncementContent) {
       toast.error("请填写完整的公告标题和内容");
       return;
@@ -156,6 +163,10 @@ function CompetitionDetailPageContent() {
   };
 
   const handleDeleteAnnouncement = async (announcementId: number) => {
+    if (!isAdmin) {
+      toast.error("只有管理员可以删除公告");
+      return;
+    }
     try {
       const res = await fetch(
         `${API_BASE_URL}/api/competitions/detail/${id}/announcements/${announcementId}`,
@@ -219,8 +230,7 @@ function CompetitionDetailPageContent() {
                 报名时间
               </span>
               <div>
-                {competition.sign_up_start_time} ~{" "}
-                {competition.sign_up_end_time}
+                {formatDate(competition.sign_up_start_time)} ~ {formatDate(competition.sign_up_end_time)}
               </div>
               <div className="text-gray-400">报名开放</div>
             </div>
@@ -253,14 +263,14 @@ function CompetitionDetailPageContent() {
                     <li className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-primary" />
                       <strong>注册时间：</strong> <br />
-                      {competition.sign_up_start_time} ~
+                      {formatDate(competition.sign_up_start_time)} ~
                       <br />
                       {competition.sign_up_end_time}
                     </li>
                     <li className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-primary" />
                       <strong>比赛时间：</strong> <br />
-                      {competition.competition_start_time} ~
+                      {formatDate(competition.competition_start_time)} ~
                       <br />
                       {competition.competition_end_time}
                     </li>
@@ -287,19 +297,21 @@ function CompetitionDetailPageContent() {
               <Card className="w-full mx-auto">
                 <CardHeader className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold p-1">比赛公告</h2>
-                  <div className="flex gap-2">
-                    <Tooltip content="发布新公告" placement="bottom">
-                      <Button
-                        isIconOnly
-                        color="primary"
-                        size="sm"
-                        onClick={onOpen}
-                        aria-label="发布新公告"
-                      >
-                        <Plus size={20} />
-                      </Button>
-                    </Tooltip>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <Tooltip content="发布新公告" placement="bottom">
+                        <Button
+                          isIconOnly
+                          color="primary"
+                          size="sm"
+                          onClick={onOpen}
+                          aria-label="发布新公告"
+                        >
+                          <Plus size={20} />
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardBody>
                   <Accordion>
@@ -308,23 +320,25 @@ function CompetitionDetailPageContent() {
                         key={announcement.id}
                         aria-label={announcement.title}
                         title={announcement.title}
-                        subtitle={<span className="text-xs text-gray-400">{announcement.published_at}</span>}
+                        subtitle={<span className="text-xs text-gray-400">{formatDate(announcement.published_at)}</span>}
                       >
                         <div className="flex flex-col gap-2">
                           <p className="text-sm text-gray-700">{announcement.content}</p>
-                          <div className="flex justify-end gap-2">
-                            <Tooltip content="删除公告" placement="bottom">
-                              <Button
-                                isIconOnly
-                                color="default"
-                                size="sm"
-                                onClick={() => handleDeleteAnnouncement(announcement.id)}
-                                aria-label="删除公告"
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            </Tooltip>
-                          </div>
+                          {isAdmin && (
+                            <div className="flex justify-end gap-2">
+                              <Tooltip content="删除公告" placement="bottom">
+                                <Button
+                                  isIconOnly
+                                  color="default"
+                                  size="sm"
+                                  onClick={() => handleDeleteAnnouncement(announcement.id)}
+                                  aria-label="删除公告"
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </Tooltip>
+                            </div>
+                          )}
                         </div>
                       </AccordionItem>
                     ))}

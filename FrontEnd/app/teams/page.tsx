@@ -264,6 +264,23 @@ const competitionMap = useMemo(() => {
         ...prevFilteredTeams,
         createdTeam,
       ]);
+
+      // 拉取新队伍成员，立即显示队长
+      try {
+        const detailRes = await fetch(`${API_BASE_URL}/api/teams/${createdTeam.id}/detail`, {
+          headers: {
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+          },
+        });
+        if (detailRes.ok) {
+          const detail = await detailRes.json();
+          const members: TeamMember[] = Array.isArray(detail.members) ? detail.members : [];
+          setTeamMembers((prev) => ({ ...prev, [createdTeam.id]: members }));
+        }
+      } catch (_) {
+        // 忽略失败，后续刷新会修正
+      }
+
       toast.success(`队伍 "${createdTeam.name}" 创建成功！`);
     } catch (error: any) {
       toast.error(error.message);

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Card, CardBody, Button, Avatar } from '@heroui/react';
 import { Edit, Trash2, MapPin, Clock } from 'lucide-react';
+import { formatDate } from "@/lib/date";
 
 export interface Recruitment {
   id: number;
@@ -165,7 +166,7 @@ export default function RecruitmentCard({
         <div className="mt-4 pt-3 border-t border-gray-100">
           <div className="flex items-center justify-center text-xs text-gray-500">
             <Clock size={12} className="mr-1" />
-            发布于 {new Date(recruitment.created_at).toLocaleDateString('zh-CN')}
+            发布于 {formatDate(recruitment.created_at)}
           </div>
         </div>
       </CardBody>

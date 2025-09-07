@@ -319,15 +319,31 @@ function ProfilePageContent() {
       const teamsData = await teamsResponse.json();
       const articlesData = await articlesResponse.json();
 
-      const formattedTeams: Team[] = (teamsData || []).map((item: any) => ({
-        ...item.team,
-        requirements: (item.team?.requirements || []).flatMap((req: string) =>
-          String(req).split("\n")
-        ),
-        members: item.members,
-      }));
+      // 后端可能返回两种结构：
+      // 1) [{ team: {...}, members: [...] }, ...]
+      // 2) 直接返回 Team 列表 [{ id, name, ... }, ...]
+      const normalizedTeams: Team[] = (teamsData || []).map((item: any) => {
+        const teamObj = item.team ?? item; // 兼容两种返回
+        const rawReq = teamObj?.requirements ?? [];
+        return {
+          id: Number(teamObj?.id) || 0,
+          name: teamObj?.name || "",
+          description: teamObj?.description || "",
+          goals: teamObj?.goals || "",
+          requirements: Array.isArray(rawReq)
+            ? rawReq.flatMap((req: string) => String(req).split("\n"))
+            : String(rawReq).split("\n"),
+          max_members: Number(teamObj?.max_members) || 0,
+          members: Array.isArray(item.members) ? item.members : [],
+        } as Team;
+      });
 
-      setTeams(formattedTeams);
+      // 去重，避免相同 team.id 导致 React key 警告
+      const dedupedTeams = Array.from(
+        new Map(normalizedTeams.map((t) => [t.id, t])).values()
+      );
+
+      setTeams(dedupedTeams);
       setArticles(articlesData || []);
     } catch (err) {
       console.error("Failed to fetch data:", err);
@@ -435,9 +451,9 @@ function ProfilePageContent() {
                         {isLoadingTeamsArticles ? (
                           <Spinner />
                         ) : teams.length > 0 ? (
-                          teams.map((team) => (
+                          teams.map((team, idx) => (
                             <TeamCard
-                              key={team.id}
+                              key={`${team.id}-${idx}`}
                               team={team}
                               members={team.members}
                               // 该页面仅展示，不在此做操作

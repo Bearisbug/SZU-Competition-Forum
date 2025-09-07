@@ -3,6 +3,7 @@ import { Card, CardBody, Chip, Link, Image, Button } from "@heroui/react";
 import { Eye, Trash2, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
+import { formatDate } from "@/lib/date";
 
 interface ArticleCardProps {
   id: number;
@@ -88,7 +89,7 @@ export function ArticleCard({
             </div>
             <p className="text-default-500 text-sm line-clamp-3">{summary}</p>
             <div className="flex flex-wrap gap-4 text-small text-default-400">
-              <span>{new Date(created_at).toLocaleDateString()}</span>
+              <span>{formatDate(created_at)}</span>
               <div className="flex items-center gap-1">
                 <Eye size={16} />
                 <span>{view_count}</span>

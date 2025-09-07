@@ -1,1 +1,1 @@
-from .user import create_user, get_user_by_id, update_user
+from .user import get_user_by_id, get_user_by_email, set_user_password, update_user

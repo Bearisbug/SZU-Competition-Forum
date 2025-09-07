@@ -1,33 +1,39 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-# 创建用户时的输入模型
-class UserCreate(BaseModel):
+# --- 请求模型 ---
+
+class StudentRegisterRequest(BaseModel):
+    """学生注册请求模型"""
     id: int
     password: str
-    email: str
-    role: str  # 默认为学生，可选择 "student" 或 "teacher"
 
-    class Config:
-        orm_mode = True
+class StudentLoginRequest(BaseModel):
+    """学生登录请求模型"""
+    id: int
+    password: str
 
-# 用户信息更新模型
-class UserUpdate(BaseModel):
-    name: Optional[str] = "未定义"
-    email: Optional[str] = "未定义"
-    avatar_url: Optional[str] = "未定义"
-    grade: Optional[str] = "未定义"
-    major: Optional[str] = "未定义"
-    role: Optional[str] = "未定义"
+class TeacherLoginRequest(BaseModel):
+    """教师登录请求模型"""
+    email: EmailStr
+    code: str
 
-    class Config:
-        orm_mode = True
+class EmailRequest(BaseModel):
+    """发送邮箱验证码请求模型"""
+    email: EmailStr
 
-# 返回的用户信息模型
+# --- 响应模型 ---
+
+class LoginResponse(BaseModel):
+    """统一登录响应模型"""
+    access_token: str
+    token_type: str = "bearer"
+
 class UserResponse(BaseModel):
+    """返回的用户信息模型"""
     id: int
     name: str
-    email: str
+    email: EmailStr
     avatar_url: str
     grade: str
     major: str
@@ -36,18 +42,15 @@ class UserResponse(BaseModel):
     class Config:
         orm_mode = True
 
-# 登录请求模型
-class LoginRequest(BaseModel):
-    id: int
-    password: str
+# --- 其他模型 ---
 
-#教师登录请求
-class TeacherLoginRequest(BaseModel):
-    id: int
-    password: str
-    email: str
-    code: str
+class UserUpdate(BaseModel):
+    """用户信息更新模型"""
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    avatar_url: Optional[str] = None
+    grade: Optional[str] = None
+    major: Optional[str] = None
 
-# 登录响应模型
-class LoginResponse(BaseModel):
-    access_token: str
+    class Config:
+        orm_mode = True

@@ -6,11 +6,14 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  useDisclosure,
 } from "@heroui/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { useAuthStore } from "@/lib/auth-guards";
+import { API_BASE_URL } from "@/CONFIG";
+import NotificationsModal from "@/components/NotificationsModal";
 
 export default function IONavBar() {
   const pathname = usePathname();
@@ -19,6 +22,8 @@ export default function IONavBar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [hasNew, setHasNew] = useState(false);
 
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const setIsLoggedIn = useAuthStore((state) => state.setIsLoggedIn);
@@ -51,6 +56,38 @@ export default function IONavBar() {
     const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   }, [setIsLoggedIn]);
+
+  // 检查是否有新通知（基于最后查看时间）
+  useEffect(() => {
+    let interval: any;
+    const checkNewNotifications = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          setHasNew(false);
+          return;
+        }
+        const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const times = (data || []).map((n: any) => new Date(n.timestamp).getTime()).filter((t: number) => !isNaN(t));
+        const latest = times.length ? Math.max(...times) : 0;
+        const lastSeen = Number(localStorage.getItem("notifications:lastSeen") || 0);
+        setHasNew(latest > lastSeen);
+      } catch (_) {
+        // 忽略错误
+      }
+    };
+    if (mounted && isLoggedIn) {
+      checkNewNotifications();
+      interval = setInterval(checkNewNotifications, 30000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [mounted, isLoggedIn]);
 
   // 滚动监听
   useEffect(() => {
@@ -165,36 +202,47 @@ export default function IONavBar() {
         </div>
         <div className="ml-auto">
           {mounted && isLoggedIn ? (
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly variant="light" aria-label="User profile">
-                  <User className="w-6 h-6 text-gray-800" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="User actions">
-                <DropdownItem
-                  key="profile"
-                  onPress={() =>
-                    router.push(`/user/${localStorage.getItem("id")}`)
-                  }
-                >
-                  <span className="font-bold">个人主页</span>
-                </DropdownItem>
-                <DropdownItem
-                  key="logout"
-                  color="danger"
-                  onPress={() => {
-                    localStorage.removeItem("access_token");
-                    localStorage.removeItem("id");
-                    localStorage.removeItem("remember");
-                    setIsLoggedIn(false);
-                    router.push('/');
-                  }}
-                >
-                  <span className="font-bold">登出</span>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+            <div className="relative inline-block align-middle">
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly variant="light" aria-label="User profile">
+                    <User className="w-6 h-6 text-gray-800" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="User actions">
+                  <DropdownItem key="notifications" onPress={() => { onOpen(); setHasNew(false); }}>
+                    <span className="font-bold">消息</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    key="profile"
+                    onPress={() =>
+                      router.push(`/user/${localStorage.getItem("id")}`)
+                    }
+                  >
+                    <span className="font-bold">个人主页</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    onPress={() => {
+                      localStorage.removeItem("access_token");
+                      localStorage.removeItem("id");
+                      localStorage.removeItem("remember");
+                      localStorage.removeItem("notifications:lastSeen");
+                      setIsLoggedIn(false);
+                      router.push('/');
+                    }}
+                  >
+                    <span className="font-bold">登出</span>
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+              {hasNew && (
+                <span
+                  className="pointer-events-none absolute -right-1 -top-1 inline-block w-3.5 h-3.5 bg-red-500 rounded-full ring-2 ring-white z-20"
+                />
+              )}
+            </div>
           ) : mounted ? (
             <Button
               onPress={() => {
@@ -229,11 +277,12 @@ export default function IONavBar() {
               <NavLink href="/recruitment" label="项目招聘" />
               <NavLink href="/article" label="文章" />
               <NavLink href="/teams" label="队伍" />
-              <NavLink href="/notification" label="信息" />
-            </div>
+              {/* 通知入口已移动到右上角用户菜单 */}
+              </div>
           </nav>
         </div>
       )}
+      <NotificationsModal isOpen={isOpen} onOpenChange={onOpenChange} />
     </>
   );
 }

@@ -1,43 +1,46 @@
 """
 app/services/auth_service.py
 
-与用户认证、授权相关的业务逻辑：JWT token 生成、校验，当前用户获取等。
+与用户认证、授权相关的业务逻辑：JWT token 生成、校验，密码哈希，邮件发送等。
 """
 
 import jwt
 import random
 import smtplib
+import json
+import threading
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Optional
+
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-import json
-import threading
-from pathlib import Path
-
-from app.db.models import User
+import hashlib
 from email.mime.text import MIMEText
 from email.header import Header
 from email.utils import formataddr
-from typing import Optional
-from app.crud.user import get_user_by_id
 
+from app.db.models import User
+from app.crud import user as crud_user
 from app.core.config import JWT_SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.crud.user import get_user_by_id
 from app.db.session import get_db
-from app.schemas.user import LoginRequest, TeacherLoginRequest
+from app.schemas.user import StudentRegisterRequest, StudentLoginRequest, TeacherLoginRequest, EmailRequest
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-# ========== 发件邮箱配置 ==========
-SMTP_SERVER = "smtp.qq.com"
-SMTP_PORT = 465
-SENDER_EMAIL = "1992898402@qq.com"
-SENDER_PASS = "rrwrlnkeztxibeff"  #授权码
+# --- 密码哈希 ---
+# 哈希操作已移至前端，后端只进行哈希值的比较
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    """
-    创建 JWT 令牌，默认过期时间在 config 中设定，可通过 expires_delta 指定。
-    """
+def verify_password(sent_hash: str, stored_hash: str) -> bool:
+    """比较前端发送的哈希值与数据库存储的哈希值是否一致"""
+    if not stored_hash:
+        return False
+    return sent_hash == stored_hash
+
+# --- JWT Token ---
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/student") # 示例URL
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """创建 JWT 令牌"""
     if expires_delta is None:
         expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     expire = datetime.utcnow() + expires_delta
@@ -46,104 +49,110 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm="HS256")
     return encoded_jwt
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    密码验证逻辑，此处为了演示，直接进行明文比对。
-    若需要更安全，可以使用 passlib 或 bcrypt 等进行哈希验证。
-    """
-    return plain_password == hashed_password
+# --- 用户认证与注册 ---
 
-def authenticate_user(db: Session, user_id: int, password: str) -> str:
-    """
-    验证用户用户名和密码是否匹配，成功则返回生成的 JWT token。
-    """
-    db_user = get_user_by_id(db, user_id)
-    if not db_user or not verify_password(password, db_user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="登录失败，用户名或密码错误"
-        )
-    # 如果认证成功，创建访问令牌
-    token = create_access_token(data={"sub": str(user_id)})
+def register_student(db: Session, student_data: StudentRegisterRequest) -> User:
+    """学生注册逻辑"""
+    db_user = crud_user.get_user_by_id(db, student_data.id)
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="该学号未录入数据库，无法注册")
+    if db_user.role != 'student':
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="该账号不是学生账号")
+    if db_user.password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="该学号已注册，请直接登录或找回密码")
+
+    # 直接使用前端传递过来的哈希值
+    return crud_user.set_user_password(db, user_id=student_data.id, password_hash=student_data.password)
+
+def authenticate_user_by_id(db: Session, login_data: StudentLoginRequest) -> str:
+    """通过ID和密码哈希认证用户（学生或管理员）"""
+    db_user = crud_user.get_user_by_id(db, login_data.id)
+
+    # 检查用户是否存在
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="账号不存在")
+
+    # 检查角色是否允许（学生或管理员）
+    if db_user.role not in ['student', 'admin']:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="该账号类型不允许使用此方式登录")
+
+    # 检查密码是否已设置
+    if not db_user.password:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="账号尚未设置密码，请先注册")
+
+    # 验证密码哈希
+    if not verify_password(login_data.password, db_user.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="密码错误")
+
+    # 创建Token
+    token = create_access_token(data={"sub": str(db_user.id)})
     return token
 
+def authenticate_teacher(db: Session, login_data: TeacherLoginRequest) -> str:
+    """教师登录认证"""
+    verify_email_code(login_data.email, login_data.code) # 验证码校验失败会抛出异常
+    db_user = crud_user.get_user_by_email(db, login_data.email)
+    # 验证码已通过，此处无需再验证用户是否存在，因为发码时已验证
+    
+    token = create_access_token(data={"sub": str(db_user.id)})
+    return token
+
+
+# --- 当前用户依赖 ---
+
 def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
-    """
-    通过依赖项的形式自动解析并验证 Token 的有效性。
-    返回解码后的 payload(包含sub等信息)。
-    """
+    """验证Token有效性，返回payload"""
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
-        exp = payload.get("exp")
-        if exp < datetime.utcnow().timestamp():
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token 已过期",
-            )
+        # 检查Token是否过期
+        if datetime.fromtimestamp(payload.get("exp", 0)) < datetime.utcnow():
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token 已过期")
         user_id = payload.get("sub")
         if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token 中未找到用户信息",
-            )
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token 无效，无法解析用户信息")
         return {"user_id": user_id}
     except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="无法验证用户身份，Token 无效",
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token 无效或已损坏")
 
-def get_current_user(
-    token: dict = Depends(verify_token),
-    db: Session = Depends(get_db)
-):
-    """
-    获取当前登录用户信息，若用户不存在或被删除则抛出 401。
-    """
+def get_current_user(token: dict = Depends(verify_token), db: Session = Depends(get_db)) -> User:
+    """获取当前登录用户"""
     user_id = token.get("user_id")
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token 中未找到用户信息",
-        )
-    user = get_user_by_id(db, int(user_id))
+    user = crud_user.get_user_by_id(db, int(user_id))
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="用户不存在或已被删除",
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户不存在或已被删除")
     return user
 
-def is_admin(role_or_user) -> bool:
-    """
-    允许传入 User 实例或 role 字符串，统一判断是否为管理员。
-    """
-    if hasattr(role_or_user, "role"):  # User 实例
-        value = (role_or_user.role or "")
-    else:
-        value = (role_or_user or "")
-    return value.lower() == "admin"
+# --- 权限控制 ---
 
-def ensure_admin(role_or_user) -> None:
-    """
-    不满足管理员时抛出 403。
-    """
-    if not is_admin(role_or_user):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="无权限：需要管理员"
-        )
+def is_admin(role_or_user) -> bool:
+    """判断是否为管理员"""
+    role = getattr(role_or_user, "role", role_or_user or "")
+    return role.lower() == "admin"
+
+def ensure_admin(user: User = Depends(get_current_user)):
+    """依赖项：确保当前用户是管理员"""
+    if not is_admin(user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限：需要管理员")
+
+
+# --- 邮箱验证码服务 ---
 
 CODE_FILE = Path("email_codes.jsonl")
 lock = threading.Lock()
+SMTP_SERVER = "smtp.qq.com"
+SMTP_PORT = 465
+SENDER_EMAIL = "1992898402@qq.com"
+SENDER_PASS = "rrwrlnkeztxibeff"  # 授权码
 
 def set_code(email: str, code: str, expire_seconds: int = 300):
+    """将验证码记录到文件"""
     expire_at = (datetime.utcnow() + timedelta(seconds=expire_seconds)).isoformat()
     record = {"email": email, "code": code, "expire_at": expire_at}
     with lock, open(CODE_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(record) + "\n")
 
-def get_code(email: str):
+def get_code(email: str) -> Optional[str]:
+    """从文件获取有效验证码并清理过期记录"""
     now = datetime.utcnow()
     valid_records = []
     found_code = None
@@ -151,114 +160,82 @@ def get_code(email: str):
     with lock:
         if not CODE_FILE.exists():
             return None
-        with open(CODE_FILE, "r", encoding="utf-8") as f:
-            for line in f:
+        with open(CODE_FILE, "r+", encoding="utf-8") as f:
+            lines = f.readlines()
+            f.seek(0)
+            f.truncate()
+            for line in lines:
                 try:
                     rec = json.loads(line.strip())
-                except:
+                    expire_at = datetime.fromisoformat(rec["expire_at"])
+                    if expire_at > now:
+                        valid_records.append(rec)
+                        if rec["email"] == email:
+                            found_code = rec["code"]
+                except (json.JSONDecodeError, KeyError):
                     continue
-                expire_at = datetime.fromisoformat(rec["expire_at"])
-                if expire_at > now:
-                    valid_records.append(rec)
-                    if rec["email"] == email:
-                        found_code = rec["code"]
-
-        # 覆盖写入（清理过期的）
-        with open(CODE_FILE, "w", encoding="utf-8") as f:
+            # 回写有效记录
             for rec in valid_records:
                 f.write(json.dumps(rec) + "\n")
-
     return found_code
 
 def delete_code(email: str):
-    now = datetime.utcnow()
-    valid_records = []
-
+    """删除指定邮箱的验证码"""
     with lock:
         if not CODE_FILE.exists():
             return
+        valid_records = []
         with open(CODE_FILE, "r", encoding="utf-8") as f:
-            for line in f:
+            lines = f.readlines()
+        for line in lines:
+            try:
                 rec = json.loads(line.strip())
-                expire_at = datetime.fromisoformat(rec["expire_at"])
-                if expire_at > now and rec["email"] != email:
-                    valid_records.append(rec)
-
+                if rec.get("email") != email:
+                    valid_records.append(line)
+            except json.JSONDecodeError:
+                continue
         with open(CODE_FILE, "w", encoding="utf-8") as f:
-            for rec in valid_records:
-                f.write(json.dumps(rec) + "\n")
+            f.writelines(valid_records)
 
-
-# ========== 生成验证码 ==========
-def generate_code(length=6):
+def generate_code(length=6) -> str:
+    """生成指定长度的随机数字验证码"""
     return "".join([str(random.randint(0, 9)) for _ in range(length)])
 
-# ========== 发送邮件 ==========
-def send_mail(receiver_email, code):
-    subject = "你的验证码"
+def send_mail(receiver_email: str, code: str):
+    """发送邮件"""
+    subject = "登录验证码"
     content = f"您的验证码是：{code}，请在5分钟内使用。"
-
     message = MIMEText(content, "plain", "utf-8")
-    message["From"] = formataddr(("验证码系统", SENDER_EMAIL))
-    message["To"] = formataddr(("收件人", receiver_email))
+    message["From"] = formataddr(("深大组队平台", SENDER_EMAIL))
+    message["To"] = formataddr(("用户", receiver_email))
     message["Subject"] = Header(subject, "utf-8")
 
     try:
-        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
-        server.login(SENDER_EMAIL, SENDER_PASS)
-        server.sendmail(SENDER_EMAIL, [receiver_email], message.as_string())
-        server.quit()
-        print("验证码已发送到", receiver_email)
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+            server.login(SENDER_EMAIL, SENDER_PASS)
+            server.sendmail(SENDER_EMAIL, [receiver_email], message.as_string())
+        print(f"验证码已发送到 {receiver_email}")
     except Exception as e:
-        print("发送失败:", e)
+        print(f"发送邮件失败: {e}")
+        raise HTTPException(status_code=500, detail="邮件服务异常，发送失败")
+
+def send_email_code(db: Session, email_data: EmailRequest):
+    """为教师发送邮箱验证码"""
+    user = crud_user.get_user_by_email(db, email_data.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="该邮箱未录入数据库")
+    if user.role != 'teacher':
+        raise HTTPException(status_code=403, detail="只有教师账号才能使用邮箱登录")
+    
+    code = generate_code()
+    send_mail(email_data.email, code)
+    set_code(email_data.email, code)
+    return {"message": "验证码已成功发送"}
 
 def verify_email_code(email: str, code: str):
+    """验证邮箱验证码"""
     saved_code = get_code(email)
-    if not saved_code:
-        raise HTTPException(status_code=400, detail="验证码不存在或已过期")
-    if saved_code != code:
-        raise HTTPException(status_code=400, detail="验证码错误")
-    delete_code(email)  # 验证通过删除
+    if not saved_code or saved_code != code:
+        raise HTTPException(status_code=400, detail="验证码错误或已过期")
+    delete_code(email)  # 验证成功后立即删除
     return True
-
-def send_email_code(email: str, db: Session, code_length: int = 6, expire_seconds: int = 300):
-    """
-    检查邮箱是否存在，若存在则尝试发送验证码
-    """
-    code = generate_code(code_length)
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="邮箱未注册")
-    try:
-        send_mail(email, code)
-        set_code(email, code, expire_seconds)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"发送验证码失败: {e}")
-
-    return {"message": "验证码已发送"}
-
-def login_teacher_for_access_token(db: Session, login: TeacherLoginRequest) -> str:
-    """
-    教师登录逻辑：
-    1. 校验账号+密码
-    2. 校验邮箱验证码
-    3. 返回 JWT 令牌
-    """
-    # 1. 账号+密码校验
-    db_user = get_user_by_id(db, login.id)
-    if not db_user:
-        raise HTTPException(status_code=401, detail="用户不存在")
-    if db_user.role.lower() != "teacher":
-        raise HTTPException(status_code=403, detail="非教师账号无法使用该接口")
-    if not verify_password(login.password, db_user.password):
-        raise HTTPException(status_code=401, detail="用户名或密码错误")
-
-    # 2. 验证邮箱验证码
-    try:
-        verify_email_code(login.email, login.code)  # 成功返回 True，失败会抛 HTTPException
-    except HTTPException as e:
-        raise HTTPException(status_code=400, detail=f"邮箱验证码错误或已过期: {e.detail}")
-
-    # 3. 生成 JWT
-    access_token = create_access_token(data={"sub": str(login.id)})
-    return access_token
