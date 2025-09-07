@@ -119,7 +119,7 @@ export default function EditArticlePage() {
       }
 
       toast.success("文章更新成功！");
-      router.push(`/articles/${id}`);
+      router.push(`/article/${id}`);
     } catch (error) {
       console.error("更新文章错误:", error);
       toast.error("更新文章失败，请重试！");

@@ -265,14 +265,14 @@ function CompetitionDetailPageContent() {
                       <strong>注册时间：</strong> <br />
                       {formatDate(competition.sign_up_start_time)} ~
                       <br />
-                      {competition.sign_up_end_time}
+                      {formatDate(competition.sign_up_end_time)}
                     </li>
                     <li className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-primary" />
                       <strong>比赛时间：</strong> <br />
                       {formatDate(competition.competition_start_time)} ~
                       <br />
-                      {competition.competition_end_time}
+                      {formatDate(competition.competition_end_time)}
                     </li>
                     <li className="flex items-center">
                       <Trophy className="w-4 h-4 mr-2 text-primary" />

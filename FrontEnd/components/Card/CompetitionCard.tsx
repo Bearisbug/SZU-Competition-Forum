@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/date";
 
 export type Competition = {
@@ -90,14 +90,24 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
       </div>
 
       {isAdmin && (
-        <button
-          className="absolute bottom-4 right-4 z-30 rounded-full p-2 bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm"
-          onClick={handleDelete}
-          title="删除比赛"
-          aria-label="删除比赛"
-        >
-          <Trash2 className="w-5 h-5 text-red-600" />
-        </button>
+        <>
+          <button
+            className="absolute bottom-4 right-16 z-30 rounded-full p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 shadow-sm"
+            onClick={(e) => { e.stopPropagation(); window.location.href = `/competition/${competition.id}/edit`; }}
+            title="修改比赛"
+            aria-label="修改比赛"
+          >
+            <Pencil className="w-5 h-5 text-blue-600" />
+          </button>
+          <button
+            className="absolute bottom-4 right-4 z-30 rounded-full p-2 bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm"
+            onClick={handleDelete}
+            title="删除比赛"
+            aria-label="删除比赛"
+          >
+            <Trash2 className="w-5 h-5 text-red-600" />
+          </button>
+        </>
       )}
     </div>
   );

@@ -78,7 +78,6 @@ const sendEmailCode = async (email: string) => {
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const [isLoading, setIsLoading] = useState(false);
 
   const toggleTab = () => {
     setActiveTab(activeTab === "login" ? "register" : "login");
@@ -108,16 +107,10 @@ export default function AuthPage() {
                 </p>
               </div>
 
-              {isLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <Spinner size="lg" />
-                </div>
+              {activeTab === "login" ? (
+                <LoginForm />
               ) : (
-                activeTab === "login" ? (
-                  <LoginForm setIsLoading={setIsLoading} />
-                ) : (
-                  <RegisterForm setIsLoading={setIsLoading} toggleTab={toggleTab} />
-                )
+                <RegisterForm toggleTab={toggleTab} />
               )}
 
               <div className="flex items-center gap-4">
@@ -144,7 +137,7 @@ export default function AuthPage() {
 
 // --- 登录表单组件 ---
 
-function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => void }) {
+function LoginForm() {
   const router = useRouter();
   const [role, setRole] = useState("student");
   const [userId, setUserId] = useState("");
@@ -154,6 +147,8 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
   const [isVisible, setIsVisible] = useState(false);
   const [remember, setRemember] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [sending, setSending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const setIsLoggedIn = useAuthStore((state) => state.setIsLoggedIn);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -163,7 +158,8 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
       toast.error("请输入教师邮箱！");
       return;
     }
-    setIsLoading(true);
+    // 仅控制本地发送状态，避免卸载表单导致数据丢失
+    setSending(true);
     try {
       const data = await sendEmailCode(email);
       toast.success(data.message || "验证码已发送，请查收邮箱！");
@@ -180,13 +176,13 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "发送验证码失败，请重试！");
     } finally {
-      setIsLoading(false);
+      setSending(false);
     }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setSubmitting(true);
     toast.dismiss();
 
     try {
@@ -194,7 +190,7 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
       if (role === "student" || role === "admin") { // 管理员也使用此方式登录
         if (!userId || !password) {
           toast.error("请填写学号和密码！");
-          setIsLoading(false);
+          setSubmitting(false);
           return;
         }
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
@@ -204,12 +200,19 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
       } else { // Teacher login
         if (!email || !code) {
           toast.error("请输入邮箱和验证码！");
-          setIsLoading(false);
+          setSubmitting(false);
           return;
         }
         const data = await loginTeacher(email, code);
         access_token = data.access_token;
-        localStorage.removeItem("id");
+        // 解析 token，保存 user id，确保跨页面鉴权
+        try {
+          const payload = JSON.parse(atob(access_token.split(".")[1]));
+          const uid = String(payload?.sub ?? "");
+          if (uid) {
+            localStorage.setItem("id", uid);
+          }
+        } catch {}
       }
 
       localStorage.setItem("access_token", access_token);
@@ -226,7 +229,7 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "登录失败，请检查您的输入！");
     } finally {
-      setIsLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -294,8 +297,8 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
-            <Button type="button" onClick={handleSendCode} disabled={!email || countdown > 0}>
-              {countdown > 0 ? `${countdown}s` : "发送"}
+            <Button type="button" onClick={handleSendCode} disabled={!email || countdown > 0 || sending}>
+              {countdown > 0 ? `已发送 (${countdown}s)` : (sending ? "发送中..." : "发送验证码")}
             </Button>
           </div>
         </>
@@ -309,8 +312,8 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
           忘记密码？
         </Link>
       </div>
-      <Button color="primary" type="submit" className="w-full">
-        登录
+      <Button color="primary" type="submit" className="w-full" isDisabled={submitting}>
+        {submitting ? "登录中..." : "登录"}
       </Button>
     </form>
   );
@@ -318,12 +321,13 @@ function LoginForm({ setIsLoading }: { setIsLoading: (isLoading: boolean) => voi
 
 // --- 注册表单组件 ---
 
-function RegisterForm({ setIsLoading, toggleTab }: { setIsLoading: (isLoading: boolean) => void, toggleTab: () => void }) {
+function RegisterForm({ toggleTab }: { toggleTab: () => void }) {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
   const toggleConfirmPasswordVisibility = () => setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
@@ -334,7 +338,7 @@ function RegisterForm({ setIsLoading, toggleTab }: { setIsLoading: (isLoading: b
       toast.error("两次输入的密码不一致！");
       return;
     }
-    setIsLoading(true);
+    setSubmitting(true);
     try {
       const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
       await registerStudent(userId, hashedPassword);
@@ -345,7 +349,7 @@ function RegisterForm({ setIsLoading, toggleTab }: { setIsLoading: (isLoading: b
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "注册失败，请稍后再试！");
     } finally {
-      setIsLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -399,8 +403,8 @@ function RegisterForm({ setIsLoading, toggleTab }: { setIsLoading: (isLoading: b
           </Link>
         </span>
       </Checkbox>
-      <Button color="primary" type="submit" className="w-full">
-        注册
+      <Button color="primary" type="submit" className="w-full" isDisabled={submitting}>
+        {submitting ? "注册中..." : "注册"}
       </Button>
     </form>
   );

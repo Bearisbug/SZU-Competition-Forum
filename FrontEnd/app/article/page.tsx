@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { withAuth } from "@/lib/auth-guards";
 import { ArticleCard } from "@/components/Card/ArticleCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
-import { Pagination, Spinner, Button } from "@heroui/react";
+import { Pagination, Spinner, Button, Input } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
@@ -72,6 +72,7 @@ function ArticleListPageContent() {
   const isAdmin = (role || "").toLowerCase() === "admin";
   const articlesPerPage = 6;
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -172,10 +173,21 @@ function ArticleListPageContent() {
         );
       }
 
+      // 按文章标题搜索
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        filtered = filtered.filter((a) => String(a.title || "").toLowerCase().includes(q));
+      }
+
       setFilteredArticles(filtered);
     },
-    [articles]
+    [articles, searchQuery]
   );
+
+  useEffect(() => {
+    // 搜索词变化时，重新应用筛选
+    handleFilterChange(filters as any, "");
+  }, [searchQuery]);
 
   const indexOfLastArticle = currentPage * articlesPerPage;
   const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
@@ -208,14 +220,22 @@ function ArticleListPageContent() {
           filterCategories={filterCategories}
         />
         <div className="flex-1 ml-4">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
             <h1 className="text-2xl font-bold">文章列表</h1>
-            <Button
-              color="primary"
-              onPress={() => router.push("/article/create")}
-            >
-              创建文章
-            </Button>
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <Input
+                placeholder="搜索文章标题..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="md:w-80"
+              />
+              <Button
+                color="primary"
+                onPress={() => router.push("/article/create")}
+              >
+                创建文章
+              </Button>
+            </div>
           </div>
           <div className="flex flex-col items-center justify-center h-64">
             <X className="w-16 h-16 text-gray-400 mb-4" />
@@ -240,14 +260,22 @@ function ArticleListPageContent() {
         filterCategories={filterCategories}
       />
       <div className="flex-1 ml-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
           <h1 className="text-2xl font-bold">文章列表</h1>
-          <Button
-            color="primary"
-            onPress={() => router.push("/article/create")}
-          >
-            创建文章
-          </Button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Input
+              placeholder="搜索文章标题..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="md:w-80"
+            />
+            <Button
+              color="primary"
+              onPress={() => router.push("/article/create")}
+            >
+              创建文章
+            </Button>
+          </div>
         </div>
         <motion.div
           className="grid grid-cols-1 gap-6"
@@ -274,13 +302,7 @@ function ArticleListPageContent() {
               <div
                 className="cursor-pointer"
                 onClick={() => {
-                  if (article.post_type === "share") {
                     router.push(`/article/${article.id}`);
-                  } else if (article.post_type === "discussion") {
-                    router.push(`/article/discussion/${article.id}`);
-                  } else {
-                    toast.error("未知的文章类型！");
-                  }
                 }}
               >
                 <ArticleCard

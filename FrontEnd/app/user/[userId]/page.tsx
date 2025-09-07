@@ -77,8 +77,11 @@ const UserProfileSidebar: React.FC<SidebarProps> = ({
 
   // 处理头像 URL
   const getFullAvatarUrl = (url: string) => {
-    if (!url) return "";
-    return url.startsWith("http") ? url : `${API_BASE_URL}/${url}`;
+    const u = (url || '').trim();
+    if (!u || u === '未定义') {
+      return `${API_BASE_URL}/uploads/images/default_avatar.png`;
+    }
+    return u.startsWith("http") ? u : `${API_BASE_URL}/${u}`;
   };
 
   useEffect(() => {

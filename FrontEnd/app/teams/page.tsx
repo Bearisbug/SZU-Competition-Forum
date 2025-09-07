@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { withAuth } from "@/lib/auth-guards";
 import { TeamCard } from "@/components/Card/TeamCard";
 import { FilterSidebar } from "@/components/FilterSidebar";
-import { Pagination, Spinner, Button } from "@heroui/react";
+import { Pagination, Spinner, Button, Input } from "@heroui/react";
 import { CreateTeamModal } from "@/components/Modal/CreateTeamModal";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
@@ -86,6 +86,7 @@ function TeamCardPreviewContent() {
   const [mounted, setMounted] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const isAdmin = (role || "").toLowerCase() === "admin";
+  const [searchQuery, setSearchQuery] = useState("");
 
   const teamsPerPage = 4;
 
@@ -225,10 +226,21 @@ const competitionMap = useMemo(() => {
         );
       }
 
+      // 按队伍名称搜索
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        filtered = filtered.filter((team) => String(team.name || "").toLowerCase().includes(q));
+      }
+
       setFilteredTeams(filtered);
     },
-    [teams, teamMembers]
+    [teams, teamMembers, searchQuery]
   );
+
+  useEffect(() => {
+    // 搜索词改变时，重新应用筛选
+    handleFilterChange(filters);
+  }, [searchQuery]);
 
   const handleCreateTeam = async (teamData: {
     name: string;
@@ -424,12 +436,20 @@ const competitionMap = useMemo(() => {
           filterCategories={filterCategories}
         />
         <div className="flex-1 ml-4">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">队伍列表</h1>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
+          <h1 className="text-2xl font-bold">队伍列表</h1>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Input
+              placeholder="搜索队伍名称..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="md:w-80"
+            />
             <Button color="primary" onPress={() => setIsCreateModalOpen(true)}>
               创建队伍
             </Button>
           </div>
+        </div>
           <div className="flex flex-col items-center justify-center h-64">
             <X className="w-16 h-16 text-gray-400 mb-4" />
             <p className="text-center text-gray-500">没有符合条件的队伍，请调整筛选条件或创建新队伍。</p>
@@ -452,11 +472,19 @@ const competitionMap = useMemo(() => {
         filterCategories={filterCategories}
       />
       <div className="flex-1 ml-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
           <h1 className="text-2xl font-bold">队伍列表</h1>
-          <Button color="primary" onPress={() => setIsCreateModalOpen(true)}>
-            创建队伍
-          </Button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Input
+              placeholder="搜索队伍名称..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="md:w-80"
+            />
+            <Button color="primary" onPress={() => setIsCreateModalOpen(true)}>
+              创建队伍
+            </Button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentTeams.map((team) => (

@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Link } from "@heroui/react";
+import { Button, Card, Link, Input } from "@heroui/react";
 import { Trash2 } from "lucide-react";
 import { FilterSidebar, FilterOption } from "@/components/FilterSidebar";
 import { API_BASE_URL } from "@/CONFIG";
@@ -30,6 +30,7 @@ function CompetitionPageContent() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const [role, setRole] = useState<string | null>(null);
   const isAdmin = (role || "").toLowerCase() === "admin";
+  const [searchQuery, setSearchQuery] = useState("");
 
   function parseJwt(token: string) {
     try {
@@ -151,7 +152,7 @@ function CompetitionPageContent() {
     fetchCompetitions();
   }, [fetchCompetitions]);
 
-  // 筛选卡片
+  // 筛选卡片（按分类 + 关键字）
   const filteredCards = competitions.filter((card) => {
     if (selectedCategory && selectedSubCategory) {
       return (
@@ -166,7 +167,11 @@ function CompetitionPageContent() {
       return card.competition_subtype === selectedSubCategory;
     }
     return true;
-  });
+  }).filter((card) =>
+    (searchQuery.trim() === "")
+      ? true
+      : String(card.name || "").toLowerCase().includes(searchQuery.toLowerCase().trim())
+  );
 
   // 重置筛选
   const resetFilters = () => {
@@ -223,15 +228,23 @@ function CompetitionPageContent() {
     >
       <div className="max-w-7xl mx-auto p-4">
         {/* 顶部标题栏 */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
           <h1 className="text-3xl font-bold text-gray-800">比赛列表</h1>
-          {isAdmin && (
-            <Link href="/competition/create">
-              <Button color="primary" size="lg">
-                创建比赛
-              </Button>
-            </Link>
-          )}
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Input
+              placeholder="搜索比赛名称..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="md:w-80"
+            />
+            {isAdmin && (
+              <Link href="/competition/create">
+                <Button color="primary" size="lg">
+                  创建比赛
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* 主要内容区 */}

@@ -6,6 +6,8 @@ app/services/auth_service.py
 
 import jwt
 import random
+import os
+import logging
 import smtplib
 import json
 import threading
@@ -137,15 +139,27 @@ def ensure_admin(user: User = Depends(get_current_user)):
 
 # --- 邮箱验证码服务 ---
 
-CODE_FILE = Path("email_codes.jsonl")
+BASE_DIR = Path(__file__).resolve().parents[2]  # 指向 BackEnd 目录
+CODE_FILE = BASE_DIR / "email_codes.jsonl"
+# 控制邮件发送与回退策略的环境变量
+SMTP_ENABLED = os.getenv("SMTP_ENABLED", "true").lower() == "true"
+EMAIL_SEND_STRICT = os.getenv("EMAIL_SEND_STRICT", "false").lower() == "true"  # 严格模式：发送失败即报错
 lock = threading.Lock()
-SMTP_SERVER = "smtp.qq.com"
-SMTP_PORT = 465
-SENDER_EMAIL = "1992898402@qq.com"
-SENDER_PASS = "rrwrlnkeztxibeff"  # 授权码
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.qq.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
+SENDER_EMAIL = os.getenv("SMTP_SENDER_EMAIL", "1992898402@qq.com")
+SENDER_PASS = os.getenv("SMTP_SENDER_PASS", "rrwrlnkeztxibeff")  # 授权码
+
+def _norm_email(email: str) -> str:
+    return (email or "").strip().lower()
+
+def _norm_code(code: str) -> str:
+    return (code or "").strip()
 
 def set_code(email: str, code: str, expire_seconds: int = 300):
     """将验证码记录到文件"""
+    email = _norm_email(email)
+    code = _norm_code(code)
     expire_at = (datetime.utcnow() + timedelta(seconds=expire_seconds)).isoformat()
     record = {"email": email, "code": code, "expire_at": expire_at}
     with lock, open(CODE_FILE, "a", encoding="utf-8") as f:
@@ -153,6 +167,7 @@ def set_code(email: str, code: str, expire_seconds: int = 300):
 
 def get_code(email: str) -> Optional[str]:
     """从文件获取有效验证码并清理过期记录"""
+    email = _norm_email(email)
     now = datetime.utcnow()
     valid_records = []
     found_code = None
@@ -169,9 +184,12 @@ def get_code(email: str) -> Optional[str]:
                     rec = json.loads(line.strip())
                     expire_at = datetime.fromisoformat(rec["expire_at"])
                     if expire_at > now:
-                        valid_records.append(rec)
-                        if rec["email"] == email:
-                            found_code = rec["code"]
+                        # 规范化存储的邮箱、验证码
+                        rec_email = _norm_email(rec.get("email", ""))
+                        rec_code = _norm_code(rec.get("code", ""))
+                        valid_records.append({"email": rec_email, "code": rec_code, "expire_at": rec["expire_at"]})
+                        if rec_email == email:
+                            found_code = rec_code
                 except (json.JSONDecodeError, KeyError):
                     continue
             # 回写有效记录
@@ -181,6 +199,7 @@ def get_code(email: str) -> Optional[str]:
 
 def delete_code(email: str):
     """删除指定邮箱的验证码"""
+    email = _norm_email(email)
     with lock:
         if not CODE_FILE.exists():
             return
@@ -190,7 +209,7 @@ def delete_code(email: str):
         for line in lines:
             try:
                 rec = json.loads(line.strip())
-                if rec.get("email") != email:
+                if _norm_email(rec.get("email", "")) != email:
                     valid_records.append(line)
             except json.JSONDecodeError:
                 continue
@@ -206,34 +225,47 @@ def send_mail(receiver_email: str, code: str):
     subject = "登录验证码"
     content = f"您的验证码是：{code}，请在5分钟内使用。"
     message = MIMEText(content, "plain", "utf-8")
-    message["From"] = formataddr(("深大组队平台", SENDER_EMAIL))
+    message["From"] = formataddr(("火种云平台", SENDER_EMAIL))
     message["To"] = formataddr(("用户", receiver_email))
     message["Subject"] = Header(subject, "utf-8")
 
+    if not SMTP_ENABLED:
+        logging.info("SMTP 发送已禁用（SMTP_ENABLED=false），跳过真实发送，仅记录验证码")
+        return
     try:
         with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
             server.login(SENDER_EMAIL, SENDER_PASS)
             server.sendmail(SENDER_EMAIL, [receiver_email], message.as_string())
-        print(f"验证码已发送到 {receiver_email}")
+        logging.info(f"验证码已发送到 {receiver_email}")
     except Exception as e:
-        print(f"发送邮件失败: {e}")
-        raise HTTPException(status_code=500, detail="邮件服务异常，发送失败")
+        logging.error(f"发送邮件失败: {e}")
+        if EMAIL_SEND_STRICT:
+            raise HTTPException(status_code=500, detail="邮件服务异常，发送失败")
+        # 非严格模式下，允许发送失败但继续流程（开发环境友好）
+        return
 
 def send_email_code(db: Session, email_data: EmailRequest):
     """为教师发送邮箱验证码"""
-    user = crud_user.get_user_by_email(db, email_data.email)
+    norm_email = _norm_email(email_data.email)
+    user = crud_user.get_user_by_email(db, norm_email)
     if not user:
         raise HTTPException(status_code=404, detail="该邮箱未录入数据库")
     if user.role != 'teacher':
         raise HTTPException(status_code=403, detail="只有教师账号才能使用邮箱登录")
     
     code = generate_code()
-    send_mail(email_data.email, code)
-    set_code(email_data.email, code)
-    return {"message": "验证码已成功发送"}
+    # 先保存验证码，确保即使发送失败也可通过文件读取调试
+    set_code(norm_email, code)
+    send_mail(norm_email, code)
+    if SMTP_ENABLED:
+        return {"message": "验证码已成功发送"}
+    else:
+        return {"message": "已生成验证码（开发模式未发送邮件）"}
 
 def verify_email_code(email: str, code: str):
     """验证邮箱验证码"""
+    email = _norm_email(email)
+    code = _norm_code(code)
     saved_code = get_code(email)
     if not saved_code or saved_code != code:
         raise HTTPException(status_code=400, detail="验证码错误或已过期")

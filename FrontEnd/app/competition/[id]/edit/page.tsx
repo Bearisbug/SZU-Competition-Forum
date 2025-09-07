@@ -6,6 +6,7 @@ import { Input, Button, Select, SelectItem } from "@heroui/react"
 import MyEditor from "@/components/IOEditor"
 import toast from "react-hot-toast"
 import { API_BASE_URL } from "@/CONFIG";
+import { formatDate } from "@/lib/date";
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
@@ -59,10 +60,11 @@ function EditCompetitionPage() {
         setDetails(competition.details)
         setOrganizer(competition.organizer)
         setCompetitionType(competition.competition_type)
-        setSignUpStartTime(competition.sign_up_start_time)
-        setSignUpEndTime(competition.sign_up_end_time)
-        setCompetitionStartTime(competition.competition_start_time)
-        setCompetitionEndTime(competition.competition_end_time)
+        // 仅保留到日，适配 date 输入
+        setSignUpStartTime(formatDate(competition.sign_up_start_time))
+        setSignUpEndTime(formatDate(competition.sign_up_end_time))
+        setCompetitionStartTime(formatDate(competition.competition_start_time))
+        setCompetitionEndTime(formatDate(competition.competition_end_time))
         setCoverImage(competition.cover_image)
         setCoverPreview(competition.cover_image)
 
@@ -157,7 +159,7 @@ function EditCompetitionPage() {
       }
 
       toast.success("比赛更新成功！")
-      router.push(`/competitions/detail/${id}`)
+      router.push(`/competition/${id}`)
     } catch (error) {
       console.error("更新比赛错误:", error)
       toast.error("更新比赛失败，请重试！")
@@ -196,7 +198,7 @@ function EditCompetitionPage() {
 
         <Input
           label="报名开始时间"
-          type="datetime-local"
+          type="date"
           value={signUpStartTime}
           onChange={(e) => setSignUpStartTime(e.target.value)}
           required
@@ -204,7 +206,7 @@ function EditCompetitionPage() {
 
         <Input
           label="报名结束时间"
-          type="datetime-local"
+          type="date"
           value={signUpEndTime}
           onChange={(e) => setSignUpEndTime(e.target.value)}
           required
@@ -212,7 +214,7 @@ function EditCompetitionPage() {
 
         <Input
           label="比赛开始时间"
-          type="datetime-local"
+          type="date"
           value={competitionStartTime}
           onChange={(e) => setCompetitionStartTime(e.target.value)}
           required
@@ -220,7 +222,7 @@ function EditCompetitionPage() {
 
         <Input
           label="比赛结束时间"
-          type="datetime-local"
+          type="date"
           value={competitionEndTime}
           onChange={(e) => setCompetitionEndTime(e.target.value)}
           required
@@ -247,7 +249,7 @@ function EditCompetitionPage() {
         </div>
 
         <div className="flex justify-end space-x-4">
-          <Button color="danger" variant="light" onClick={() => router.push(`/competitions/detail/${id}`)}>
+          <Button color="danger" variant="light" onClick={() => router.push(`/competition/${id}`)}>
             取消
           </Button>
           <Button type="submit" color="primary">

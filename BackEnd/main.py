@@ -10,6 +10,8 @@ from starlette.staticfiles import StaticFiles
 import uvicorn
 import logging
 import hashlib
+import os
+import base64
 
 # 导入中间件和日志配置
 from app.core.logging_config import setup_logging, log_user_login
@@ -34,8 +36,8 @@ app = FastAPI()
 
 setup_logging()
 
-app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)
-app.add_middleware(APIRateLimitMiddleware)
+# app.add_middleware(RateLimitMiddleware, requests_per_minute=60, requests_per_hour=1000)
+# app.add_middleware(APIRateLimitMiddleware)
 app.add_middleware(LoggingMiddleware)
 origins = [
     "172.31.234.146:8000",   # 开发服务器
@@ -92,6 +94,21 @@ def ensure_default_admin():
         logging.error(f"Ensure default admin failed: {e}")
     finally:
         db.close()
+
+@app.on_event("startup")
+def ensure_default_assets():
+    """确保默认资源文件存在，例如默认头像。"""
+    try:
+        images_dir = os.path.join("uploads", "images")
+        os.makedirs(images_dir, exist_ok=True)
+        default_avatar_path = os.path.join(images_dir, "default_avatar.png")
+        if not os.path.exists(default_avatar_path):
+            # 1x1 透明 PNG
+            png_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+            with open(default_avatar_path, "wb") as f:
+                f.write(base64.b64decode(png_b64))
+    except Exception as e:
+        logging.error(f"Ensure default assets failed: {e}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

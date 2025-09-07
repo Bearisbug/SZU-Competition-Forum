@@ -84,7 +84,7 @@ function CreateArticlePageContent() {
       }
 
       toast.success("文章创建成功！");
-      router.push("/"); // 创建成功后跳转到主页或文章列表页
+      router.push("/article/"); // 创建成功后跳转到主页或文章列表页
     } catch (error) {
       console.error("创建文章错误:", error);
       toast.error("创建文章失败，请重试！");
