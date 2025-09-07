@@ -249,12 +249,18 @@ const competitionMap = useMemo(() => {
     goals: string;
     requirements: string[];
     maxMembers: number;
+    competition_id: number;
   }) => {
     try {
+      // 后端字段为 snake_case: max_members，requirements 为字符串
       const newTeam = {
-        ...teamData,
+        name: teamData.name,
+        description: teamData.description,
+        goals: teamData.goals,
         requirements: teamData.requirements.join("\n"),
-      };
+        max_members: teamData.maxMembers,
+        competition_id: teamData.competition_id,
+      } as const;
       const response = await fetch(`${API_BASE_URL}/api/teams`, {
         method: "POST",
         headers: {
