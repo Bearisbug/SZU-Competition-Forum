@@ -386,7 +386,10 @@ function ProfilePageContent() {
             goals: teamObj?.goals || "",
             requirements: reqs,
             max_members: Number(teamObj?.max_members) || 0,
-            members: Array.isArray(item.members) ? item.members : [],
+            // 仅展示已加入成员，过滤掉待审核(0)/被拒绝(-1)
+            members: Array.isArray(item.members)
+              ? item.members.filter((m: any) => Number(m?.status) === 1)
+              : [],
           } as Team;
         });
       }
@@ -454,6 +457,115 @@ function ProfilePageContent() {
     fetchRole();
   }, [fetchUser, fetchData, fetchRole]);
 
+  // --- 队伍操作：与队伍列表页保持一致 ---
+  const handleJoinTeam = useCallback(async (teamId: number, _reason?: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}/apply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+        },
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "申请加入失败");
+      }
+      toast.success("申请已提交，请等待队长审核。");
+      fetchData();
+    } catch (err: any) {
+      toast.error(err?.message || "申请加入失败");
+    }
+  }, [fetchData]);
+
+  const handleLeaveTeam = useCallback(async (teamId: number) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}/leave`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+        },
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "退出队伍失败");
+      }
+      toast.success("已退出队伍。");
+      fetchData();
+    } catch (err: any) {
+      toast.error(err?.message || "退出队伍失败");
+    }
+  }, [fetchData]);
+
+  const handleUpdateTeam = useCallback(async (teamId: number, data: Partial<Team>) => {
+    try {
+      const payload: any = {
+        name: data.name,
+        description: data.description,
+        goals: data.goals,
+        requirements: Array.isArray(data.requirements) ? data.requirements.join("\n") : undefined,
+        max_members: data.max_members as any,
+      };
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "更新队伍失败");
+      }
+      toast.success("队伍已更新。");
+      fetchData();
+    } catch (err: any) {
+      toast.error(err?.message || "更新队伍失败");
+    }
+  }, [fetchData]);
+
+  const handleDisbandTeam = useCallback(async (teamId: number) => {
+    if (!window.confirm("确定要解散队伍吗？")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+        },
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "解散队伍失败");
+      }
+      toast.success("队伍已解散。");
+      fetchData();
+    } catch (err: any) {
+      toast.error(err?.message || "解散队伍失败");
+    }
+  }, [fetchData]);
+
+  const handleRemoveMember = useCallback(async (teamId: number, memberId: number) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/teams/${teamId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+        },
+        body: JSON.stringify({ remove_member_id: memberId }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "移除成员失败");
+      }
+      toast.success("成员已移除。");
+      fetchData();
+    } catch (err: any) {
+      toast.error(err?.message || "移除成员失败");
+    }
+  }, [fetchData]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
@@ -509,12 +621,11 @@ function ProfilePageContent() {
                               key={`${team.id}-${idx}`}
                               team={team}
                               members={team.members}
-                              // 该页面仅展示，不在此做操作
-                              onJoinTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
-                              onLeaveTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
-                              onUpdateTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
-                              onDisbandTeam={async () => { toast.error("你没办法在此页面进行该操作！"); }}
-                              onRemoveMember={async () => { toast.error("你没办法在此页面进行该操作！"); }}
+                              onJoinTeam={handleJoinTeam}
+                              onLeaveTeam={handleLeaveTeam}
+                              onUpdateTeam={handleUpdateTeam}
+                              onDisbandTeam={handleDisbandTeam}
+                              onRemoveMember={handleRemoveMember}
                               isAdmin={isAdmin}
                             />
                           ))

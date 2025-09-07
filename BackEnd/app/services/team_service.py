@@ -121,7 +121,8 @@ def disband_team(db: Session, team: Team, current_user: User):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权操作，需要队长或管理员权限")
 
     # 先取成员再删除队伍（避免删除后拿不到成员做通知）
-    members = get_team_members(db, team.id)
+    # 仅通知已加入成员（status == 1），不通知待审核/已拒绝用户
+    members = [m for m in get_team_members(db, team.id) if getattr(m, "status", 0) == 1]
     delete_team(db, team)
 
     # 逐个通知
