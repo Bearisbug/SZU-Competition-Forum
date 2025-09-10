@@ -122,7 +122,6 @@ function EditCompetitionPage() {
       !name ||
       !details ||
       !organizer ||
-      !competitionType ||
       !signUpStartTime ||
       !signUpEndTime ||
       !competitionStartTime ||

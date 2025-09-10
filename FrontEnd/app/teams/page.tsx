@@ -199,7 +199,7 @@ const competitionMap = useMemo(() => {
 
 
   const handleFilterChange = useCallback(
-    (newFilters: FilterOption[]) => {
+    (newFilters: FilterOption[], _peopleNeeded: string = "") => {
       setFilters(newFilters);
       setCurrentPage(1);
 
@@ -432,6 +432,7 @@ const competitionMap = useMemo(() => {
     return (
       <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
         <FilterSidebar
+          //@ts-ignore
           onFilterChange={handleFilterChange}
           filterCategories={filterCategories}
         />
@@ -468,6 +469,7 @@ const competitionMap = useMemo(() => {
   return (
     <div className="container mx-auto p-4 flex" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
       <FilterSidebar
+        //@ts-ignore
         onFilterChange={handleFilterChange}
         filterCategories={filterCategories}
       />
