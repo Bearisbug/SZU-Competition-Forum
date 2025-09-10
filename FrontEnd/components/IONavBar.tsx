@@ -274,7 +274,7 @@ export default function IONavBar() {
             <div className="hidden sm:flex gap-10 items-center h-full">
               <NavLink href="/" label="首页" />
               <NavLink href="/competition" label="比赛" />
-              <NavLink href="/recruitment" label="项目招聘" />
+              <NavLink href="/recruitment" label="项目招募" />
               <NavLink href="/article" label="文章" />
               <NavLink href="/teams" label="队伍" />
               {/* 通知入口已移动到右上角用户菜单 */}

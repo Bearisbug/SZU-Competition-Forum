@@ -42,7 +42,6 @@ export type Competition = {
   competition_end_time: string;
   details: string;
   organizer: string;
-  competition_type: string;
   cover_image: string;
   created_at: string;
   updated_at: string;
@@ -274,10 +273,7 @@ function CompetitionDetailPageContent() {
                       <br />
                       {formatDate(competition.competition_end_time)}
                     </li>
-                    <li className="flex items-center">
-                      <Trophy className="w-4 h-4 mr-2 text-primary" />
-                      <strong>比赛类型：</strong> {competition.competition_type}
-                    </li>
+                    {/* 移除比赛类型展示 */}
                     <li className="flex items-center">
                       <Users className="w-4 h-4 mr-2 text-primary" />
                       <strong>主办方：</strong> {competition.organizer}

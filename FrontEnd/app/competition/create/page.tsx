@@ -20,7 +20,6 @@ export type Competition = {
   competition_end_time: string;
   details: string;
   organizer: string;
-  competition_type: string;
   competition_level: string;
   competition_subtype: string;
   cover_image: string;
@@ -41,7 +40,6 @@ function CreateCompetitionPageContent() {
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [organizer, setOrganizer] = useState("");
-  const [competitionType, setCompetitionType] = useState("");
   const [competitionLevel, setCompetitionLevel] = useState("");
   const [competitionSubtype, setCompetitionSubtype] = useState("");
   // 日期使用 CalendarDate
@@ -102,7 +100,6 @@ function CreateCompetitionPageContent() {
       !name ||
       !details ||
       !organizer ||
-      !competitionType ||
       !competitionLevel ||
       !competitionSubtype ||
       !signUpStartDate ||
@@ -119,7 +116,6 @@ function CreateCompetitionPageContent() {
         name,
         details,
         organizer,
-        competition_type: competitionType,
         competition_level: competitionLevel,
         competition_subtype: competitionSubtype,
         sign_up_start_time: signUpStartDate.toString(),
@@ -161,12 +157,7 @@ function CreateCompetitionPageContent() {
         <Input label="比赛名称" value={name} onChange={e => setName(e.target.value)} required />
         <Input label="主办方" value={organizer} onChange={e => setOrganizer(e.target.value)} required />
 
-        <Select label="比赛类型" value={competitionType} onChange={e => setCompetitionType(e.target.value)} required>
-          <SelectItem key="hackathon">黑客马拉松</SelectItem>
-          <SelectItem key="datascience">数据科学</SelectItem>
-          <SelectItem key="ai">人工智能</SelectItem>
-          <SelectItem key="programming">编程竞赛</SelectItem>
-        </Select>
+        {/* 移除比赛类型 */}
 
         <Select label="比赛等级" value={competitionLevel} onChange={e => { setCompetitionLevel(e.target.value); setCompetitionSubtype("") }} required>
           <SelectItem key="Ⅰ类">Ⅰ类</SelectItem>

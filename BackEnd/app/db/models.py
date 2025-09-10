@@ -101,8 +101,6 @@ class Article(Base):
     category = Column(String, index=True)
     view_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
-    # 去除帖子类型字段
-
     author = relationship("User", backref="articles")
 
 
@@ -113,7 +111,6 @@ class Competition(Base):
     - competition_start_time, competition_end_time: 比赛时间
     - details: 比赛详情
     - organizer: 主办方
-    - competition_type: 比赛类型
     - competition_level: 比赛级别
     - competition_subtype: 比赛子类
     - cover_image: 比赛封面图
@@ -130,7 +127,7 @@ class Competition(Base):
 
     details = Column(String, nullable=True)
     organizer = Column(String, index=True, nullable=True)
-    competition_type = Column(String, index=True, nullable=True)
+    # 去除比赛类型字段
     competition_level = Column(String, index=True, nullable=True)
     competition_subtype = Column(String, index=True, nullable=True)
     cover_image = Column(String, nullable=True)

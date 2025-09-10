@@ -316,38 +316,37 @@ function RecruitmentPageContent() {
                     <button
                       className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
                         selectedInstitution === null
-                          ? "bg-pink-600 text-white shadow-md"
-                          : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
+                          ? 'bg-pink-600 text-white shadow-md'
+                          : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
                       }`}
                       onClick={() => handleInstitutionFilter(null)}
                     >
                       全部机构
                     </button>
                   </li>
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedInstitution === "大数据研究所"
-                          ? "bg-pink-600 text-white shadow-md"
-                          : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                      }`}
-                      onClick={() => handleInstitutionFilter("大数据研究所")}
-                    >
-                      大数据研究所
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                        selectedInstitution === "可视化计算研究所"
-                          ? "bg-pink-600 text-white shadow-md"
-                          : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                      }`}
-                      onClick={() => handleInstitutionFilter("可视化计算研究所")}
-                    >
-                      可视化计算研究所
-                    </button>
-                  </li>
+                  {[
+                    '高性能计算研究所',
+                    '大数据技术与应用研究所',
+                    '未来媒体技术与计算研究所',
+                    '网络与信息安全研究所',
+                    '计算机视觉研究所',
+                    '可视计算研究中心',
+                    '智能服务计算研究中心',
+                    '软件工程研究中心',
+                  ].map((inst) => (
+                    <li key={inst}>
+                      <button
+                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+                          selectedInstitution === inst
+                            ? 'bg-pink-600 text-white shadow-md'
+                            : 'bg-blue-700/40 hover:bg-pink-600/80 hover:text-white'
+                        }`}
+                        onClick={() => handleInstitutionFilter(inst)}
+                      >
+                        {inst}
+                      </button>
+                    </li>
+                  ))}
                 </ul>
               </div>
 

@@ -11,7 +11,6 @@ export type Competition = {
   competition_end_time: Date;
   details: string;
   organizer: string;
-  competition_type: string;
   competition_level: string;
   competition_subtype: string;
   cover_image: string;

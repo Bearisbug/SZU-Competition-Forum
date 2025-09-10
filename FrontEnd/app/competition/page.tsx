@@ -12,7 +12,7 @@ import CompetitionCard, {
 import toast from "react-hot-toast";
 import { useAuthStore, withAuth } from "@/lib/auth-guards";
 
-type FilterCategory = "competition_type" | "organizer";
+type FilterCategory = "organizer";
 
 function CompetitionPageContent() {
   const router = useRouter();
@@ -86,16 +86,6 @@ function CompetitionPageContent() {
 
   const filterCategories = [
     {
-      title: "比赛类型",
-      category: "competition_type" as FilterCategory,
-      options: [
-        { label: "黑客松", value: "Hackathon" },
-        { label: "编程挑战", value: "Coding Challenge" },
-        { label: "设计竞赛", value: "Design Competition" },
-        { label: "数据科学", value: "Data Science" },
-      ],
-    },
-    {
       title: "主办方",
       category: "organizer" as FilterCategory,
       options: [
@@ -108,9 +98,9 @@ function CompetitionPageContent() {
   ];
 
   // 帖子点击处理函数
-  const handlePostClick = (id: number, type?: string) => {
+  const handlePostClick = (id: number, _type?: string) => {
     router.push(`/competition/${id}`);
-    console.log(`点击了帖子: ${id}`, type ? `类型: ${type}` : "");
+    console.log(`点击了帖子: ${id}`);
   };
 
   // 分类点击处理
@@ -445,7 +435,7 @@ function CompetitionPageContent() {
                   key={card.id}
                   competition={card}
                   isAdmin={isAdmin}
-                  onClick={(id) => handlePostClick(id, card.competition_type)}
+                  onClick={(id) => handlePostClick(id)}
                   onDelete={handleDeleteCompetition}
                 />
               ))}

@@ -13,7 +13,6 @@ class CompetitionBase(BaseModel):
     competition_end_time: datetime
     details: Optional[str] = None
     organizer: Optional[str] = None
-    competition_type: Optional[str] = None
     competition_level: Optional[str] = None
     competition_subtype: Optional[str] = None
     cover_image: Optional[str] = None
@@ -32,7 +31,6 @@ class CompetitionUpdate(BaseModel):
     competition_end_time: Optional[datetime] = None
     details: Optional[str] = None
     organizer: Optional[str] = None
-    competition_type: Optional[str] = None
     competition_level: Optional[str] = None
     competition_subtype: Optional[str] = None
     cover_image: Optional[str] = None

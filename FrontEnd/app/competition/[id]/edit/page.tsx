@@ -20,7 +20,6 @@ export type Competition = {
   competition_end_time: string
   details: string
   organizer: string
-  competition_type: string
   cover_image: string
   created_at: string
   updated_at: string
@@ -34,7 +33,7 @@ function EditCompetitionPage() {
   const [name, setName] = useState("")
   const [details, setDetails] = useState("")
   const [organizer, setOrganizer] = useState("")
-  const [competitionType, setCompetitionType] = useState("")
+  // 移除比赛类型
   const [signUpStartTime, setSignUpStartTime] = useState("")
   const [signUpEndTime, setSignUpEndTime] = useState("")
   const [competitionStartTime, setCompetitionStartTime] = useState("")
@@ -59,7 +58,7 @@ function EditCompetitionPage() {
         setName(competition.name)
         setDetails(competition.details)
         setOrganizer(competition.organizer)
-        setCompetitionType(competition.competition_type)
+        // 移除比赛类型
         // 仅保留到日，适配 date 输入
         setSignUpStartTime(formatDate(competition.sign_up_start_time))
         setSignUpEndTime(formatDate(competition.sign_up_end_time))
@@ -144,7 +143,6 @@ function EditCompetitionPage() {
           name,
           details,
           organizer,
-          competition_type: competitionType,
           sign_up_start_time: signUpStartTime,
           sign_up_end_time: signUpEndTime,
           competition_start_time: competitionStartTime,
@@ -184,17 +182,7 @@ function EditCompetitionPage() {
           required
         />
 
-        <Select
-          label="比赛类型"
-          value={competitionType}
-          onChange={(e) => setCompetitionType(e.target.value)}
-          required
-        >
-          <SelectItem key="hackathon">黑客马拉松</SelectItem>
-          <SelectItem key="datascience">数据科学</SelectItem>
-          <SelectItem key="ai">人工智能</SelectItem>
-          <SelectItem key="programming">编程竞赛</SelectItem>
-        </Select>
+        {/* 移除比赛类型选择 */}
 
         <Input
           label="报名开始时间"

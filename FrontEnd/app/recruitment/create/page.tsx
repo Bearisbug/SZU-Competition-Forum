@@ -10,7 +10,9 @@ import {
   CardBody, 
   CardHeader,
   Divider,
-  Spinner
+  Spinner,
+  Select,
+  SelectItem
 } from '@heroui/react';
 import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '@/CONFIG';
@@ -277,12 +279,21 @@ export default function CreateRecruitmentPage() {
                 />
               </div>
 
-              <Input
+              <Select
                 label="所属机构"
-                placeholder="请输入所属机构（可选）"
+                placeholder="请选择所属机构（可选）"
                 value={institution}
                 onChange={(e) => setInstitution(e.target.value)}
-              />
+              >
+                <SelectItem key="高性能计算研究所">高性能计算研究所</SelectItem>
+                <SelectItem key="大数据技术与应用研究所">大数据技术与应用研究所</SelectItem>
+                <SelectItem key="未来媒体技术与计算研究所">未来媒体技术与计算研究所</SelectItem>
+                <SelectItem key="网络与信息安全研究所">网络与信息安全研究所</SelectItem>
+                <SelectItem key="计算机视觉研究所">计算机视觉研究所</SelectItem>
+                <SelectItem key="可视计算研究中心">可视计算研究中心</SelectItem>
+                <SelectItem key="智能服务计算研究中心">智能服务计算研究中心</SelectItem>
+                <SelectItem key="软件工程研究中心">软件工程研究中心</SelectItem>
+              </Select>
             </CardBody>
           </Card>
 
