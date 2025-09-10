@@ -84,7 +84,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 px-4">
+    <div className="flex-1 min-h-0 w-full flex items-center justify-center bg-gray-100 px-4">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}

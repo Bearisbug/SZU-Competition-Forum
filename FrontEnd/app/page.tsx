@@ -81,7 +81,7 @@ export default function HomePage() {
           scrollbar-width: none;
         }
       `}</style>
-      <div className="fixed inset-0 overflow-hidden" style={{ top: isLoggedIn ? "114px" : "60px", height: `calc(100vh - ${isLoggedIn ? "114px" : "60px"})` }}>
+      <div className="relative flex-1 min-h-0 overflow-hidden">
       <div 
         className="absolute inset-0 transition-transform duration-1000 ease-in-out"
         style={{ 

@@ -89,7 +89,7 @@ export default function TeamsInfoPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="flex-1 min-h-0 container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">报名队伍信息</h1>
         <div>

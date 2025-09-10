@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Link, Spinner, Button } from "@heroui/react";
+import {useEffect, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import {Link, Spinner, Button} from "@heroui/react";
 import toast from "react-hot-toast";
-import { Calendar, Eye, GraduationCap, Briefcase, CircleUserRound, ThumbsUp, Share2 } from 'lucide-react';
-import { API_BASE_URL } from "@/CONFIG";
-import { formatDate } from "@/lib/date";
-import { ArrowLeft } from 'lucide-react';
+import {Calendar, Eye, GraduationCap, Briefcase, CircleUserRound, ThumbsUp, Share2} from 'lucide-react';
+import {API_BASE_URL} from "@/CONFIG";
+import {formatDate} from "@/lib/date";
+import {ArrowLeft} from 'lucide-react';
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
@@ -38,7 +38,7 @@ export default function ArticleDetailPage() {
   const [article, setArticle] = useState<Article | null>(null);
   const params = useParams();
   const router = useRouter();
-  const { id } = params;
+  const {id} = params;
 
   // 文章点赞数和点赞状态
   const [likes, setLikes] = useState(() => {
@@ -62,16 +62,16 @@ export default function ArticleDetailPage() {
       toast.error("您已经点过赞了！");
       return;
     }
-    
+
     const newLikes = likes + 1;
     setLikes(newLikes);
     setHasLiked(true);
-    
+
     if (typeof window !== 'undefined') {
       localStorage.setItem(`likes-${id}`, newLikes.toString());
       localStorage.setItem(`hasLiked-${id}`, 'true');
     }
-    
+
     toast.success("点赞成功！");
   };
 
@@ -88,55 +88,55 @@ export default function ArticleDetailPage() {
   };
 
 
-      useEffect(() => {
-        const fetchArticle = async () => {
-          try {
-            const response = await fetch(`${API_BASE_URL}/api/articles/detail/${id}`, {
-              headers: {
-                Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-              },
-            });
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/articles/detail/${id}`, {
+          headers: {
+            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
+          },
+        });
 
-            if (!response.ok) {
-              throw new Error("无法加载文章详情！");
-            }
+        if (!response.ok) {
+          throw new Error("无法加载文章详情！");
+        }
 
-            const articleData = await response.json();
-            setArticle(articleData);
-          } catch (error) {
-            console.error("加载文章详情错误:", error);
-            toast.error("加载文章失败，请稍后重试！");
-          }
-        };
-
-        fetchArticle();
-      }, [id]);
-
-      if (!article) {
-        return (
-          <div className="flex justify-center items-center h-screen gap-4">
-            <Spinner size="lg" color="primary" />
-            <p>加载文章中...</p>
-          </div>
-        );
+        const articleData = await response.json();
+        setArticle(articleData);
+      } catch (error) {
+        console.error("加载文章详情错误:", error);
+        toast.error("加载文章失败，请稍后重试！");
       }
+    };
+
+    fetchArticle();
+  }, [id]);
+
+  if (!article) {
+    return (
+      <div className="flex-1 min-h-0 flex justify-center items-center h-screen gap-4">
+        <Spinner size="lg" color="primary"/>
+        <p>加载文章中...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative min-h-screen mt-20">
+    <div className="flex-1 min-h-0 relative mt-20">
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-20">
         <div className="flex justify-end items-center gap-4">
-          <Button 
-            variant={hasLiked ? "solid" : "light"} 
+          <Button
+            variant={hasLiked ? "solid" : "light"}
             color={hasLiked ? "primary" : "default"}
-            startContent={<ThumbsUp className="w-5 h-5" />} 
+            startContent={<ThumbsUp className="w-5 h-5"/>}
             onPress={handleLike}
             disabled={hasLiked}
           >
             {hasLiked ? "已点赞" : "点赞"} {likes}
           </Button>
-          <Button 
-            variant="light" 
-            startContent={<Share2 className="w-5 h-5" />}
+          <Button
+            variant="light"
+            startContent={<Share2 className="w-5 h-5"/>}
             onPress={handleShare}
           >
             分享
@@ -148,18 +148,18 @@ export default function ArticleDetailPage() {
         className="fixed top-36 left-6 z-50 text-[#024d8f] font-bold border-none shadow-none hover:bg-white/10 text-xl"
         variant="ghost"
       >
-        <ArrowLeft className="w-5 h-5" />
+        <ArrowLeft className="w-5 h-5"/>
         返回上一级
       </Button>
 
       {/* 全页背景图 */}
-      <div 
+      <div
         className="fixed inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/article-background.jpg')" }}
+        style={{backgroundImage: "url('/article-background.jpg')"}}
       />
-      
+
       {/* 半透明遮罩层 */}
-      <div className="fixed inset-0 z-1 bg-white/30" />
+      <div className="fixed inset-0 z-1 bg-white/30"/>
 
       {/* 全局内容区域 */}
       <div className="relative z-10 py-8">
@@ -185,23 +185,23 @@ export default function ArticleDetailPage() {
                       className="w-24 h-24 rounded-full mb-4 cursor-pointer"
                       onClick={() => router.push(`/user/${article.author.id}`)}
                     />
-                    <Link 
-                      href={`/user/${article.author.id}`} 
+                    <Link
+                      href={`/user/${article.author.id}`}
                       className="text-lg font-bold text-gray-800 hover:text-primary mb-2"
                     >
                       {article.author.name}
                     </Link>
                     <div className="w-full space-y-3 mt-4">
                       <div className="flex items-center text-sm text-gray-600">
-                        <GraduationCap className="w-4 h-4 mr-2 text-gray-500" />
+                        <GraduationCap className="w-4 h-4 mr-2 text-gray-500"/>
                         <span>年级: {article.author.grade || "未知"}</span>
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                        <Briefcase className="w-4 h-4 mr-2 text-gray-500"/>
                         <span>专业: {article.author.major || "未知"}</span>
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <CircleUserRound className="w-4 h-4 mr-2 text-gray-500" />
+                        <CircleUserRound className="w-4 h-4 mr-2 text-gray-500"/>
                         <span>角色: {article.author.role || "未知"}</span>
                       </div>
                     </div>
@@ -214,15 +214,15 @@ export default function ArticleDetailPage() {
               <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
                 {/* 文章标题 */}
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">{article.title}</h1>
-                
+
                 {/* 文章元信息 */}
                 <div className="flex items-center text-sm text-gray-500 mb-6 space-x-4">
                   <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
+                    <Calendar className="w-4 h-4 mr-1"/>
                     <span>{formatDate(article.created_at)}</span>
                   </div>
                   <div className="flex items-center">
-                    <Eye className="w-4 h-4 mr-1" />
+                    <Eye className="w-4 h-4 mr-1"/>
                     <span>阅读 {article.view_count}</span>
                   </div>
                 </div>
@@ -235,11 +235,11 @@ export default function ArticleDetailPage() {
                 )}
 
                 {/* 文章内容 */}
-                <div 
+                <div
                   className="prose max-w-none text-gray-800"
-                  dangerouslySetInnerHTML={{ __html: article.content }} 
+                  dangerouslySetInnerHTML={{__html: article.content}}
                 />
-                
+
               </div>
             </div>
           </div>

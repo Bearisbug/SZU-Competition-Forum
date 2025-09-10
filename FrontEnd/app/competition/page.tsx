@@ -220,8 +220,7 @@ function CompetitionPageContent() {
 
   return (
     <div
-      className="min-h-screen bg-gray-50"
-      style={{ paddingTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+      className="flex-1 min-h-0 bg-gray-50"
     >
       <div className="max-w-7xl mx-auto p-4">
         {/* 顶部标题栏 */}

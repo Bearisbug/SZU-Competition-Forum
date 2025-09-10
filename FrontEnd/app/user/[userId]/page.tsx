@@ -568,7 +568,7 @@ function ProfilePageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+      <div className="flex-1 min-h-0 bg-background flex flex-col items-center justify-center">
         <Spinner size="lg" />
         <p className="mt-4 text-lg">加载中...</p>
       </div>
@@ -577,7 +577,7 @@ function ProfilePageContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+      <div className="flex-1 min-h-0 bg-background flex flex-col items-center justify-center">
         <XIcon size={100} color="red" />
         <h1 className="text-2xl font-bold mt-4">{error}</h1>
       </div>
@@ -591,8 +591,7 @@ function ProfilePageContent() {
 
   return (
     <div
-      className="min-h-screen bg-background p-4 md:p-8"
-      style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+      className="flex-1 min-h-0 bg-background p-4 md:p-8"
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8">

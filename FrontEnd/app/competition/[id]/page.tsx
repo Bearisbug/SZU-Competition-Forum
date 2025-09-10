@@ -192,7 +192,7 @@ function CompetitionDetailPageContent() {
 
   if (!competition) {
     return (
-      <div className="flex justify-center items-center h-screen gap-4">
+      <div className="flex-1 min-h-0 flex justify-center items-center h-screen gap-4">
         <Spinner size="lg" color="primary" />
         <p>加载中...</p>
       </div>
@@ -200,7 +200,7 @@ function CompetitionDetailPageContent() {
   }
 
   return (
-    <div className="w-full">
+    <div className="flex-1 min-h-0">
       <div className="relative w-full h-[50vh] mb-8">
         <Image
           src={competition.cover_image}

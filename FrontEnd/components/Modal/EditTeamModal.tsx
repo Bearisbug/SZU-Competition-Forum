@@ -68,7 +68,7 @@ export function EditTeamModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="pt-20" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalContent>
         <ModalHeader>编辑队伍</ModalHeader>
         <ModalBody>

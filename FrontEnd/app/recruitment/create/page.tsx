@@ -98,7 +98,6 @@ export default function CreateRecruitmentPage() {
     return (
       <div 
         className="min-h-screen bg-gray-50 flex items-center justify-center"
-        style={{ paddingTop: mounted ? "114px" : "60px" }}
       >
         <Spinner size="lg" />
       </div>
@@ -108,8 +107,7 @@ export default function CreateRecruitmentPage() {
   if (!canCreateRecruitment) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        style={{ paddingTop: "114px" }}
+        className="flex-1 min-h-0 bg-gray-50 flex items-center justify-center"
       >
         <div className="text-center">
           <div className="text-6xl mb-4">🚫</div>
@@ -225,8 +223,7 @@ export default function CreateRecruitmentPage() {
 
   return (
     <div 
-      className="min-h-screen bg-gray-50"
-      style={{ paddingTop: mounted ? "114px" : "60px" }}
+      className="flex-1 min-h-0 bg-gray-50"
     >
       <div className="max-w-4xl mx-auto p-4">
         {/* 顶部导航 */}
