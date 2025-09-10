@@ -32,7 +32,8 @@ def create_new_article_endpoint(
     创建文章，并将当前登录用户视为作者
     """
     new_article = create_new_article(db, article_data, current_user.id)
-    return new_article
+    # 返回与详情一致的结构（含 author）
+    return get_article_detail_info(db, new_article.id, current_user.id)
 
 @router.delete("/delete/{article_id}")
 def delete_article_by_id_endpoint(
@@ -58,8 +59,8 @@ def update_article_by_id_endpoint(
     """
     修改文章内容：只有作者本人才能修改
     """
-    updated_article = modify_article_by_id(db, article_id, update_data, current_user.id)
-    return updated_article
+    _ = modify_article_by_id(db, article_id, update_data, current_user.id)
+    return get_article_detail_info(db, article_id, current_user.id)
 
 @router.get("/detail/{article_id}", response_model=ArticleResponse)
 def get_article_detail_endpoint(

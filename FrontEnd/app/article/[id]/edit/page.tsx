@@ -21,7 +21,7 @@ export default function EditArticlePage() {
   const [category, setCategory] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [coverPreview, setCoverPreview] = useState("");
-  const [postType, setPostType] = useState("");
+  // 移除帖子类型
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -43,7 +43,7 @@ export default function EditArticlePage() {
         setCategory(article.category);
         setCoverImage(article.cover_image);
         setCoverPreview(article.cover_image);
-        setPostType(article.post_type)
+        // 移除帖子类型
 
         toast.success("文章加载成功！");
       } catch (error) {
@@ -109,7 +109,6 @@ export default function EditArticlePage() {
           content,
           category,
           cover_image: coverImage,
-          post_type: postType,
         }),
       });
 
@@ -148,19 +147,12 @@ export default function EditArticlePage() {
           onChange={(e) => setCategory(e.target.value)}
           required
         >
-          <SelectItem key="technology">科技</SelectItem>
-          <SelectItem key="science">科学</SelectItem>
-          <SelectItem key="lifestyle">生活方式</SelectItem>
+          <SelectItem key="备赛攻略">备赛攻略</SelectItem>
+          <SelectItem key="技术指南">技术指南</SelectItem>
+          <SelectItem key="心得体会">心得体会</SelectItem>
+          <SelectItem key="组队招募">组队招募</SelectItem>
         </Select>
-                <Select  
-            label="帖子类型"  
-            value={postType}  
-            onChange={(e) => setPostType(e.target.value)}  
-            required  
-          >  
-            <SelectItem key="share">分享帖</SelectItem>  
-            <SelectItem key="discussion">交流帖</SelectItem>  
-          </Select>
+        {/* 移除帖子类型选择 */}
         <div>
           <label className="block mb-2">封面图片</label>
           {coverPreview && (

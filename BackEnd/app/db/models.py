@@ -89,7 +89,6 @@ class Article(Base):
     - category: 文章分类
     - view_count: 浏览量
     - created_at: 创建时间
-    - post_type: 帖子类型
     """
     __tablename__ = "articles"
 
@@ -102,7 +101,7 @@ class Article(Base):
     category = Column(String, index=True)
     view_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
-    post_type = Column(String, default="share", index=True)
+    # 去除帖子类型字段
 
     author = relationship("User", backref="articles")
 

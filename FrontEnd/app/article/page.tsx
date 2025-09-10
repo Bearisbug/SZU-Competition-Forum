@@ -24,10 +24,9 @@ type Article = {
   created_at: string;
   author_name: string;
   author_id: string;
-  post_type: string;
 };
 
-type FilterCategory = "category" | "date" | "author";
+type FilterCategory = "category" | "date";
 type FilterOption = { category: FilterCategory; label: string; value: string };
 
 const filterCategories = [
@@ -35,10 +34,10 @@ const filterCategories = [
     title: "分类",
     category: "category" as FilterCategory,
     options: [
-      { label: "科技", value: "technology" },
-      { label: "科学", value: "science" },
-      { label: "生活方式", value: "lifestyle" },
-      { label: "商业", value: "business" },
+      { label: "备赛攻略", value: "备赛攻略" },
+      { label: "技术指南", value: "技术指南" },
+      { label: "心得体会", value: "心得体会" },
+      { label: "组队招募", value: "组队招募" },
     ],
   },
   {
@@ -48,15 +47,6 @@ const filterCategories = [
       { label: "本周", value: "this-week" },
       { label: "本月", value: "this-month" },
       { label: "今年", value: "this-year" },
-    ],
-  },
-  {
-    title: "作者级别",
-    category: "author" as FilterCategory,
-    options: [
-      { label: "初级", value: "beginner" },
-      { label: "中级", value: "intermediate" },
-      { label: "高级", value: "expert" },
     ],
   },
 ];
@@ -163,9 +153,6 @@ function ArticleListPageContent() {
                 return article.category.toLowerCase() === filter.value;
               case "date":
                 // TODO: 实现日期过滤逻辑
-                return true;
-              case "author":
-                // TODO: 实现作者过滤逻辑
                 return true;
               default:
                 return true;

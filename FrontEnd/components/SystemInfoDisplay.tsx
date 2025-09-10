@@ -1,7 +1,7 @@
 import React from "react";
-import { Card, CardHeader, CardBody, Accordion, AccordionItem, Button, Tooltip } from "@heroui/react";
+import { Accordion, AccordionItem, Button, Tooltip } from "@heroui/react";
 import toast from "react-hot-toast";
-import { Check, X, Trash, Trash2 } from 'lucide-react';
+import { Check, X, Trash } from 'lucide-react';
 
 type SystemInfo = {
   id: string;
@@ -99,83 +99,65 @@ function SystemInfoDisplay({
   };
 
   return (
-    <Card className="max-w-[600px] mx-auto">
-      <CardHeader className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold p-1">系统信息</h2>
-        {infoList.length > 0 && (
-          <Tooltip content="清空所有通知" placement="bottom">
-            <Button
-              isIconOnly
-              color="danger"
-              size="sm"
-              onClick={onClearAll}
-              aria-label="清空所有通知"
+    <div className="w-full">
+      {infoList.length === 0 ? (
+        <div className="py-12 text-center text-gray-400">暂无消息</div>
+      ) : (
+        <Accordion className="w-full">
+          {infoList.map((info) => (
+            <AccordionItem
+              key={info.id}
+              aria-label={info.title}
+              title={info.title}
+              subtitle={<span className="text-xs text-gray-400">{info.timestamp}</span>}
             >
-              <Trash2 size={20} />
-            </Button>
-          </Tooltip>
-        )}
-      </CardHeader>
-      <CardBody>
-        {infoList.length === 0 ? (
-          <div className="py-12 text-center text-gray-400">暂无消息</div>
-        ) : (
-          <Accordion>
-            {infoList.map((info) => (
-              <AccordionItem
-                key={info.id}
-                aria-label={info.title}
-                title={info.title}
-                subtitle={<span className="text-xs text-gray-400">{info.timestamp}</span>}
-              >
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm text-gray-700">{info.content}</p>
-                  <div className="flex justify-end gap-2">
-                    {info.content.includes("申请加入队伍") && info.canAct === true && (
-                      <>
-                        <Tooltip content="批准" placement="bottom">
-                          <Button
-                            isIconOnly
-                            color="success"
-                            size="sm"
-                            onClick={() => handleAction("approve", info.content)}
-                            aria-label="批准"
-                          >
-                            <Check size={16} />
-                          </Button>
-                        </Tooltip>
-                        <Tooltip content="拒绝" placement="bottom">
-                          <Button
-                            isIconOnly
-                            color="danger"
-                            size="sm"
-                            onClick={() => handleAction("reject", info.content)}
-                            aria-label="拒绝"
-                          >
-                            <X size={16} />
-                          </Button>
-                        </Tooltip>
-                      </>
-                    )}
-                    <Tooltip content="删除" placement="bottom">
-                      <Button
-                        isIconOnly
-                        color="primary"
-                        size="sm"
-                        onClick={() => onDelete(info.id)}
-                        aria-label="删除"
-                      >
-                        <Trash size={16} />
-                      </Button>
-                    </Tooltip>
-                  </div>
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-gray-700">{info.content}</p>
+                <div className="flex justify-end gap-2">
+                  {info.content.includes("申请加入队伍") && info.canAct === true && (
+                    <>
+                      <Tooltip content="批准" placement="bottom">
+                        <Button
+                          isIconOnly
+                          color="success"
+                          size="sm"
+                          onClick={() => handleAction("approve", info.content)}
+                          aria-label="批准"
+                        >
+                          <Check size={16} />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="拒绝" placement="bottom">
+                        <Button
+                          isIconOnly
+                          color="danger"
+                          size="sm"
+                          onClick={() => handleAction("reject", info.content)}
+                          aria-label="拒绝"
+                        >
+                          <X size={16} />
+                        </Button>
+                      </Tooltip>
+                    </>
+                  )}
+                  <Tooltip content="删除" placement="bottom">
+                    <Button
+                      isIconOnly
+                      color="primary"
+                      size="sm"
+                      onClick={() => onDelete(info.id)}
+                      aria-label="删除"
+                    >
+                      <Trash size={16} />
+                    </Button>
+                  </Tooltip>
                 </div>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        )}
-      </CardBody>
-    </Card>
+              </div>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      )}
+    </div>
   );
 }
 

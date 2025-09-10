@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { Modal, ModalContent } from "@heroui/react";
+import { Modal, ModalContent, ModalBody, ModalHeader, Button, Tooltip } from "@heroui/react";
 import SystemInfoDisplay from "@/components/SystemInfoDisplay";
 import toast from "react-hot-toast";
 import { API_BASE_URL } from "@/CONFIG";
 import { formatDate } from "@/lib/date";
+import { Trash2 } from 'lucide-react';
 
 type SystemInfo = {
   id: string;
@@ -222,18 +223,42 @@ export default function NotificationsModal({
   }, [isOpen, latestTimestamp]);
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} scrollBehavior="inside" size="lg">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      scrollBehavior="inside"
+      size="lg"
+      placement="center"
+    >
       <ModalContent>
         {() => (
-          <div className="p-2">
-            <SystemInfoDisplay
-              infoList={systemInfo}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              onDelete={handleDeleteNotification}
-              onClearAll={handleClearAllNotifications}
-            />
-          </div>
+          <>
+            <ModalHeader className="flex justify-between items-center pr-12">
+              <span className="text-xl font-bold">系统信息</span>
+              {systemInfo.length > 0 && (
+                <Tooltip content="清空所有通知" placement="bottom">
+                  <Button
+                    isIconOnly
+                    color="danger"
+                    size="sm"
+                    onClick={handleClearAllNotifications}
+                    aria-label="清空所有通知"
+                  >
+                    <Trash2 size={20} />
+                  </Button>
+                </Tooltip>
+              )}
+            </ModalHeader>
+            <ModalBody className="p-2 max-h-[80vh] overflow-y-auto">
+              <SystemInfoDisplay
+                infoList={systemInfo}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onDelete={handleDeleteNotification}
+                onClearAll={handleClearAllNotifications}
+              />
+            </ModalBody>
+          </>
         )}
       </ModalContent>
     </Modal>

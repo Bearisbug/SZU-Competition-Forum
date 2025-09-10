@@ -107,9 +107,11 @@ export const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
                 }
                 required
               >
-                <SelectItem key="Innovation">创新</SelectItem>
-                <SelectItem key="Research">研究</SelectItem>
-                <SelectItem key="Development">开发</SelectItem>
+                <SelectItem key="冲奖保奖">冲奖保奖</SelectItem>
+                <SelectItem key="创业落地">创业落地</SelectItem>
+                <SelectItem key="论文专利">论文专利</SelectItem>
+                <SelectItem key="保研加分">保研加分</SelectItem>
+                <SelectItem key="兴趣参与">兴趣参与</SelectItem>
               </Select>
               <Select
                 label="需求"
@@ -121,10 +123,15 @@ export const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
                 }
                 required
               >
-                <SelectItem key="Programming">编程</SelectItem>
-                <SelectItem key="Design">设计</SelectItem>
-                <SelectItem key="Management">管理</SelectItem>
-                <SelectItem key="Marketing">市场营销</SelectItem>
+                <SelectItem key="项目负责人">项目负责人</SelectItem>
+                <SelectItem key="技术开发">技术开发</SelectItem>
+                <SelectItem key="商业策划">商业策划</SelectItem>
+                <SelectItem key="美工">美工</SelectItem>
+                <SelectItem key="路演">路演</SelectItem>
+                <SelectItem key="数据分析">数据分析</SelectItem>
+                <SelectItem key="数论手">数论手</SelectItem>
+                <SelectItem key="图论手">图论手</SelectItem>
+                <SelectItem key="数据结构">数据结构</SelectItem>
               </Select>
               <Input
                 type="number"

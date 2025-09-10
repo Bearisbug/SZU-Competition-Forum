@@ -39,36 +39,33 @@ type Competition = {
   name: string;
 };
 
-type FilterCategory = "goals" | "requirements" | "roles";
+type FilterCategory = "goals" | "requirements";
 type FilterOption = { category: FilterCategory; label: string; value: string };
 const filterCategories = [
   {
-    title: "目标", // 原 "Goals"
+    title: "目标",
     category: "goals" as FilterCategory,
     options: [
-      { label: "创新", value: "innovation" }, // 原 "Innovation"
-      { label: "研究", value: "research" },   // 原 "Research"
-      { label: "开发", value: "development" }, // 原 "Development"
+      { label: "冲奖保奖", value: "冲奖保奖" },
+      { label: "创业落地", value: "创业落地" },
+      { label: "论文专利", value: "论文专利" },
+      { label: "保研加分", value: "保研加分" },
+      { label: "兴趣参与", value: "兴趣参与" },
     ],
   },
   {
-    title: "要求", // 原 "Requirements"
+    title: "需求",
     category: "requirements" as FilterCategory,
     options: [
-      { label: "编程", value: "programming" }, // 原 "Programming"
-      { label: "设计", value: "design" },      // 原 "Design"
-      { label: "管理", value: "management" },  // 原 "Management"
-      { label: "营销", value: "marketing" },   // 原 "Marketing"
-    ],
-  },
-  {
-    title: "角色", // 原 "Roles"
-    category: "roles" as FilterCategory,
-    options: [
-      { label: "开发者", value: "developer" },          // 原 "Developer"
-      { label: "设计师", value: "designer" },           // 原 "Designer"
-      { label: "项目经理", value: "project-manager" },   // 原 "Project Manager"
-      { label: "营销专家", value: "marketing-specialist" }, // 原 "Marketing Specialist"
+      { label: "项目负责人", value: "项目负责人" },
+      { label: "技术开发", value: "技术开发" },
+      { label: "商业策划", value: "商业策划" },
+      { label: "美工", value: "美工" },
+      { label: "路演", value: "路演" },
+      { label: "数据分析", value: "数据分析" },
+      { label: "数论手", value: "数论手" },
+      { label: "图论手", value: "图论手" },
+      { label: "数据结构", value: "数据结构" },
     ],
   },
 ];
@@ -216,10 +213,6 @@ const competitionMap = useMemo(() => {
                 return team.goals.includes(filter.label);
               case "requirements":
                 return team.requirements.includes(filter.label);
-              case "roles":
-                return teamMembers[team.id]?.some(
-                  (member) => member.role === filter.label
-                );
               default:
                 return true;
             }

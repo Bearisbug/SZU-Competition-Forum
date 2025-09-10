@@ -78,7 +78,6 @@ def get_article_detail_info(db: Session, article_id: int, current_user_id: int) 
         "content": db_article.content,
         "cover_image": db_article.cover_image,
         "category": db_article.category,
-        "post_type": db_article.post_type,
         "view_count": db_article.view_count,
         "created_at": db_article.created_at.isoformat() if db_article.created_at else None,
         "author": {
@@ -97,4 +96,25 @@ def get_all_articles_list(db: Session, current_user_id: int) -> list:
     获取全部文章列表
     """
     articles = get_all_articles(db)
-    return articles
+    results = []
+    for a in articles:
+        author = db.query(User).filter(User.id == a.author_id).first()
+        results.append({
+            "id": a.id,
+            "title": a.title,
+            "summary": a.summary,
+            "content": a.content,
+            "cover_image": a.cover_image,
+            "category": a.category,
+            "view_count": a.view_count,
+            "created_at": a.created_at.isoformat() if a.created_at else None,
+            "author": {
+                "id": a.author_id,
+                "name": author.name if author else None,
+                "grade": author.grade if author else None,
+                "major": author.major if author else None,
+                "avatar_url": author.avatar_url if author else None,
+                "role": author.role if author else None,
+            }
+        })
+    return results

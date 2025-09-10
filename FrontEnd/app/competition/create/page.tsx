@@ -63,7 +63,9 @@ function CreateCompetitionPageContent() {
       { key: "B类", label: "B类" },
       { key: "C类", label: "C类" },
     ],
-    "Ⅲ类": []
+    "Ⅲ类": [
+      { key: "无分类", label: "无分类" }
+    ]
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

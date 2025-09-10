@@ -16,7 +16,7 @@ function CreateArticlePageContent() {
   const [category, setCategory] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [coverPreview, setCoverPreview] = useState("");
-  const [postType, setPostType] = useState(""); // 新增帖子类型状态
+  // 移除帖子类型
 
   // 上传图片并更新预览和 URL
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +56,7 @@ function CreateArticlePageContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !summary || !content || !category || !coverImage  || !postType) {
+    if (!title || !summary || !content || !category || !coverImage) {
       toast.error("请填写所有必填字段！");
       return;
     }
@@ -73,7 +73,6 @@ function CreateArticlePageContent() {
           summary,
           content,
           category,
-          post_type:postType,
           cover_image: coverImage,
         }),
       });
@@ -122,19 +121,11 @@ function CreateArticlePageContent() {
           onChange={(e) => setCategory(e.target.value)}
           required
         >
-          <SelectItem key="technology">科技</SelectItem>
-          <SelectItem key="science">科学</SelectItem>
-          <SelectItem key="lifestyle">生活方式</SelectItem>
+          <SelectItem key="备赛攻略">备赛攻略</SelectItem>
+          <SelectItem key="技术指南">技术指南</SelectItem>
+          <SelectItem key="心得体会">心得体会</SelectItem>
+          <SelectItem key="组队招募">组队招募</SelectItem>
         </Select>
-        <Select  
-            label="帖子类型"  
-            value={postType}  
-            onChange={(e) => setPostType(e.target.value)}  
-            required  
-          >  
-            <SelectItem key="share">分享帖</SelectItem>  
-            <SelectItem key="discussion">交流帖</SelectItem>  
-          </Select>
         <div>
           <label className="block mb-2">封面图片</label>
           {coverPreview && (
