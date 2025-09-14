@@ -5,23 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react";
 import { Button } from "@heroui/react";
 import toast from "react-hot-toast";
-import { API_BASE_URL } from "@/CONFIG";
+import {TeamInfo} from "@/modules/competition/competition.model";
+import {fetchTeamsInfo} from "@/modules/competition/competition.api";
+import LoadingPage from "@/components/LoadingPage";
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
-
-interface MemberInfo {
-  name: string;
-  grade: string;
-  major: string;
-  email: string;
-}
-
-interface TeamInfo {
-  team_id: number;
-  team_name: string;
-  members: MemberInfo[];
-}
 
 export default function TeamsInfoPage() {
   const params = useParams();
@@ -29,36 +18,8 @@ export default function TeamsInfoPage() {
   const router = useRouter();
 
   const [teamsData, setTeamsData] = useState<TeamInfo[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchTeamsInfo = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/competitions/${competitionId}/registrations/teams-info`,
-          {
-            headers: {
-              Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || "无法获取队伍信息");
-        }
-        const data: TeamInfo[] = await response.json();
-        setTeamsData(data);
-      } catch (error) {
-        console.error(error);
-        toast.error(String(error));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTeamsInfo();
-  }, [competitionId]);
+  const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const handleExportCSV = () => {
     if (teamsData.length === 0) {
@@ -88,15 +49,51 @@ export default function TeamsInfoPage() {
     URL.revokeObjectURL(url);
   };
 
+  useEffect(() => {
+    const loadResources = async () => {
+      await Promise.all([
+        (async () => {
+          const result = await fetchTeamsInfo(competitionId as string);
+
+          if (result.ok) {
+            setTeamsData(result.value);
+          }
+          else {
+            toast.error("比赛队伍加载失败！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })()
+
+      ]);
+
+      setLoading(false);
+    }
+
+    void loadResources();
+  }, []);
+
+  if (loading) {
+    return (
+      <LoadingPage />
+    )
+  }
+
+  if (loadFailed) {
+    return (
+      <LoadingPage />
+    )
+  }
+
   return (
     <div className="flex-1 min-h-0 container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">报名队伍信息</h1>
         <div>
-          <Button onClick={() => router.back()} className="mr-2">
+          <Button onPress={() => router.back()} className="mr-2">
             返回
           </Button>
-          <Button onClick={handleExportCSV} isDisabled={teamsData.length === 0}>
+          <Button onPress={handleExportCSV} isDisabled={teamsData.length === 0}>
             导出 CSV
           </Button>
         </div>

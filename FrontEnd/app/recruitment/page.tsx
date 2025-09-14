@@ -451,7 +451,7 @@ function RecruitmentPageContent() {
                     <AppPagination
                       total={totalPages}
                       page={currentPage}
-                      onChange={handlePageChange}
+                      onChangeAction={handlePageChange}
                     />
                   </div>
                 )}

@@ -1,168 +1,102 @@
 "use client";
-import React, { useEffect, useCallback, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Link, Input } from "@heroui/react";
+import { Button, Link, Input } from "@heroui/react";
 import AppPagination from "@/components/Pagination";
-import { Trash2 } from "lucide-react";
-import { FilterSidebar, FilterOption } from "@/components/FilterSidebar";
-import { API_BASE_URL } from "@/CONFIG";
-import CompetitionCard, {
-  Competition,
-} from "@/components/Card/CompetitionCard";
+import CompetitionCard from "@/components/Card/CompetitionCard";
 import toast from "react-hot-toast";
-import { useAuthStore, withAuth } from "@/lib/auth-guards";
-
-type FilterCategory = "organizer";
+import { withAuth } from "@/lib/auth-guards";
+import {Competition, CompetitionLevel} from "@/modules/competition/competition.model";
+import {fetchMyRole} from "@/modules/global/global.api";
+import {deleteCompetition, fetchCompetitions, fetchCompetitionLevels} from "@/modules/competition/competition.api";
+import LoadingPage from "@/components/LoadingPage";
+import {FilterCategory, FilterNode} from "@/modules/global/global.model";
+import {getCompetitionFilterCategories} from "@/modules/competition/competition.service";
 
 function CompetitionPageContent() {
   const router = useRouter();
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [filteredCompetitions, setFilteredCompetitions] = useState<
-    Competition[]
-  >([]);
+  const [competitionLevels, setCompetitionLevels] = useState<CompetitionLevel[] | null>(null);
+  const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
+  const [currentFilterNodeRecord, setCurrentFilterNodeRecord] = useState<Record<string, FilterNode[]>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const competitionsPerPage = 6;
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  //const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const [role, setRole] = useState<string | null>(null);
   const isAdmin = (role || "").toLowerCase() === "admin";
   const [searchQuery, setSearchQuery] = useState("");
 
-  function parseJwt(token: string) {
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      return JSON.parse(jsonPayload);
-    } catch {
-      return null;
-    }
-  }
-
-  const fetchMyRole = useCallback(async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setRole(null);
-      return;
-    }
-    const payload = parseJwt(token);
-    const uid = payload?.sub;
-    if (!uid) {
-      setRole(null);
-      return;
-    }
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/user/info/${uid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const user = await res.json();
-        setRole(user?.role ?? null);
-      } else {
-        setRole(null);
-      }
-    } catch {
-      setRole(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchMyRole();
-  }, [fetchMyRole]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const filterCategories = [
-    {
-      title: "主办方",
-      category: "organizer" as FilterCategory,
-      options: [
-        { label: "科技公司", value: "Tech Corp" },
-        { label: "创新公司", value: "Innovation Inc" },
-        { label: "编程大师", value: "Code Masters" },
-        { label: "设计中心", value: "Design Hub" },
-      ],
-    },
-  ];
-
   // 帖子点击处理函数
-  const handlePostClick = (id: number, _type?: string) => {
+  const handlePostClick = (id: number) => {
     router.push(`/competition/${id}`);
     console.log(`点击了帖子: ${id}`);
   };
 
-  // 分类点击处理
-  const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
-    setSelectedSubCategory(null);
-  };
+  const handleFilterNodeClick = (categoryKey: string, depth: number, node: FilterNode) => {
+    setCurrentFilterNodeRecord(prev => {
+      const categoryNodes = prev[categoryKey] ?? [];
 
-  // 子分类点击处理
-  const handleSubCategoryClick = (subCategory: string) => {
-    setSelectedSubCategory(subCategory);
-  };
+      let newNodes: FilterNode[];
 
-  // 卡片数据
-  const fetchCompetitions = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/competitions/`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("无法加载竞赛信息！");
+      if (depth < categoryNodes.length) {
+        newNodes = categoryNodes.slice(0, depth + 1);
+        newNodes[newNodes.length - 1] = node;
+      }
+      else if (depth === categoryNodes.length) {
+        newNodes = [...categoryNodes, node];
+      }
+      else {
+        throw new Error("发生未知错误：查询深度与目录长度不匹配");
       }
 
-      const data = await response.json();
-      setCompetitions(data);
-      setFilteredCompetitions(data);
-    } catch (error) {
-      console.error("获取竞赛信息错误:", error);
-      toast.error("加载竞赛信息失败，请稍后重试！");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      console.log(newNodes);
 
-  useEffect(() => {
-    fetchCompetitions();
-  }, [fetchCompetitions]);
+      return {
+        ...prev,
+        [categoryKey]: newNodes,
+      };
+    });
+  };
 
   // 筛选卡片（按分类 + 关键字）
-  const filteredCards = competitions.filter((card) => {
-    if (selectedCategory && selectedSubCategory) {
-      return (
-        card.competition_level === selectedCategory &&
-        card.competition_subtype === selectedSubCategory
-      );
-    }
-    if (selectedCategory) {
-      return card.competition_level === selectedCategory;
-    }
-    if (selectedSubCategory) {
-      return card.competition_subtype === selectedSubCategory;
-    }
-    return true;
-  }).filter((card) =>
-    (searchQuery.trim() === "")
-      ? true
-      : String(card.name || "").toLowerCase().includes(searchQuery.toLowerCase().trim())
-  );
+  const filteredCards = ((): Competition[] => {
+    let filterResult = competitions;
+
+    Object.entries(currentFilterNodeRecord).forEach(([categoryKey, nodes]) => {
+      switch (categoryKey) {
+        case "competition_level":
+          for (let i = 0; i < nodes.length; i++) {
+            switch (i) {
+              case 0:
+                filterResult = filterResult.filter((competition) => {
+                  return competition.competition_level_key === nodes[i].key;
+                })
+                break;
+              case 1:
+                filterResult = filterResult.filter((competition) => {
+                  return competition.competition_subtype_key === nodes[i].key;
+                })
+                break;
+            }
+          }
+          break;
+      }
+    });
+
+    filterResult = filterResult.filter((card) =>
+      (searchQuery.trim() === "")
+        ? true
+        : String(card.name || "").toLowerCase().includes(searchQuery.toLowerCase().trim())
+    );
+
+    return filterResult;
+  })();
+
+  const getFilterNodeChainString = (nodes: FilterNode[]): string => {
+    return nodes.map((node) => node.label).join("-");
+  }
 
   // 分页计算
   const totalPages = Math.ceil(filteredCards.length / competitionsPerPage);
@@ -172,51 +106,97 @@ function CompetitionPageContent() {
 
   // 重置筛选
   const resetFilters = () => {
-    setSelectedCategory(null);
-    setSelectedSubCategory(null);
+    setCurrentFilterNodeRecord({});
   };
 
-  const handleFilterChange = (filters: FilterOption[]) => {
-    const newFilteredCompetitions = competitions.filter((competition) =>
-      filters.every(
-        (filter) =>
-          competition[filter.category as keyof Competition] === filter.value
-      )
-    );
-    setFilteredCompetitions(newFilteredCompetitions);
-    setCurrentPage(1);
-  };
+  const handleDeleteCompetition = async (id: number) => {
+    if (!isAdmin) return;
+    const token = localStorage.getItem("access_token") || "";
+    const ok = window.confirm("确认删除该比赛吗？此操作不可撤销。");
+    if (!ok) return;
 
-  const handleDeleteCompetition = useCallback(
-    async (id: number) => {
-      if (!isAdmin) return;
-      const token = localStorage.getItem("access_token") || "";
-      const ok = window.confirm("确认删除该比赛吗？此操作不可撤销。");
-      if (!ok) return;
+    const result = await deleteCompetition(id, token);
+    if (result.ok) {
+      // 本地移除
+      setCompetitions((prev) => prev.filter((c) => c.id !== id));
+      toast.success("比赛已删除");
+    }
+    else {
+      toast.error("删除比赛失败！");
+      console.log(result.value);
+    }
+  }
 
-      try {
-        const resp = await fetch(`${API_BASE_URL}/api/competitions/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  useEffect(() => {
+    const loadResources = async () => {
+      await Promise.all([
+        (async () => {
+          const result = await fetchCompetitions();
 
-        if (!resp.ok) {
-          const err = await resp.json().catch(() => ({}));
-          throw new Error(err?.detail || "删除失败");
-        }
+          if (result.ok) {
+            setCompetitions(result.value);
+          }
+          else {
+            toast.error("加载竞赛信息失败，请稍后重试！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })(),
+        (async () => {
+          const result = await fetchMyRole();
 
-        // 本地移除
-        setCompetitions((prev) => prev.filter((c) => c.id !== id));
-        setFilteredCompetitions((prev) => prev.filter((c) => c.id !== id));
-        toast.success("比赛已删除");
-      } catch (e: any) {
-        toast.error(e?.message || "删除失败");
-      }
-    },
-    [isAdmin]
-  );
+          if (result.ok) {
+            setRole(result.value);
+          }
+          else {
+            toast.error("加载用户角色信息失败！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })(),
+        (async () => {
+          const result = await getCompetitionFilterCategories();
+
+          if (result.ok) {
+            setFilterCategories(result.value);
+          }
+          else {
+            toast.error("加载分类信息失败！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })(),
+        (async () => {
+          const result = await fetchCompetitionLevels();
+
+          if (result.ok) {
+            setCompetitionLevels(result.value);
+          }
+          else {
+            toast.error("加载赛事等级失败！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })()
+      ]);
+
+      setLoading(false);
+    }
+
+    void loadResources();
+  }, []);
+
+  if (loading) {
+    return (
+      <LoadingPage />
+    )
+  }
+
+  if (loadFailed) {
+    return (
+      <LoadingPage />
+    )
+  }
 
   return (
     <div
@@ -248,174 +228,89 @@ function CompetitionPageContent() {
           {/* 左侧固定分类导航 */}
           <div className="w-80 flex-shrink-0">
             <div className="bg-gradient-to-b from-blue-800 to-blue-900 text-white rounded-2xl shadow-xl p-6 sticky top-20">
-              <div className="flex justify-between items-center mb-6 pb-3 border-b-2 border-white/30">
-                <h2 className="text-xl font-bold">竞赛分类</h2>
-                {(selectedCategory || selectedSubCategory) && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg transition-colors duration-200"
-                  >
-                    重置筛选
-                  </button>
-                )}
-              </div>
+              {
+                filterCategories.map((category, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between items-center mb-6 pb-3 border-b-2 border-white/30">
+                      <h2 className="text-xl font-bold">{category.title}</h2>
+                      {(Object.keys(currentFilterNodeRecord).length > 0) && (index == 0) && (
+                        <button
+                          onClick={resetFilters}
+                          className="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg transition-colors duration-200"
+                        >
+                          重置筛选
+                        </button>
+                      )}
+                    </div>
+                    {
+                      category.options.map((node0) => {
+                        return (
+                          <div key={node0.key} className="mb-6">
+                            <h3
+                              className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
+                                ((category.key in currentFilterNodeRecord)
+                                  && (currentFilterNodeRecord[category.key][0] == node0)
+                                  ? "text-pink-600"
+                                  : "text-blue-200")
+                              }`}
+                              onClick={() => handleFilterNodeClick(category.key, 0, node0)}
+                            >
+                              <div className="w-3 h-3 rounded-full bg-blue-300 mr-2"></div>
+                              {node0.label}
+                            </h3>
 
-              {/* I类竞赛 */}
-              <div className="mb-6">
-                <h3
-                  className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
-                    selectedCategory === "Ⅰ类"
-                      ? "text-pink-600"
-                      : "text-blue-200"
-                  }`}
-                  onClick={() => handleCategoryClick("Ⅰ类")}
-                >
-                  <div className="w-3 h-3 rounded-full bg-blue-300 mr-2"></div>I
-                  类竞赛
-                </h3>
-
-                {/* 只有选中时才显示子分类 */}
-                {selectedCategory === "Ⅰ类" && (
-                  <ul className="space-y-2 ml-5">
-                    <li>
-                      <button
-                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                          selectedSubCategory ===
-                          "中国互联网+大学生创新创业大赛"
-                            ? "bg-pink-600 text-white shadow-md"
-                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                        }`}
-                        onClick={() =>
-                          handleSubCategoryClick(
-                            "中国互联网+大学生创新创业大赛"
-                          )
-                        }
-                      >
-                        中国"互联网+"大学生创新创业大赛
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                          selectedSubCategory === "挑战杯课外学术科技作品竞赛"
-                            ? "bg-pink-600 text-white shadow-md"
-                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                        }`}
-                        onClick={() =>
-                          handleSubCategoryClick("挑战杯课外学术科技作品竞赛")
-                        }
-                      >
-                        "挑战杯"课外学术科技作品竞赛
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                          selectedSubCategory === "挑战杯大学生创业计划竞赛"
-                            ? "bg-pink-600 text-white shadow-md"
-                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                        }`}
-                        onClick={() =>
-                          handleSubCategoryClick("挑战杯大学生创业计划竞赛")
-                        }
-                      >
-                        "挑战杯"大学生创业计划竞赛
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </div>
-
-              {/* II类竞赛 */}
-              <div className="mb-6">
-                <h3
-                  className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
-                    selectedCategory === "Ⅱ类"
-                      ? "text-pink-600"
-                      : "text-blue-200"
-                  }`}
-                  onClick={() => handleCategoryClick("Ⅱ类")}
-                >
-                  <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
-                  II 类竞赛
-                </h3>
-
-                {selectedCategory === "Ⅱ类" && (
-                  <ul className="space-y-2 ml-5">
-                    <li>
-                      <button
-                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                          selectedSubCategory === "A类"
-                            ? "bg-pink-600 text-white shadow-md"
-                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                        }`}
-                        onClick={() => handleSubCategoryClick("A类")}
-                      >
-                        (A) 类
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                          selectedSubCategory === "B类"
-                            ? "bg-pink-600 text-white shadow-md"
-                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                        }`}
-                        onClick={() => handleSubCategoryClick("B类")}
-                      >
-                        (B) 类
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
-                          selectedSubCategory === "C类"
-                            ? "bg-pink-600 text-white shadow-md"
-                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white"
-                        }`}
-                        onClick={() => handleSubCategoryClick("C类")}
-                      >
-                        (C) 类
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </div>
-
-              {/* III类竞赛 */}
-              <div className="mb-4">
-                <h3
-                  className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
-                    selectedCategory === "Ⅲ类"
-                      ? "text-pink-600"
-                      : "text-blue-200"
-                  }`}
-                  onClick={() => handleCategoryClick("Ⅲ类")}
-                >
-                  <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
-                  III 类竞赛
-                </h3>
-
-                {selectedCategory === "Ⅲ类" && (
-                  <div className="ml-5 text-center py-3 text-blue-200 text-sm bg-blue-700/20 rounded-lg">
-                    <p>更多竞赛即将上线</p>
+                            {/* 只有选中时才显示子分类 */}
+                            {(node0.children)
+                              && (category.key in currentFilterNodeRecord)
+                              && (currentFilterNodeRecord[category.key].length > 0)
+                              && (currentFilterNodeRecord[category.key][0] == node0)
+                              && (
+                              <ul className="space-y-2 ml-5">
+                                {
+                                  node0.children.map((node1) => (
+                                    <li key={node1.key}>
+                                      <button
+                                        className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
+                                          ((category.key in currentFilterNodeRecord)
+                                            && (currentFilterNodeRecord[category.key][1] == node1)
+                                            ? "bg-pink-600 text-white shadow-md"
+                                            : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white")
+                                        }`}
+                                        onClick={() =>
+                                          handleFilterNodeClick(category.key, 1, node1)
+                                        }
+                                      >
+                                        {node1.label}
+                                      </button>
+                                    </li>
+                                  ))
+                                }
+                              </ul>
+                            )}
+                          </div>
+                        )
+                      })
+                    }
                   </div>
-                )}
-              </div>
+                ))
+              }
+
             </div>
           </div>
 
           {/* 右侧内容区 */}
           <div className="flex-1 min-w-0">
             {/* 筛选状态显示 */}
-            {(selectedCategory || selectedSubCategory) && (
+            {(Object.keys(currentFilterNodeRecord).length > 0) && (
               <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center justify-between">
                 <div className="flex items-center">
                   <span className="text-sm">当前筛选: </span>
                   <span className="font-semibold ml-2 px-2 py-1 bg-blue-100 rounded text-sm">
-                    {selectedSubCategory
-                      ? `${selectedCategory} - ${selectedSubCategory}`
-                      : selectedCategory}
+                    {
+                      Object.values(currentFilterNodeRecord)
+                        .map((nodes) => getFilterNodeChainString(nodes))
+                        .join("  ")
+                    }
                   </span>
                 </div>
                 <button
@@ -433,6 +328,7 @@ function CompetitionPageContent() {
                 <CompetitionCard
                   key={card.id}
                   competition={card}
+                  competitionLevels={competitionLevels}
                   isAdmin={isAdmin}
                   onClick={(id) => handlePostClick(id)}
                   onDelete={handleDeleteCompetition}
@@ -445,7 +341,7 @@ function CompetitionPageContent() {
                 <AppPagination
                   total={totalPages}
                   page={currentPage}
-                  onChange={(p) => {
+                  onChangeAction={(p) => {
                     setCurrentPage(p);
                     if (typeof window !== "undefined") {
                       window.scrollTo({ top: 0, behavior: "smooth" });

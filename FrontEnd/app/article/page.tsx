@@ -140,7 +140,7 @@ function ArticleListPageContent() {
 
   //获取当前周的起始时间（周一为第一天）
   const getWeekStartDate = () => {
-    const weekStartDate = new Date(Date.now());
+    const weekStartDate = new Date();
     if (weekStartDate.getDay() == 0) {
       weekStartDate.setDate(weekStartDate.getDate() - 6);
     } else {
@@ -153,7 +153,7 @@ function ArticleListPageContent() {
 
   //获取当前月的起始时间
   const getMonthStartDate = () => {
-    const monthStartDate = new Date(Date.now());
+    const monthStartDate = new Date();
     monthStartDate.setDate(1);
     monthStartDate.setHours(0, 0, 0, 0);
 
@@ -162,7 +162,7 @@ function ArticleListPageContent() {
 
   //获取当前年的起始时间
   const getYearStartDate = () => {
-    const yearStartDate = new Date(Date.now());
+    const yearStartDate = new Date();
     yearStartDate.setMonth(0, 1);
     yearStartDate.setHours(0, 0, 0, 0);
 
@@ -351,7 +351,7 @@ function ArticleListPageContent() {
             <AppPagination
               total={Math.ceil(filteredArticles.length / articlesPerPage)}
               page={currentPage}
-              onChange={setCurrentPage}
+              onChangeAction={setCurrentPage}
             />
           </div>
         )}

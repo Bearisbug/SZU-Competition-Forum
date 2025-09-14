@@ -1,117 +1,63 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { Input, Button, Select, SelectItem } from "@heroui/react"
+import {Input, Button, Select, SelectItem, DateInput} from "@heroui/react"
 import MyEditor from "@/components/IOEditor"
 import toast from "react-hot-toast"
-import { API_BASE_URL } from "@/CONFIG";
-import { formatDate } from "@/lib/date";
+import {parseCalendarDateTime, parseDate} from "@/lib/date";
+import {Competition, CompetitionLevel, CompetitionType} from "@/modules/competition/competition.model";
+import {CalendarDateTime} from "@internationalized/date";
+import {
+  fetchCompetition,
+  fetchCompetitionLevels,
+  updateCompetition
+} from "@/modules/competition/competition.api";
+import {uploadImage} from "@/modules/global/global.api";
+import LoadingPage from "@/components/LoadingPage";
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
 
-export type Competition = {
-  id: number
-  name: string
-  sign_up_start_time: string
-  sign_up_end_time: string
-  competition_start_time: string
-  competition_end_time: string
-  details: string
-  organizer: string
-  cover_image: string
-  created_at: string
-  updated_at: string
-}
-
 function EditCompetitionPage() {
   const router = useRouter()
-  const params = useParams() 
+  const params = useParams()
   const id = params.id  // Next.js 13 App Router: dynamic param is in params object
 
   const [name, setName] = useState("")
   const [details, setDetails] = useState("")
   const [organizer, setOrganizer] = useState("")
-  // 移除比赛类型
-  const [signUpStartTime, setSignUpStartTime] = useState("")
-  const [signUpEndTime, setSignUpEndTime] = useState("")
-  const [competitionStartTime, setCompetitionStartTime] = useState("")
-  const [competitionEndTime, setCompetitionEndTime] = useState("")
+  const [competitionLevelKey, setCompetitionLevelKey] = useState("");
+  const [competitionSubtypeKey, setCompetitionSubtypeKey] = useState("");
+  const [signUpStartTime, setSignUpStartTime] = useState<CalendarDateTime | null>(null)
+  const [signUpEndTime, setSignUpEndTime] = useState<CalendarDateTime | null>(null)
+  const [competitionStartTime, setCompetitionStartTime] = useState<CalendarDateTime | null>(null)
+  const [competitionEndTime, setCompetitionEndTime] = useState<CalendarDateTime | null>(null)
   const [coverImage, setCoverImage] = useState("")
   const [coverPreview, setCoverPreview] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  useEffect(() => {
-    const fetchCompetition = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/competitions/detail/${id}`, {
-          headers: {
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error("比赛加载失败！")
-        }
-
-        const competition: Competition = await response.json()
-        setName(competition.name)
-        setDetails(competition.details)
-        setOrganizer(competition.organizer)
-        // 移除比赛类型
-        // 仅保留到日，适配 date 输入
-        setSignUpStartTime(formatDate(competition.sign_up_start_time))
-        setSignUpEndTime(formatDate(competition.sign_up_end_time))
-        setCompetitionStartTime(formatDate(competition.competition_start_time))
-        setCompetitionEndTime(formatDate(competition.competition_end_time))
-        setCoverImage(competition.cover_image)
-        setCoverPreview(competition.cover_image)
-
-        toast.success("比赛信息加载成功！")
-      } catch (error) {
-        console.error("加载比赛错误:", error)
-        toast.error("比赛信息加载失败，请稍后重试！")
-      }
-    }
-
-    if (id) {
-      fetchCompetition()
-    }
-  }, [id])
+  const [competitionLevels, setCompetitionLevels] = useState<CompetitionLevel[]>([]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (!file) {
-      toast.error("请选择图片文件！")
-      return
+      toast.error("请选择图片文件！");
+      return;
     }
 
-    const formData = new FormData()
-    formData.append("image", file)
+    const result = await uploadImage(file);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/upload_image`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "上传图片失败！")
-      }
-
-      const result = await response.json()
-      const imageUrl = result.data.url
-
-      setCoverImage(imageUrl)
-      setCoverPreview(URL.createObjectURL(file))
-      toast.success("图片上传成功！")
-    } catch (error) {
-      console.error("图片上传错误:", error)
-      toast.error("上传图片失败，请重试！")
+    if (result.ok) {
+      const imageUrl = result.value;
+      setCoverImage(imageUrl);
+      setCoverPreview(URL.createObjectURL(file));
+      toast.success("图片上传成功！");
+    }
+    else {
+      toast.error("上传图片失败，请重试！");
+      console.log(result.value);
     }
   }
 
@@ -122,6 +68,8 @@ function EditCompetitionPage() {
       !name ||
       !details ||
       !organizer ||
+      !competitionLevelKey ||
+      !competitionSubtypeKey ||
       !signUpStartTime ||
       !signUpEndTime ||
       !competitionStartTime ||
@@ -131,36 +79,90 @@ function EditCompetitionPage() {
       return
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/competitions/update/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-        },
-        body: JSON.stringify({
-          name,
-          details,
-          organizer,
-          sign_up_start_time: signUpStartTime,
-          sign_up_end_time: signUpEndTime,
-          competition_start_time: competitionStartTime,
-          competition_end_time: competitionEndTime,
-          cover_image: coverImage,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "更新比赛失败！")
-      }
-
-      toast.success("比赛更新成功！")
-      router.push(`/competition/${id}`)
-    } catch (error) {
-      console.error("更新比赛错误:", error)
-      toast.error("更新比赛失败，请重试！")
+    const data: Competition = {
+      name,
+      details,
+      organizer,
+      competition_level_key: competitionLevelKey,
+      competition_subtype_key: competitionSubtypeKey,
+      sign_up_start_time: parseDate(signUpStartTime).toISOString(),
+      sign_up_end_time: parseDate(signUpEndTime).toISOString(),
+      competition_start_time: parseDate(competitionStartTime).toISOString(),
+      competition_end_time: parseDate(competitionEndTime).toISOString(),
+      cover_image: coverImage
     }
+
+    const result = await updateCompetition(id as string, data);
+    if (result.ok) {
+      toast.success("比赛更新成功！");
+      router.push(`/competition/${id}`);
+    }
+    else {
+      toast.error("更新比赛失败，请重试！");
+      console.log(result.value);
+    }
+  }
+
+  useEffect(() => {
+    const loadResources = async () => {
+      await Promise.all([
+        (async () => {
+          const result = await fetchCompetitionLevels();
+
+          if (result.ok) {
+            console.log(result.value);
+            setCompetitionLevels(result.value);
+          }
+          else {
+            toast.error("比赛等级加载失败！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })(),
+        (async () => {
+          const result = await fetchCompetition(id as string);
+
+          if (result.ok) {
+            const data = result.value;
+
+            setName(data.name)
+            setDetails(data.details)
+            setOrganizer(data.organizer)
+            setCompetitionLevelKey(data.competition_level_key)
+            setCompetitionSubtypeKey(data.competition_subtype_key)
+            setSignUpStartTime(parseCalendarDateTime(new Date(data.sign_up_start_time)))
+            setSignUpEndTime(parseCalendarDateTime(new Date(data.sign_up_end_time)))
+            setCompetitionStartTime(parseCalendarDateTime(new Date(data.competition_start_time)))
+            setCompetitionEndTime(parseCalendarDateTime(new Date(data.competition_end_time)))
+            setCoverImage(data.cover_image)
+            setCoverPreview(data.cover_image)
+
+            toast.success("比赛信息加载成功！")
+          }
+          else {
+            toast.error("比赛加载失败！");
+            console.log(result.value);
+            setLoadFailed(true);
+          }
+        })()
+      ]);
+
+      setLoading(false);
+    }
+
+    void loadResources();
+  }, []);
+
+  if (loading) {
+    return (
+      <LoadingPage />
+    )
+  }
+
+  if (loadFailed) {
+    return (
+      <LoadingPage />
+    )
   }
 
   return (
@@ -183,36 +185,70 @@ function EditCompetitionPage() {
 
         {/* 移除比赛类型选择 */}
 
-        <Input
+        <Select
+          label="比赛等级"
+          selectedKeys={[competitionLevelKey]}
+          onSelectionChange={(keys) => {
+            const value = Array.from(keys)[0] as string;
+            setCompetitionLevelKey(value);
+            setCompetitionSubtypeKey("")
+          }} required>
+          {
+            competitionLevels.map((level) => {
+              return (
+                <SelectItem key={level.key}>{level.translation}</SelectItem>
+              );
+            })
+          }
+        </Select>
+
+        {competitionLevelKey && (
+          <Select
+            label="比赛子类型"
+            selectedKeys={[competitionSubtypeKey]}
+            onSelectionChange={(keys) => {
+              const value = Array.from(keys)[0] as string;
+              setCompetitionSubtypeKey(value)
+            }}
+            required>
+            {
+              competitionLevels.find(level => (level.key == competitionLevelKey))!.subtypes.map((subtype) => {
+                return (<SelectItem key={subtype.key}>{subtype.translation}</SelectItem>)
+              })
+            }
+          </Select>
+        )}
+
+        <DateInput
           label="报名开始时间"
-          type="date"
           value={signUpStartTime}
-          onChange={(e) => setSignUpStartTime(e.target.value)}
-          required
+          onChange={setSignUpStartTime}
+          granularity={"second"}
+          isRequired
         />
 
-        <Input
+        <DateInput
           label="报名结束时间"
-          type="date"
           value={signUpEndTime}
-          onChange={(e) => setSignUpEndTime(e.target.value)}
-          required
+          onChange={setSignUpEndTime}
+          granularity={"second"}
+          isRequired
         />
 
-        <Input
+        <DateInput
           label="比赛开始时间"
-          type="date"
           value={competitionStartTime}
-          onChange={(e) => setCompetitionStartTime(e.target.value)}
-          required
+          onChange={setCompetitionStartTime}
+          granularity={"second"}
+          isRequired
         />
 
-        <Input
+        <DateInput
           label="比赛结束时间"
-          type="date"
           value={competitionEndTime}
-          onChange={(e) => setCompetitionEndTime(e.target.value)}
-          required
+          onChange={setCompetitionEndTime}
+          granularity={"second"}
+          isRequired
         />
 
         <div>
@@ -236,7 +272,7 @@ function EditCompetitionPage() {
         </div>
 
         <div className="flex justify-end space-x-4">
-          <Button color="danger" variant="light" onClick={() => router.push(`/competition/${id}`)}>
+          <Button color="danger" variant="light" onPress={() => router.push(`/competition/${id}`)}>
             取消
           </Button>
           <Button type="submit" color="primary">

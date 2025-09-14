@@ -19,7 +19,6 @@ import {
   Card,
   CardHeader,
   CardBody,
-  Spinner,
   Tooltip,
 } from "@heroui/react";
 import toast from "react-hot-toast";
@@ -27,34 +26,18 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { TeamSelectionModal } from "@/components/Modal/TeamSelectionModal";
 import { Trash2, Plus, ArrowLeft, Trophy, Calendar, Users, Info, Megaphone, PlusCircle } from 'lucide-react';
-import { API_BASE_URL } from "@/CONFIG";
 import { formatDate } from "@/lib/date";
+import {Competition, CompetitionAnnouncement} from "@/modules/competition/competition.model";
+import {
+  deleteAnnouncement,
+  fetchCompetition,
+  publishAnnouncement,
+  teamSelectCompetition
+} from "@/modules/competition/competition.api";
+import LoadingPage from "@/components/LoadingPage";
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
-
-export type Competition = {
-  id: number;
-  name: string;
-  sign_up_start_time: string;
-  sign_up_end_time: string;
-  competition_start_time: string;
-  competition_end_time: string;
-  details: string;
-  organizer: string;
-  cover_image: string;
-  created_at: string;
-  updated_at: string;
-  announcements?: CompetitionAnnouncement[];
-};
-
-type CompetitionAnnouncement = {
-  id: number;
-  competition_id: number;
-  title: string;
-  content: string;
-  published_at: string;
-};
 
 function CompetitionDetailPageContent() {
   const params = useParams();
@@ -71,31 +54,25 @@ function CompetitionDetailPageContent() {
   const [showTeamModal, setShowTeamModal] = useState(false);
 
   useEffect(() => {
-    const fetchCompetition = async () => {
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/competitions/detail/${id}`,
-          {
-        headers: {
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-        },
+    const loadResources = async () => {
+      await Promise.all([
+        (async () => {
+          const result = await fetchCompetition(id as string);
+
+          if (result.ok) {
+            setCompetition(result.value);
+            setAnnouncements(result.value.announcements || []);
           }
-        );
-        if (!response.ok) {
-          throw new Error("获取比赛详情失败");
-        }
-        const data: Competition = await response.json();
-        setCompetition(data);
-        setAnnouncements(data.announcements || []);
-      } catch (error) {
-        console.error(error);
-        toast.error("无法加载比赛详情");
-      }
-    };
-    if (id) {
-      fetchCompetition();
+          else {
+            toast.error("无法加载比赛详情！");
+            console.log(result.value);
+          }
+        })()
+      ]);
     }
-  }, [id]);
+
+    void loadResources();
+  }, []);
 
   const handlePublishAnnouncement = async () => {
     if (!isAdmin) {
@@ -107,57 +84,30 @@ function CompetitionDetailPageContent() {
       return;
     }
 
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/competitions/detail/${id}/announcements`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-          },
-          body: JSON.stringify({
-            title: newAnnouncementTitle,
-            content: newAnnouncementContent,
-          }),
-        }
-      );
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "公告发布失败");
-      }
-      const createdAnn: CompetitionAnnouncement = await res.json();
-
-      setAnnouncements((prev) => [createdAnn, ...prev]);
+    const result = await publishAnnouncement(id as string, newAnnouncementTitle, newAnnouncementContent);
+    if (result.ok) {
+      setAnnouncements((prev) => [result.value, ...prev]);
       setNewAnnouncementTitle("");
       setNewAnnouncementContent("");
       onOpenChange();
       toast.success("公告发布成功！");
-    } catch (error) {
-      console.error(error);
+    }
+    else {
       toast.error("公告发布失败，请检查权限或稍后重试");
+      console.error(result.value);
     }
   };
 
   const handleTeamSelect = async (teamId: number) => {
     setShowTeamModal(false);
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/competitions/${id}/register/${teamId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-          },
-        }
-      );
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.detail || "报名失败");
-      }
+
+    const result = await teamSelectCompetition(id as string, teamId);
+    if (result.ok) {
       toast.success(`已成功为队伍 #${teamId} 报名比赛！`);
-    } catch (error) {
-      toast.error(String(error));
+    }
+    else {
+      toast.error("报名失败！");
+      console.log(result.value);
     }
   };
 
@@ -166,36 +116,23 @@ function CompetitionDetailPageContent() {
       toast.error("只有管理员可以删除公告");
       return;
     }
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/competitions/detail/${id}/announcements/${announcementId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem("access_token") : ''}`,
-          },
-        }
-      );
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.detail || "公告删除失败");
-      }
+
+    const result = await deleteAnnouncement(id as string, announcementId);
+    if (result.ok) {
       setAnnouncements((prev) =>
         prev.filter((announcement) => announcement.id !== announcementId)
       );
       toast.success("公告删除成功");
-    } catch (error) {
-      console.error(error);
-      toast.error(error instanceof Error ? error.message : "公告删除失败");
+    }
+    else {
+      toast.error("公告删除失败！");
+      console.log(result.value);
     }
   };
 
   if (!competition) {
     return (
-      <div className="flex-1 min-h-0 flex justify-center items-center h-screen gap-4">
-        <Spinner size="lg" color="primary" />
-        <p>加载中...</p>
-      </div>
+      <LoadingPage />
     );
   }
 
@@ -212,7 +149,7 @@ function CompetitionDetailPageContent() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <Button onClick={() => router.push("/competition")} className="mb-4">
+        <Button onPress={() => router.push("/competition")} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
           返回列表
         </Button>
@@ -233,7 +170,7 @@ function CompetitionDetailPageContent() {
               </div>
               <div className="text-gray-400">报名开放</div>
             </div>
-            <Button color="primary" onClick={() => setShowTeamModal(true)}>
+            <Button color="primary" onPress={() => setShowTeamModal(true)}>
               <PlusCircle className="w-4 h-4" />
               立即报名
             </Button>
@@ -300,7 +237,7 @@ function CompetitionDetailPageContent() {
                           isIconOnly
                           color="primary"
                           size="sm"
-                          onClick={onOpen}
+                          onPress={onOpen}
                           aria-label="发布新公告"
                         >
                           <Plus size={20} />
@@ -332,7 +269,7 @@ function CompetitionDetailPageContent() {
                                     isIconOnly
                                     color="default"
                                     size="sm"
-                                    onClick={() => handleDeleteAnnouncement(announcement.id)}
+                                    onPress={() => handleDeleteAnnouncement(announcement.id)}
                                     aria-label="删除公告"
                                   >
                                     <Trash2 size={16} />

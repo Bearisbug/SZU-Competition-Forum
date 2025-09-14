@@ -6,21 +6,21 @@ import { Pagination as HeroPagination } from "@heroui/react";
 type AppPaginationProps = {
   total: number;
   page: number;
-  onChange: (page: number) => void;
+  onChangeAction: (page: number) => void;
   initialPage?: number;
 };
 
 export default function AppPagination({
   total,
   page,
-  onChange,
+  onChangeAction,
   initialPage = 1,
 }: AppPaginationProps) {
   return (
     <HeroPagination
       total={total}
       page={page}
-      onChange={onChange}
+      onChange={onChangeAction}
       initialPage={initialPage}
       showControls
     />

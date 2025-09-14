@@ -282,7 +282,7 @@ function IONavBar() {
           </nav>
         </div>
       )}
-      <NotificationsModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <NotificationsModal isOpen={isOpen} onOpenChangeAction={onOpenChange} />
     </>
   );
 }

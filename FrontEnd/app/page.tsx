@@ -1,11 +1,68 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '@/lib/auth-guards';
-import { Play, CheckCircle, Users, Trophy, Star, ArrowRight } from 'lucide-react';
 import CompetitionCard from '@/components/Card/CompetitionCard';
+import toast from "react-hot-toast";
+import {Competition, CompetitionLevel} from "@/modules/competition/competition.model";
 
 export default function HomePage() {
+  //临时处理，我认为不应当如此，尤其是在level和subtype都已经后端化的情况
+  //但是目前要求competition相关后端请求仅在登录时获得token才可发起，故姑且将这一套静态数据放在这里
+  const competitions: Competition[] = [
+    {
+      id: 1,
+      name: '全国大学生数学建模竞赛',
+      sign_up_start_time: new Date('2024-08-01').toISOString(),
+      sign_up_end_time: new Date('2024-09-01').toISOString(),
+      competition_start_time: new Date('2024-09-10').toISOString(),
+      competition_end_time: new Date('2024-09-13').toISOString(),
+      details: '全国大学生数学建模竞赛是面向全国大学生的群众性科技活动，旨在激励学生学习数学的积极性。',
+      organizer: '深圳大学',
+      competition_level: 'I类竞赛',
+      competition_level_key: "",
+      competition_subtype: '数学建模',
+      competition_subtype_key: "",
+      cover_image: '/hero-background.png',
+      created_at: new Date('2024-01-01').toISOString(),
+      updated_at: new Date('2024-01-01').toISOString(),
+    },
+    {
+      id: 2,
+      name: 'ACM程序设计竞赛',
+      sign_up_start_time: new Date('2024-09-01').toISOString(),
+      sign_up_end_time: new Date('2024-10-01').toISOString(),
+      competition_start_time: new Date('2024-10-15').toISOString(),
+      competition_end_time: new Date('2024-10-15').toISOString(),
+      details: 'ACM国际大学生程序设计竞赛是世界上公认的规模最大、水平最高的国际大学生程序设计竞赛。',
+      organizer: '深圳大学',
+      competition_level: 'I类竞赛',
+      competition_level_key: "",
+      competition_subtype: '程序设计',
+      competition_subtype_key: "",
+      cover_image: '/function-demo.png',
+      created_at: new Date('2024-01-01').toISOString(),
+      updated_at: new Date('2024-01-01').toISOString()
+    },
+    {
+      id: 3,
+      name: '互联网+创新创业大赛',
+      sign_up_start_time: new Date('2024-03-01').toISOString(),
+      sign_up_end_time: new Date('2024-05-01').toISOString(),
+      competition_start_time: new Date('2024-06-01').toISOString(),
+      competition_end_time: new Date('2024-08-01').toISOString(),
+      details: '中国国际"互联网+"大学生创新创业大赛旨在深化高等教育综合改革，激发大学生的创造力。',
+      organizer: '深圳大学',
+      competition_level: 'II类竞赛',
+      competition_level_key: "",
+      competition_subtype: '创业实践',
+      competition_subtype_key: "",
+      cover_image: '/big-data-institute.png',
+      created_at: new Date('2024-01-01').toISOString(),
+      updated_at: new Date('2024-01-01').toISOString()
+    }
+  ];
+
   const [currentSection, setCurrentSection] = useState(0);
+  const [competitionLevels, setCompetitionLevels] = useState<CompetitionLevel[] | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const totalSections = 5;
 
@@ -56,31 +113,10 @@ export default function HomePage() {
   }, [currentSection, isScrolling, totalSections]);
 
   // 从 AuthStore 获取登录状态
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // 计算内容的样式
-  const contentStyle = {
-    height: "100vh",
-    width: "100%",
-    overflow: "hidden"
-  } as React.CSSProperties;
+  //const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   return (
     <>
-      <style jsx>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
       <div className="relative flex-1 min-h-0 overflow-hidden">
       <div 
         className="absolute inset-0 transition-transform duration-1000 ease-in-out"
@@ -224,58 +260,12 @@ export default function HomePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-            {[
-              {
-                id: 1,
-                name: '全国大学生数学建模竞赛',
-                sign_up_start_time: new Date('2024-08-01'),
-                sign_up_end_time: new Date('2024-09-01'),
-                competition_start_time: new Date('2024-09-10'),
-                competition_end_time: new Date('2024-09-13'),
-                details: '全国大学生数学建模竞赛是面向全国大学生的群众性科技活动，旨在激励学生学习数学的积极性。',
-                organizer: '深圳大学',
-                competition_level: 'I类竞赛',
-                competition_subtype: '数学建模',
-                cover_image: '/hero-background.png',
-                created_at: new Date('2024-01-01'),
-                updated_at: new Date('2024-01-01')
-              },
-              {
-                id: 2,
-                name: 'ACM程序设计竞赛',
-                sign_up_start_time: new Date('2024-09-01'),
-                sign_up_end_time: new Date('2024-10-01'),
-                competition_start_time: new Date('2024-10-15'),
-                competition_end_time: new Date('2024-10-15'),
-                details: 'ACM国际大学生程序设计竞赛是世界上公认的规模最大、水平最高的国际大学生程序设计竞赛。',
-                organizer: '深圳大学',
-                competition_level: 'I类竞赛',
-                competition_subtype: '程序设计',
-                cover_image: '/function-demo.png',
-                created_at: new Date('2024-01-01'),
-                updated_at: new Date('2024-01-01')
-              },
-              {
-                id: 3,
-                name: '互联网+创新创业大赛',
-                sign_up_start_time: new Date('2024-03-01'),
-                sign_up_end_time: new Date('2024-05-01'),
-                competition_start_time: new Date('2024-06-01'),
-                competition_end_time: new Date('2024-08-01'),
-                details: '中国国际"互联网+"大学生创新创业大赛旨在深化高等教育综合改革，激发大学生的创造力。',
-                organizer: '深圳大学',
-                competition_level: 'II类竞赛',
-                competition_subtype: '创业实践',
-                cover_image: '/big-data-institute.png',
-                created_at: new Date('2024-01-01'),
-                updated_at: new Date('2024-01-01')
-              }
-            ].map((competition) => (
+            {competitions.map((competition) => (
               <CompetitionCard
                 key={competition.id}
                 competition={competition}
-                onClick={(id) => console.log('点击竞赛:', id)}
-              />
+                competitionLevels={competitionLevels}
+                onClick={(id) => console.log('点击竞赛:', id)} />
             ))}
           </div>
           

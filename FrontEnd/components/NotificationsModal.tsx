@@ -18,10 +18,10 @@ type SystemInfo = {
 
 export default function NotificationsModal({
   isOpen,
-  onOpenChange,
+  onOpenChangeAction,
 }: {
   isOpen: boolean;
-  onOpenChange: (open?: boolean) => void;
+  onOpenChangeAction: (open?: boolean) => void;
 }) {
   const [systemInfo, setSystemInfo] = useState<SystemInfo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -225,7 +225,7 @@ export default function NotificationsModal({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      onOpenChange={onOpenChangeAction}
       scrollBehavior="inside"
       size="lg"
       placement="center"

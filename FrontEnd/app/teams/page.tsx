@@ -510,7 +510,7 @@ const competitionMap = useMemo(() => {
             <AppPagination
               total={Math.ceil(filteredTeams.length / teamsPerPage)}
               page={currentPage}
-              onChange={setCurrentPage}
+              onChangeAction={setCurrentPage}
             />
           </div>
         )}
