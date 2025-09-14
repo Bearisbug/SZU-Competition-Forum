@@ -138,6 +138,37 @@ function ArticleListPageContent() {
     fetchArticles();
   }, [fetchArticles]);
 
+  //获取当前周的起始时间（周一为第一天）
+  const getWeekStartDate = () => {
+    const weekStartDate = new Date();
+    if (weekStartDate.getDay() == 0) {
+      weekStartDate.setDate(weekStartDate.getDate() - 6);
+    } else {
+      weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() - 1))
+    }
+    weekStartDate.setHours(0, 0, 0, 0);
+
+    return weekStartDate;
+  }
+
+  //获取当前月的起始时间
+  const getMonthStartDate = () => {
+    const monthStartDate = new Date();
+    monthStartDate.setDate(1);
+    monthStartDate.setHours(0, 0, 0, 0);
+
+    return monthStartDate;
+  }
+
+  //获取当前年的起始时间
+  const getYearStartDate = () => {
+    const yearStartDate = new Date();
+    yearStartDate.setMonth(0, 1);
+    yearStartDate.setHours(0, 0, 0, 0);
+
+    return yearStartDate;
+  }
+
   const handleFilterChange = useCallback(
     (newFilters: FilterOption[], dateRange: string) => {
       setFilters(newFilters);
@@ -152,8 +183,18 @@ function ArticleListPageContent() {
               case "category":
                 return article.category.toLowerCase() === filter.value;
               case "date":
-                // TODO: 实现日期过滤逻辑
-                return true;
+                const articleDate = new Date(article.created_at);
+
+                switch (filter.value) {
+                  case "this-week":
+                    return articleDate >= getWeekStartDate();
+                  case "this-month":
+                    return articleDate >= getMonthStartDate();
+                  case "this-year":
+                    return articleDate >= getYearStartDate();
+                }
+
+                throw new Error("错误的日期筛选值！");
               default:
                 return true;
             }
@@ -196,7 +237,7 @@ function ArticleListPageContent() {
   if (filteredArticles.length === 0) {
     return (
       <div
-        className="container mx-auto p-4 flex"
+        className="flex-1 min-h-0 container mx-auto p-4 flex"
         style={{
           marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px",
         }}
@@ -238,8 +279,7 @@ function ArticleListPageContent() {
 
   return (
     <div
-      className="container mx-auto p-4 flex"
-      style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+      className="flex-1 min-h-0 container mx-auto p-4 flex"
     >
       <FilterSidebar
         //@ts-ignore
@@ -311,7 +351,7 @@ function ArticleListPageContent() {
             <AppPagination
               total={Math.ceil(filteredArticles.length / articlesPerPage)}
               page={currentPage}
-              onChange={setCurrentPage}
+              onChangeAction={setCurrentPage}
             />
           </div>
         )}

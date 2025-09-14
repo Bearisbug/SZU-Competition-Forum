@@ -3,11 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-html {
-  overflow-y: scroll;
-}
-
 *,
 *::before,
 *::after {

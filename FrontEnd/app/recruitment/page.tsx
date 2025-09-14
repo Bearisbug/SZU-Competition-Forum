@@ -214,8 +214,7 @@ function RecruitmentPageContent() {
   if (!mounted) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        style={{ paddingTop: "60px" }}
+        className="flex-1 min-h-0 bg-gray-50 flex items-center justify-center"
       >
         <Spinner size="lg" />
       </div>
@@ -226,8 +225,7 @@ function RecruitmentPageContent() {
   if (!isLoggedIn) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        style={{ paddingTop: "60px" }}
+        className="flex-1 min-h-0 bg-gray-50 flex items-center justify-center"
       >
         <div className="text-center">
           <div className="text-6xl mb-4">🔒</div>
@@ -245,8 +243,7 @@ function RecruitmentPageContent() {
   if (loading) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        style={{ paddingTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+        className="flex-1 min-h-0 bg-gray-50 flex items-center justify-center"
       >
         <Spinner size="lg" />
       </div>
@@ -255,8 +252,7 @@ function RecruitmentPageContent() {
 
   return (
     <div 
-      className="min-h-screen bg-gray-50"
-      style={{ paddingTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}
+      className="flex-1 min-h-0 bg-gray-50"
     >
       <div className="max-w-7xl mx-auto p-4">
         {/* 顶部标题栏 */}
@@ -364,7 +360,7 @@ function RecruitmentPageContent() {
           </div>
 
           {/* 右侧内容区 */}
-          <div className="flex-1 min-w-0 min-h-screen">
+          <div className="flex-1 min-w-0">
             {/* 筛选状态显示 */}
             {(selectedInstitution || searchQuery.trim()) && (
               <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center justify-between">
@@ -391,7 +387,7 @@ function RecruitmentPageContent() {
             )}
 
             {filteredRecruitments.length === 0 ? (
-              <div className="text-center py-16 min-h-96">
+              <div className="text-center py-16">
                 <div className="text-6xl mb-4">📋</div>
                 <div className="text-xl text-gray-500 mb-4">
                   {selectedInstitution ? `${selectedInstitution}暂无招聘信息` : '暂无招聘信息'}
@@ -435,7 +431,7 @@ function RecruitmentPageContent() {
                 </div>
 
                 {/* 招聘信息卡片网格 - 瀑布流布局 */}
-                <div className="columns-1 lg:columns-2 gap-6 space-y-6 min-h-[600px]">
+                <div className="columns-1 lg:columns-2 gap-6 space-y-6">
                   {currentRecruitments.map((recruitment) => (
                     <div key={recruitment.id} className="break-inside-avoid">
                       <RecruitmentCard
@@ -455,7 +451,7 @@ function RecruitmentPageContent() {
                     <AppPagination
                       total={totalPages}
                       page={currentPage}
-                      onChange={handlePageChange}
+                      onChangeAction={handlePageChange}
                     />
                   </div>
                 )}

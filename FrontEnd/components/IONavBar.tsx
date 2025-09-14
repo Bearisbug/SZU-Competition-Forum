@@ -15,7 +15,7 @@ import { useAuthStore } from "@/lib/auth-guards";
 import { API_BASE_URL } from "@/CONFIG";
 import NotificationsModal from "@/components/NotificationsModal";
 
-export default function IONavBar() {
+function IONavBar() {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -282,7 +282,13 @@ export default function IONavBar() {
           </nav>
         </div>
       )}
-      <NotificationsModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <NotificationsModal isOpen={isOpen} onOpenChangeAction={onOpenChange} />
     </>
   );
 }
+
+namespace IONavBar {
+  export let headerHeight: number;
+}
+
+export default IONavBar;

@@ -5,7 +5,7 @@ app/api/competition_endpoints.py
 """
 
 from typing import List, Dict
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -19,7 +19,7 @@ from app.services.competition_service import (
     create_competition_announcement,
     delete_competition_announcement,
     register_competition_service,
-    get_competition_teams_info
+    get_competition_teams_info, list_competition_levels
 )
 from app.services.auth_service import get_current_user
 from app.schemas.competition import (
@@ -41,7 +41,10 @@ def create_competition_endpoint(
     """
     创建比赛：仅管理员。保持前端 JSON 返回样式不变（由 Pydantic response_model 保证）。
     """
-    return create_competition(db, competition_in, current_user.role)
+    competition = create_competition(db, competition_in, current_user.role)
+    competition.competition_level = competition.competition_level_ref.zh_CN
+    competition.competition_subtype = competition.competition_subtype_ref.zh_CN
+    return competition
 
 
 @router.get("/", response_model=List[Competition])
@@ -52,7 +55,33 @@ def list_competitions_endpoint(
     """
     列出全部比赛
     """
-    return list_competitions(db)
+    model_competitions = list_competitions(db)
+    schema_competitions = list()
+    for model_competition in model_competitions:
+        add_schema_competition = model_competition
+        add_schema_competition.competition_level = model_competition.competition_level_ref.zh_CN
+        add_schema_competition.competition_subtype = model_competition.competition_subtype_ref.zh_CN
+        schema_competitions.append(add_schema_competition)
+
+    return schema_competitions
+
+@router.get("/levels")
+def list_competition_levels_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    model_levels = list_competition_levels(db)
+    schema_levels = list()
+
+    for model_level in model_levels:
+        add_schema_level = model_level
+        add_schema_level.translation = model_level.zh_CN
+        for add_schema_subtype in add_schema_level.subtypes:
+            add_schema_subtype.translation = add_schema_subtype.zh_CN
+
+        schema_levels.append(add_schema_level)
+
+    return schema_levels
 
 @router.get("/detail/{competition_id}")
 def get_competition_detail_endpoint(
@@ -65,6 +94,8 @@ def get_competition_detail_endpoint(
     注：沿用原先的 __dict__ 组合返回，避免破坏前端字段名/结构。
     """
     competition = get_competition_detail_info(db, competition_id)
+    competition.competition_level = competition.competition_level_ref.zh_CN
+    competition.competition_subtype = competition.competition_subtype_ref.zh_CN
     return {
         **competition.__dict__,
         "announcements": competition.announcements
@@ -80,7 +111,10 @@ def update_competition_endpoint(
     """
     更新比赛：仅管理员
     """
-    return update_competition_info(db, competition_id, competition_in, current_user.role)
+    competition = update_competition_info(db, competition_id, competition_in, current_user.role)
+    competition.competition_level = competition.competition_level_ref.zh_CN
+    competition.competition_subtype = competition.competition_subtype_ref.zh_CN
+    return competition
 
 @router.delete("/{competition_id}")
 def delete_competition_endpoint(

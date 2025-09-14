@@ -154,7 +154,7 @@ export default function EditRecruitmentPage() {
   if (!mounted || !authChecked || (canEditRecruitment && initialLoading)) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        className="flex-1 min-h-0 bg-gray-50 flex items-center justify-center"
         style={{ paddingTop: mounted ? "114px" : "60px" }}
       >
         <Spinner size="lg" />
@@ -166,7 +166,7 @@ export default function EditRecruitmentPage() {
   if (!canEditRecruitment) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        className="flex-1 min-h-0 bg-gray-50 flex items-center justify-center"
         style={{ paddingTop: "114px" }}
       >
         <div className="text-center">
@@ -283,8 +283,7 @@ export default function EditRecruitmentPage() {
 
   return (
     <div 
-      className="min-h-screen bg-gray-50"
-      style={{ paddingTop: mounted ? "114px" : "60px" }}
+      className="flex-1 min-h-0 bg-gray-50"
     >
       <div className="max-w-4xl mx-auto p-4">
         {/* 顶部导航 */}

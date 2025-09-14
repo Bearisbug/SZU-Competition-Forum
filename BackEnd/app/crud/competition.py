@@ -4,10 +4,10 @@ app/crud/competition.py
 比赛相关最基本的数据库操作。
 """
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from typing import List
-from app.db.models import Competition, CompetitionRegistration, Team
+from app.db.models import Competition, CompetitionRegistration, Team, CompetitionLevel
 from app.schemas.competition import CompetitionCreate, CompetitionUpdate
 
 def create_competition(db: Session, competition_in: CompetitionCreate) -> Competition:
@@ -41,7 +41,13 @@ def delete_competition(db: Session, competition_id: int):
     db.commit()
 
 def list_all_competitions(db: Session) -> List[Competition]:
-    return db.query(Competition).all()
+    return (db.query(Competition)
+            .options(joinedload(Competition.competition_level_ref))
+            .options(joinedload(Competition.competition_subtype_ref))
+            .all())
+
+def list_all_competition_levels(db: Session) -> List[CompetitionLevel]:
+    return db.query(CompetitionLevel).all()
 
 def register_competition(db: Session, competition_id: int, team_id: int) -> CompetitionRegistration:
     registration = CompetitionRegistration(

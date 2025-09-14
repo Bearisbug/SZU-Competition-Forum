@@ -1,46 +1,51 @@
-import React from 'react';
+'use client'
+
+import React, {useEffect, useState} from 'react';
 import { Trash2, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/date";
-
-export type Competition = {
-  id: number;
-  name: string;
-  sign_up_start_time: Date;
-  sign_up_end_time: Date;
-  competition_start_time: Date;
-  competition_end_time: Date;
-  details: string;
-  organizer: string;
-  competition_level: string;
-  competition_subtype: string;
-  cover_image: string;
-  created_at: Date;
-  updated_at: Date;
-};
+import {Competition, CompetitionLevel} from "@/modules/competition/competition.model";
 
 interface CompetitionCardProps {
   competition: Competition;
+  competitionLevels: CompetitionLevel[] | null;
   isAdmin?: boolean;
   onDelete?: (id: number) => void;
   onClick?: (id: number) => void;
 }
 
-const CompetitionCard: React.FC<CompetitionCardProps> = ({ 
-  competition, 
-  isAdmin = false, 
+const competitionLevelColors = [
+  "#2563eb",
+  "#16a34a",
+  "#9333ea"
+];
+
+const CompetitionCard: React.FC<CompetitionCardProps> = ({
+  competition,
+  competitionLevels,
+  isAdmin = false,
   onDelete, 
-  onClick 
+  onClick
 }) => {
   if (!competition) return null;
 
+  const [competitionLevelColorDict, setCompetitionLevelColorDict] = useState<Record<string, string> | null>(null);
+  useEffect(() => {
+    if (competitionLevels) {
+      const dict: Record<string, string> = {};
+      competitionLevels.forEach((level, index) => {
+        dict[level.key] = competitionLevelColors[index % competitionLevelColors.length];
+      });
+      setCompetitionLevelColorDict(dict);
+    }
+  }, [competitionLevels])
 
   const handleClick = () => {
-    if (onClick) onClick(competition.id);
+    if (onClick) onClick(competition.id!);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete) onDelete(competition.id);
+    if (onDelete) onDelete(competition.id!);
   };
 
   return (
@@ -57,17 +62,13 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
         />
         <div className="absolute bottom-4 left-4 z-20">
           <span
-            className={`text-white text-xs px-3 py-1 rounded-full font-medium ${
-              competition.competition_level.includes("I类")
-                ? "bg-blue-600"
-                : competition.competition_level.includes("II类")
-                ? "bg-green-600"
-                : "bg-purple-600"
-            }`}
+            className={`text-white text-xs px-3 py-1 rounded-full font-medium`
+          }
+            style={{
+              backgroundColor: competitionLevelColorDict ? competitionLevelColorDict[competition.competition_level_key] : competitionLevelColors[0]
+            }}
           >
-            {competition.competition_level}
-            {competition.competition_level &&
-              ` - ${competition.competition_subtype}`}
+            {`${competition.competition_level} - ${competition.competition_subtype}`}
           </span>
         </div>
       </div>
@@ -83,7 +84,7 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
         />
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>
-            {formatDate(competition.created_at as any)}
+            {formatDate(competition.created_at)}
           </span>
         </div>
       </div>

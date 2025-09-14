@@ -4,6 +4,22 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, List
 
+# ================== 比赛类型、等级、子类型相关模型 ===================
+class CompetitionSubtype(BaseModel):
+    key: str
+    translation: str
+
+    class Config:
+        orm_mode = True
+
+class CompetitionLevel(BaseModel):
+    key: str
+    translation: str
+    subtypes: List[CompetitionSubtype]
+
+    class Config:
+        orm_mode = True
+
 # ================== 比赛相关模型 ===================
 class CompetitionBase(BaseModel):
     name: str
@@ -13,8 +29,8 @@ class CompetitionBase(BaseModel):
     competition_end_time: datetime
     details: Optional[str] = None
     organizer: Optional[str] = None
-    competition_level: Optional[str] = None
-    competition_subtype: Optional[str] = None
+    competition_level_key: Optional[str] = None
+    competition_subtype_key: Optional[str] = None
     cover_image: Optional[str] = None
 
 class CompetitionCreate(CompetitionBase):
@@ -31,8 +47,8 @@ class CompetitionUpdate(BaseModel):
     competition_end_time: Optional[datetime] = None
     details: Optional[str] = None
     organizer: Optional[str] = None
-    competition_level: Optional[str] = None
-    competition_subtype: Optional[str] = None
+    competition_level_key: Optional[str] = None
+    competition_subtype_key: Optional[str] = None
     cover_image: Optional[str] = None
 
 class CompetitionInDBBase(CompetitionBase):
@@ -47,7 +63,8 @@ class Competition(CompetitionInDBBase):
     """
     返回给前端的比赛信息
     """
-    pass
+    competition_level: Optional[str]
+    competition_subtype: Optional[str]
 
 
 # ================== 比赛公告相关模型 ===================

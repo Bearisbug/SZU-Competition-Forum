@@ -100,7 +100,7 @@ function CreateArticlePageContent() {
   }, []);
   
   return (
-    <div className="container mx-auto p-4 w-3/5" style={{ marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px" }}>
+    <div className="flex-1 min-h-0 container mx-auto p-4 w-3/5">
       <h1 className="text-2xl font-bold mb-4">创建新文章</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
