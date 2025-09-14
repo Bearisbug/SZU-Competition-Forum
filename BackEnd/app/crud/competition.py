@@ -7,7 +7,7 @@ app/crud/competition.py
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from typing import List
-from app.db.models import Competition, CompetitionRegistration, Team, CompetitionLevel
+from app.db.models import Competition, CompetitionRegistration, Team
 from app.schemas.competition import CompetitionCreate, CompetitionUpdate
 
 def create_competition(db: Session, competition_in: CompetitionCreate) -> Competition:
@@ -18,7 +18,9 @@ def create_competition(db: Session, competition_in: CompetitionCreate) -> Compet
     return competition
 
 def get_competition_by_id(db: Session, competition_id: int) -> Competition:
-    competition = db.query(Competition).filter(Competition.id == competition_id).first()
+    competition = (db.query(Competition)
+                    .options(joinedload(Competition.announcements))
+                    .filter(Competition.id == competition_id).first())
     if not competition:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -41,13 +43,7 @@ def delete_competition(db: Session, competition_id: int):
     db.commit()
 
 def list_all_competitions(db: Session) -> List[Competition]:
-    return (db.query(Competition)
-            .options(joinedload(Competition.competition_level_ref))
-            .options(joinedload(Competition.competition_subtype_ref))
-            .all())
-
-def list_all_competition_levels(db: Session) -> List[CompetitionLevel]:
-    return db.query(CompetitionLevel).all()
+    return (db.query(Competition).all())
 
 def register_competition(db: Session, competition_id: int, team_id: int) -> CompetitionRegistration:
     registration = CompetitionRegistration(

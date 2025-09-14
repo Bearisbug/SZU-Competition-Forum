@@ -16,7 +16,7 @@ from typing import List, Dict
 
 from app.db.models import (
     Competition, CompetitionRegistration,
-    TeamMember, User, CompetitionLevel
+    TeamMember, User
 )
 from app.crud.competition import (
     create_competition as crud_create_competition,
@@ -25,7 +25,7 @@ from app.crud.competition import (
     update_competition as crud_update_competition,
     delete_competition,
     register_competition,
-    get_competition_teams, list_all_competition_levels
+    get_competition_teams
 )
 from app.crud.competition_announcement import (
     create_announcement,
@@ -58,9 +58,6 @@ def create_competition(db: Session, competition_in: CompetitionCreate, current_u
 
 def list_competitions(db: Session) -> List[Competition]:
     return list_all_competitions(db)
-
-def list_competition_levels(db: Session) -> List[CompetitionLevel]:
-    return list_all_competition_levels(db)
 
 def get_competition_detail_info(db: Session, competition_id: int) -> Competition:
     """

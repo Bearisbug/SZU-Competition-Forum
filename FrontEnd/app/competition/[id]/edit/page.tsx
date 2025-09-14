@@ -5,12 +5,11 @@ import { useRouter, useParams } from "next/navigation"
 import {Input, Button, Select, SelectItem, DateInput} from "@heroui/react"
 import MyEditor from "@/components/IOEditor"
 import toast from "react-hot-toast"
-import {parseCalendarDateTime, parseDate} from "@/lib/date";
-import {Competition, CompetitionLevel, CompetitionType} from "@/modules/competition/competition.model";
+import {truncateToDate, parseCalendarDateTime, parseDate} from "@/lib/date";
+import {Competition, COMPETITION_LEVELS, UNDEFINED_COMPETITION_SUBTYPE} from "@/modules/competition/competition.model";
 import {CalendarDateTime} from "@internationalized/date";
 import {
   fetchCompetition,
-  fetchCompetitionLevels,
   updateCompetition
 } from "@/modules/competition/competition.api";
 import {uploadImage} from "@/modules/global/global.api";
@@ -27,18 +26,16 @@ function EditCompetitionPage() {
   const [name, setName] = useState("")
   const [details, setDetails] = useState("")
   const [organizer, setOrganizer] = useState("")
-  const [competitionLevelKey, setCompetitionLevelKey] = useState("");
-  const [competitionSubtypeKey, setCompetitionSubtypeKey] = useState("");
-  const [signUpStartTime, setSignUpStartTime] = useState<CalendarDateTime | null>(null)
-  const [signUpEndTime, setSignUpEndTime] = useState<CalendarDateTime | null>(null)
-  const [competitionStartTime, setCompetitionStartTime] = useState<CalendarDateTime | null>(null)
-  const [competitionEndTime, setCompetitionEndTime] = useState<CalendarDateTime | null>(null)
+  const [competitionLevel, setCompetitionLevel] = useState("");
+  const [competitionSubtype, setCompetitionSubtype] = useState("");
+  const [signUpStartDate, setSignUpStartDate] = useState<CalendarDateTime | null>(null)
+  const [signUpEndDate, setSignUpEndDate] = useState<CalendarDateTime | null>(null)
+  const [competitionStartDate, setCompetitionStartDate] = useState<CalendarDateTime | null>(null)
+  const [competitionEndDate, setCompetitionEndDate] = useState<CalendarDateTime | null>(null)
   const [coverImage, setCoverImage] = useState("")
   const [coverPreview, setCoverPreview] = useState("")
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false);
-
-  const [competitionLevels, setCompetitionLevels] = useState<CompetitionLevel[]>([]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -68,12 +65,12 @@ function EditCompetitionPage() {
       !name ||
       !details ||
       !organizer ||
-      !competitionLevelKey ||
-      !competitionSubtypeKey ||
-      !signUpStartTime ||
-      !signUpEndTime ||
-      !competitionStartTime ||
-      !competitionEndTime
+      !competitionLevel ||
+      !competitionSubtype ||
+      !signUpStartDate ||
+      !signUpEndDate ||
+      !competitionStartDate ||
+      !competitionEndDate
     ) {
       toast.error("请填写所有必填字段！")
       return
@@ -83,12 +80,12 @@ function EditCompetitionPage() {
       name,
       details,
       organizer,
-      competition_level_key: competitionLevelKey,
-      competition_subtype_key: competitionSubtypeKey,
-      sign_up_start_time: parseDate(signUpStartTime).toISOString(),
-      sign_up_end_time: parseDate(signUpEndTime).toISOString(),
-      competition_start_time: parseDate(competitionStartTime).toISOString(),
-      competition_end_time: parseDate(competitionEndTime).toISOString(),
+      competition_level: competitionLevel,
+      competition_subtype: (competitionSubtype === UNDEFINED_COMPETITION_SUBTYPE) ? null : competitionSubtype,
+      sign_up_start_time: parseDate(truncateToDate(signUpStartDate)).toISOString(),
+      sign_up_end_time: parseDate(truncateToDate(signUpEndDate)).toISOString(),
+      competition_start_time: parseDate(truncateToDate(competitionStartDate)).toISOString(),
+      competition_end_time: parseDate(truncateToDate(competitionEndDate)).toISOString(),
       cover_image: coverImage
     }
 
@@ -107,19 +104,6 @@ function EditCompetitionPage() {
     const loadResources = async () => {
       await Promise.all([
         (async () => {
-          const result = await fetchCompetitionLevels();
-
-          if (result.ok) {
-            console.log(result.value);
-            setCompetitionLevels(result.value);
-          }
-          else {
-            toast.error("比赛等级加载失败！");
-            console.log(result.value);
-            setLoadFailed(true);
-          }
-        })(),
-        (async () => {
           const result = await fetchCompetition(id as string);
 
           if (result.ok) {
@@ -128,12 +112,12 @@ function EditCompetitionPage() {
             setName(data.name)
             setDetails(data.details)
             setOrganizer(data.organizer)
-            setCompetitionLevelKey(data.competition_level_key)
-            setCompetitionSubtypeKey(data.competition_subtype_key)
-            setSignUpStartTime(parseCalendarDateTime(new Date(data.sign_up_start_time)))
-            setSignUpEndTime(parseCalendarDateTime(new Date(data.sign_up_end_time)))
-            setCompetitionStartTime(parseCalendarDateTime(new Date(data.competition_start_time)))
-            setCompetitionEndTime(parseCalendarDateTime(new Date(data.competition_end_time)))
+            setCompetitionLevel(data.competition_level)
+            setCompetitionSubtype(data.competition_subtype || UNDEFINED_COMPETITION_SUBTYPE)
+            setSignUpStartDate(parseCalendarDateTime(new Date(data.sign_up_start_time)))
+            setSignUpEndDate(parseCalendarDateTime(new Date(data.sign_up_end_time)))
+            setCompetitionStartDate(parseCalendarDateTime(new Date(data.competition_start_time)))
+            setCompetitionEndDate(parseCalendarDateTime(new Date(data.competition_end_time)))
             setCoverImage(data.cover_image)
             setCoverPreview(data.cover_image)
 
@@ -187,67 +171,71 @@ function EditCompetitionPage() {
 
         <Select
           label="比赛等级"
-          selectedKeys={[competitionLevelKey]}
+          selectedKeys={[competitionLevel]}
           onSelectionChange={(keys) => {
             const value = Array.from(keys)[0] as string;
-            setCompetitionLevelKey(value);
-            setCompetitionSubtypeKey("")
+            setCompetitionLevel(value);
+            setCompetitionSubtype("")
           }} required>
           {
-            competitionLevels.map((level) => {
+            COMPETITION_LEVELS.map((level) => {
               return (
-                <SelectItem key={level.key}>{level.translation}</SelectItem>
+                <SelectItem key={level.value}>{level.value}</SelectItem>
               );
             })
           }
         </Select>
 
-        {competitionLevelKey && (
+        {competitionLevel && (
           <Select
             label="比赛子类型"
-            selectedKeys={[competitionSubtypeKey]}
+            selectedKeys={[competitionSubtype]}
             onSelectionChange={(keys) => {
               const value = Array.from(keys)[0] as string;
-              setCompetitionSubtypeKey(value)
+              setCompetitionSubtype(value)
             }}
             required>
-            {
-              competitionLevels.find(level => (level.key == competitionLevelKey))!.subtypes.map((subtype) => {
-                return (<SelectItem key={subtype.key}>{subtype.translation}</SelectItem>)
-              })
-            }
+            {(() => {
+              const subtypes = COMPETITION_LEVELS.find(level => (level.value == competitionLevel))!.subtypes;
+
+              return (subtypes) ?
+                subtypes.map((subtype) => {
+                  return (<SelectItem key={subtype.value}>{subtype.value}</SelectItem>)
+                }) :
+                [(<SelectItem key={UNDEFINED_COMPETITION_SUBTYPE}>{UNDEFINED_COMPETITION_SUBTYPE}</SelectItem>)]
+            })()}
           </Select>
         )}
 
         <DateInput
           label="报名开始时间"
-          value={signUpStartTime}
-          onChange={setSignUpStartTime}
-          granularity={"second"}
+          value={signUpStartDate}
+          onChange={setSignUpStartDate}
+          granularity={"day"}
           isRequired
         />
 
         <DateInput
           label="报名结束时间"
-          value={signUpEndTime}
-          onChange={setSignUpEndTime}
-          granularity={"second"}
+          value={signUpEndDate}
+          onChange={setSignUpEndDate}
+          granularity={"day"}
           isRequired
         />
 
         <DateInput
           label="比赛开始时间"
-          value={competitionStartTime}
-          onChange={setCompetitionStartTime}
-          granularity={"second"}
+          value={competitionStartDate}
+          onChange={setCompetitionStartDate}
+          granularity={"day"}
           isRequired
         />
 
         <DateInput
           label="比赛结束时间"
-          value={competitionEndTime}
-          onChange={setCompetitionEndTime}
-          granularity={"second"}
+          value={competitionEndDate}
+          onChange={setCompetitionEndDate}
+          granularity={"day"}
           isRequired
         />
 
