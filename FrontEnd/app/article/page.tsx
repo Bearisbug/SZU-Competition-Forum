@@ -227,7 +227,7 @@ function ArticleListPageContent() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen gap-4">
+      <div className="flex-1 min-h-0 flex justify-center items-center h-screen gap-4">
         <Spinner size="lg" color="primary" />
         <p>加载文章中...</p>
       </div>
@@ -238,9 +238,6 @@ function ArticleListPageContent() {
     return (
       <div
         className="flex-1 min-h-0 container mx-auto p-4 flex"
-        style={{
-          marginTop: mounted ? (isLoggedIn ? "114px" : "60px") : "60px",
-        }}
       >
         <FilterSidebar
           //@ts-ignore

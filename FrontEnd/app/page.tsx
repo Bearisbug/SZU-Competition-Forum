@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import CompetitionCard from '@/components/Card/CompetitionCard';
-import toast from "react-hot-toast";
 import {Competition, CompetitionLevel} from "@/modules/competition/competition.model";
 
 export default function HomePage() {
@@ -18,9 +17,7 @@ export default function HomePage() {
       details: '全国大学生数学建模竞赛是面向全国大学生的群众性科技活动，旨在激励学生学习数学的积极性。',
       organizer: '深圳大学',
       competition_level: 'I类竞赛',
-      competition_level_key: "",
       competition_subtype: '数学建模',
-      competition_subtype_key: "",
       cover_image: '/hero-background.png',
       created_at: new Date('2024-01-01').toISOString(),
       updated_at: new Date('2024-01-01').toISOString(),
@@ -35,9 +32,7 @@ export default function HomePage() {
       details: 'ACM国际大学生程序设计竞赛是世界上公认的规模最大、水平最高的国际大学生程序设计竞赛。',
       organizer: '深圳大学',
       competition_level: 'I类竞赛',
-      competition_level_key: "",
       competition_subtype: '程序设计',
-      competition_subtype_key: "",
       cover_image: '/function-demo.png',
       created_at: new Date('2024-01-01').toISOString(),
       updated_at: new Date('2024-01-01').toISOString()
@@ -52,9 +47,7 @@ export default function HomePage() {
       details: '中国国际"互联网+"大学生创新创业大赛旨在深化高等教育综合改革，激发大学生的创造力。',
       organizer: '深圳大学',
       competition_level: 'II类竞赛',
-      competition_level_key: "",
       competition_subtype: '创业实践',
-      competition_subtype_key: "",
       cover_image: '/big-data-institute.png',
       created_at: new Date('2024-01-01').toISOString(),
       updated_at: new Date('2024-01-01').toISOString()
@@ -117,6 +110,15 @@ export default function HomePage() {
 
   return (
     <>
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
       <div className="relative flex-1 min-h-0 overflow-hidden">
       <div 
         className="absolute inset-0 transition-transform duration-1000 ease-in-out"
@@ -264,7 +266,6 @@ export default function HomePage() {
               <CompetitionCard
                 key={competition.id}
                 competition={competition}
-                competitionLevels={competitionLevels}
                 onClick={(id) => console.log('点击竞赛:', id)} />
             ))}
           </div>

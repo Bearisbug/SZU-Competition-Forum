@@ -127,8 +127,8 @@ class Competition(Base):
 
     details = Column(String, nullable=True)
     organizer = Column(String, index=True, nullable=True)
-    competition_level_key = Column(String, ForeignKey("competition_levels.key"), index=True, nullable=True)
-    competition_subtype_key = Column(String, ForeignKey("competition_subtypes.key"), index=True, nullable=True)
+    competition_level = Column(String, index=True, nullable=True)
+    competition_subtype = Column(String, index=True, nullable=True)
     cover_image = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -136,39 +136,6 @@ class Competition(Base):
 
     registrations = relationship("CompetitionRegistration", back_populates="competition")
     announcements = relationship("CompetitionAnnouncement", back_populates="competition")
-    competition_subtype_ref = relationship("CompetitionSubtype", back_populates="competitions")
-    competition_level_ref = relationship("CompetitionLevel", back_populates="competitions")
-
-class CompetitionLevel(Base):
-    """
-    比赛等级映射表
-    - key: 比赛等级键
-    - zh_CN: 中文翻译
-    """
-
-    __tablename__ = "competition_levels"
-
-    key = Column(String, primary_key=True, unique=True)
-    zh_CN = Column(String, nullable=False)
-
-    competitions = relationship("Competition", back_populates="competition_level_ref")
-    subtypes = relationship("CompetitionSubtype", back_populates="level_ref")
-
-class CompetitionSubtype(Base):
-    """
-    比赛子类型映射表
-    - key: 比赛子类型键
-    - zh_CN: 中文翻译
-    """
-
-    __tablename__ = "competition_subtypes"
-
-    key = Column(String, primary_key=True, unique=True)
-    level_key = Column(String, ForeignKey("competition_levels.key"), nullable=False)
-    zh_CN = Column(String, nullable=False)
-
-    competitions = relationship("Competition", back_populates="competition_subtype_ref")
-    level_ref = relationship("CompetitionLevel", back_populates="subtypes")
 
 class CompetitionRegistration(Base):
     """

@@ -2,7 +2,6 @@ import {API_BASE_URL} from "@/CONFIG";
 import {
   Competition,
   CompetitionAnnouncement,
-  CompetitionLevel,
   TeamInfo
 } from "@/modules/competition/competition.model";
 import {Result} from "@/lib/result";
@@ -62,35 +61,6 @@ export async function fetchCompetitions(): Promise<Result<Competition[], Error>>
     }
 
   } catch (error) {
-    return {
-      ok: false,
-      value: error as Error
-    };
-  }
-}
-
-/**
- * 获取全部赛事等级（内含赛事子类型）
- */
-export async function fetchCompetitionLevels(): Promise<Result<CompetitionLevel[], Error>> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/competitions/levels`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
-      },
-    });
-
-    if (response.ok) {
-      return {
-        ok: true,
-        value: await response.json()
-      };
-    }
-    else {
-      throwError("无法加载所有比赛等级！");
-    }
-  }
-  catch (error) {
     return {
       ok: false,
       value: error as Error

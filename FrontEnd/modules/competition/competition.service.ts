@@ -1,37 +1,22 @@
 import {FilterCategory} from "@/modules/global/global.model";
-import {fetchCompetitionLevels} from "@/modules/competition/competition.api";
-import {Result} from "@/lib/result";
+import {CompetitionFilterCategoryKey, CompetitionLevel} from "@/modules/competition/competition.model";
 
-export async function getCompetitionFilterCategories(): Promise<Result<FilterCategory[], Error>> {
-  const levelsFetchResult = await fetchCompetitionLevels();
-  if (!levelsFetchResult.ok) {
-    return {
-      ok: false,
-      value: Error("筛选相关信息获取失败！")
-    };
-  }
-
-  const filterCategories: FilterCategory[] = [
+export function getCompetitionFilterCategories(levels: CompetitionLevel[]): FilterCategory<CompetitionFilterCategoryKey>[] {
+  return [
     {
       title: "比赛等级",
       key: "competition_level",
-      options: levelsFetchResult.value.map((level) => {
+      options: levels.map((level) => {
         return {
-          label: level.translation,
-          key: level.key,
-          children: level.subtypes.map((subtype) => {
+          value: level.value,
+          children: level.subtypes ? level.subtypes.map((subtype) => {
             return {
-              label: subtype.translation,
-              key: subtype.key
+              value: subtype.value,
+              children: []
             }
-          })
+          }) : undefined
         }
       })
     }
   ];
-
-  return {
-    ok: true,
-    value: filterCategories
-  };
 }

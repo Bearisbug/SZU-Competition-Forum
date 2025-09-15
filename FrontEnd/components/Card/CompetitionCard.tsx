@@ -1,13 +1,12 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import { Trash2, Pencil } from "lucide-react";
 import { formatDate } from "@/lib/date";
-import {Competition, CompetitionLevel} from "@/modules/competition/competition.model";
+import {Competition, COMPETITION_LEVELS} from "@/modules/competition/competition.model";
 
 interface CompetitionCardProps {
   competition: Competition;
-  competitionLevels: CompetitionLevel[] | null;
   isAdmin?: boolean;
   onDelete?: (id: number) => void;
   onClick?: (id: number) => void;
@@ -21,23 +20,16 @@ const competitionLevelColors = [
 
 const CompetitionCard: React.FC<CompetitionCardProps> = ({
   competition,
-  competitionLevels,
   isAdmin = false,
   onDelete, 
   onClick
 }) => {
   if (!competition) return null;
 
-  const [competitionLevelColorDict, setCompetitionLevelColorDict] = useState<Record<string, string> | null>(null);
-  useEffect(() => {
-    if (competitionLevels) {
-      const dict: Record<string, string> = {};
-      competitionLevels.forEach((level, index) => {
-        dict[level.key] = competitionLevelColors[index % competitionLevelColors.length];
-      });
-      setCompetitionLevelColorDict(dict);
-    }
-  }, [competitionLevels])
+  const competitionLevelColorDict: Record<string, string> = {};
+  COMPETITION_LEVELS.forEach((level, index) => {
+    competitionLevelColorDict[level.value] = competitionLevelColors[index % competitionLevelColors.length];
+  });
 
   const handleClick = () => {
     if (onClick) onClick(competition.id!);
@@ -65,10 +57,15 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
             className={`text-white text-xs px-3 py-1 rounded-full font-medium`
           }
             style={{
-              backgroundColor: competitionLevelColorDict ? competitionLevelColorDict[competition.competition_level_key] : competitionLevelColors[0]
+              backgroundColor: competitionLevelColorDict[competition.competition_level]
             }}
           >
-            {`${competition.competition_level} - ${competition.competition_subtype}`}
+            {
+              competition.competition_subtype ?
+                `${competition.competition_level} - ${competition.competition_subtype}` :
+                competition.competition_level
+            }
+
           </span>
         </div>
       </div>
@@ -84,7 +81,7 @@ const CompetitionCard: React.FC<CompetitionCardProps> = ({
         />
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>
-            {formatDate(competition.created_at)}
+            {formatDate(competition.created_at!)}
           </span>
         </div>
       </div>

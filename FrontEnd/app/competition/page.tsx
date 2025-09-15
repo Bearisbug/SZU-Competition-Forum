@@ -6,19 +6,21 @@ import AppPagination from "@/components/Pagination";
 import CompetitionCard from "@/components/Card/CompetitionCard";
 import toast from "react-hot-toast";
 import { withAuth } from "@/lib/auth-guards";
-import {Competition, CompetitionLevel} from "@/modules/competition/competition.model";
+import {
+  Competition,
+  COMPETITION_FILTER_CATEGORIES,
+  CompetitionFilterCategoryKey,
+} from "@/modules/competition/competition.model";
 import {fetchMyRole} from "@/modules/global/global.api";
-import {deleteCompetition, fetchCompetitions, fetchCompetitionLevels} from "@/modules/competition/competition.api";
+import {deleteCompetition, fetchCompetitions} from "@/modules/competition/competition.api";
 import LoadingPage from "@/components/LoadingPage";
-import {FilterCategory, FilterNode} from "@/modules/global/global.model";
-import {getCompetitionFilterCategories} from "@/modules/competition/competition.service";
+import {FilterNode} from "@/modules/global/global.model";
 
 function CompetitionPageContent() {
   const router = useRouter();
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [competitionLevels, setCompetitionLevels] = useState<CompetitionLevel[] | null>(null);
-  const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
-  const [currentFilterNodeRecord, setCurrentFilterNodeRecord] = useState<Record<string, FilterNode[]>>({});
+  const [currentFilterNodeRecord, setCurrentFilterNodeRecord] =
+    useState<Record<CompetitionFilterCategoryKey, FilterNode[]>>({} as Record<CompetitionFilterCategoryKey, FilterNode[]>);
   const [currentPage, setCurrentPage] = useState(1);
   const competitionsPerPage = 6;
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,8 @@ function CompetitionPageContent() {
     console.log(`点击了帖子: ${id}`);
   };
 
-  const handleFilterNodeClick = (categoryKey: string, depth: number, node: FilterNode) => {
+  const handleFilterNodeClick =
+    (categoryKey: CompetitionFilterCategoryKey, depth: number, node: FilterNode) => {
     setCurrentFilterNodeRecord(prev => {
       const categoryNodes = prev[categoryKey] ?? [];
 
@@ -71,12 +74,12 @@ function CompetitionPageContent() {
             switch (i) {
               case 0:
                 filterResult = filterResult.filter((competition) => {
-                  return competition.competition_level_key === nodes[i].key;
+                  return competition.competition_level === nodes[i].value;
                 })
                 break;
               case 1:
                 filterResult = filterResult.filter((competition) => {
-                  return competition.competition_subtype_key === nodes[i].key;
+                  return competition.competition_subtype === nodes[i].value;
                 })
                 break;
             }
@@ -95,7 +98,7 @@ function CompetitionPageContent() {
   })();
 
   const getFilterNodeChainString = (nodes: FilterNode[]): string => {
-    return nodes.map((node) => node.label).join("-");
+    return nodes.map((node) => node.value).join("-");
   }
 
   // 分页计算
@@ -106,7 +109,7 @@ function CompetitionPageContent() {
 
   // 重置筛选
   const resetFilters = () => {
-    setCurrentFilterNodeRecord({});
+    setCurrentFilterNodeRecord({} as Record<CompetitionFilterCategoryKey, FilterNode[]>);
   };
 
   const handleDeleteCompetition = async (id: number) => {
@@ -150,30 +153,6 @@ function CompetitionPageContent() {
           }
           else {
             toast.error("加载用户角色信息失败！");
-            console.log(result.value);
-            setLoadFailed(true);
-          }
-        })(),
-        (async () => {
-          const result = await getCompetitionFilterCategories();
-
-          if (result.ok) {
-            setFilterCategories(result.value);
-          }
-          else {
-            toast.error("加载分类信息失败！");
-            console.log(result.value);
-            setLoadFailed(true);
-          }
-        })(),
-        (async () => {
-          const result = await fetchCompetitionLevels();
-
-          if (result.ok) {
-            setCompetitionLevels(result.value);
-          }
-          else {
-            toast.error("加载赛事等级失败！");
             console.log(result.value);
             setLoadFailed(true);
           }
@@ -229,7 +208,7 @@ function CompetitionPageContent() {
           <div className="w-80 flex-shrink-0">
             <div className="bg-gradient-to-b from-blue-800 to-blue-900 text-white rounded-2xl shadow-xl p-6 sticky top-20">
               {
-                filterCategories.map((category, index) => (
+                COMPETITION_FILTER_CATEGORIES.map((category, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-center mb-6 pb-3 border-b-2 border-white/30">
                       <h2 className="text-xl font-bold">{category.title}</h2>
@@ -245,7 +224,7 @@ function CompetitionPageContent() {
                     {
                       category.options.map((node0) => {
                         return (
-                          <div key={node0.key} className="mb-6">
+                          <div key={node0.value} className="mb-6">
                             <h3
                               className={`text-lg font-bold mb-3 flex items-center cursor-pointer ${
                                 ((category.key in currentFilterNodeRecord)
@@ -256,23 +235,24 @@ function CompetitionPageContent() {
                               onClick={() => handleFilterNodeClick(category.key, 0, node0)}
                             >
                               <div className="w-3 h-3 rounded-full bg-blue-300 mr-2"></div>
-                              {node0.label}
+                              {node0.value}
                             </h3>
 
                             {/* 只有选中时才显示子分类 */}
-                            {(node0.children)
-                              && (category.key in currentFilterNodeRecord)
+                            {(category.key in currentFilterNodeRecord)
                               && (currentFilterNodeRecord[category.key].length > 0)
                               && (currentFilterNodeRecord[category.key][0] == node0)
                               && (
                               <ul className="space-y-2 ml-5">
-                                {
-                                  node0.children.map((node1) => (
-                                    <li key={node1.key}>
+                                {(() => {
+                                  const children = node0.children;
+
+                                  return children ? children.map((node1) => (
+                                    <li key={node1.value}>
                                       <button
                                         className={`w-full text-left py-2 px-3 rounded-lg transition-all duration-200 text-sm ${
                                           ((category.key in currentFilterNodeRecord)
-                                            && (currentFilterNodeRecord[category.key][1] == node1)
+                                          && (currentFilterNodeRecord[category.key][1] == node1)
                                             ? "bg-pink-600 text-white shadow-md"
                                             : "bg-blue-700/40 hover:bg-pink-600/80 hover:text-white")
                                         }`}
@@ -280,11 +260,16 @@ function CompetitionPageContent() {
                                           handleFilterNodeClick(category.key, 1, node1)
                                         }
                                       >
-                                        {node1.label}
+                                        {node1.value}
                                       </button>
                                     </li>
-                                  ))
-                                }
+                                  )) :
+                                    (
+                                      <div className="text-center py-3 text-blue-200 text-sm bg-blue-700/20 rounded-lg">
+                                        <p>更多竞赛即将上线</p>
+                                      </div>
+                                    )
+                                })()}
                               </ul>
                             )}
                           </div>
@@ -328,7 +313,6 @@ function CompetitionPageContent() {
                 <CompetitionCard
                   key={card.id}
                   competition={card}
-                  competitionLevels={competitionLevels}
                   isAdmin={isAdmin}
                   onClick={(id) => handlePostClick(id)}
                   onDelete={handleDeleteCompetition}

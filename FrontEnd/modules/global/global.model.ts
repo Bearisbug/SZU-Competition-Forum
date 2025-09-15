@@ -1,11 +1,10 @@
 export type FilterNode = {
-  label: string,
-  key: string,
+  value: string,
   children?: FilterNode[]
 }
 
-export type FilterCategory = {
+export type FilterCategory<T extends string = string> = {
   title: string,
-  key: string,
+  key: T,
   options: FilterNode[]
 }
