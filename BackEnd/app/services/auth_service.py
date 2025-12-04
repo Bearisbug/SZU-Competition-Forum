@@ -145,10 +145,10 @@ CODE_FILE = BASE_DIR / "email_codes.jsonl"
 SMTP_ENABLED = os.getenv("SMTP_ENABLED", "true").lower() == "true"
 EMAIL_SEND_STRICT = os.getenv("EMAIL_SEND_STRICT", "false").lower() == "true"  # 严格模式：发送失败即报错
 lock = threading.Lock()
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.qq.com")
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.szu.edu.cn")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
-SENDER_EMAIL = os.getenv("SMTP_SENDER_EMAIL", "1992898402@qq.com")
-SENDER_PASS = os.getenv("SMTP_SENDER_PASS", "rrwrlnkeztxibeff")  # 授权码
+SENDER_EMAIL = os.getenv("SMTP_SENDER_EMAIL", "chenjunning@szu.edu.cn")
+SENDER_PASS = os.getenv("SMTP_SENDER_PASS", "u7MtSx4vauNGP3zx")  # 授权码
 
 def _norm_email(email: str) -> str:
     return (email or "").strip().lower()
